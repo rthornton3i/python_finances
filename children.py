@@ -10,4 +10,4 @@ for n in range(main.years):
         if n >= main.numChild[m] and n <= (main.numChild[m] + 22):
             ageChild[n,m] = n - main.numChild[m]
             
-print(np.concatenate((main.yearsRef, ageChild), axis=1))
+#print(np.concatenate((main.yearsRef, ageChild), axis=1))
