@@ -1,180 +1,73 @@
 import main
-import salary as sal
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 ## Mortgages
 
-# house# = [purchase year, mortgage period (yr), interest rate (#), purchase cost, down payment (#)
+# house# = [purchase year, mortgage period (yr), interest rate (%), purchase cost, down payment (%)
 #       OPT{remortgage yr2, mortgage period2, interest rate2, NaN, NaN}
 #       OPT{remortgage yr3, mortgage period3, interest rate3, NaN, NaN}]
 
-house = np.array([[[0, 30, 4.25, 400000, 10],
-                   [0, 0, 0, 0, 0],
-                   [0, 0, 0, 0, 0]],
+house = np.array([[0  , 30 , 4.25 , 400000  , 10],
+                  [14 , 20 , 4    , 750000  , 10],
+                  [29 , 10 , 3.25 , 1250000 , 10]])
 
-                  [[16, 20, 4, 750000, 10],
-                   [22, 10, 3.25, 0, 0],
-                   [0, 0, 0, 0, 0]],
+x = np.size(house,axis = 0)
 
-                  [[27, 10, 3.25, 1250000, 10],
-                   [0, 0, 0, 0, 0],
-                   [0, 0, 0, 0, 0]]])
-         
-houseBal = np.zeros((main.years,1))
-housePay = np.zeros((main.years,1))
-housePrin = np.zeros((main.years,1))
-houseInt = np.zeros((main.years,1))
+mortPeriod = np.zeros((x,2))
 
-x = np.size(house,axis = 0) 
-
-print(x)
-
-## House Payments
+housePay = np.zeros((main.years * 12,x))
+houseBal = np.zeros((main.years * 12,x))
+housePrin = np.zeros((main.years * 12,x))
+houseInt = np.zeros((main.years * 12,x)) 
+    
 for n in range(x):
-    if (isnan(house(3,1,n)) == 1) and (isnan(house(2,1,n)) == 1):
-        if n == x:
-            mortPeriod = [house(1,1,n), year]
-        else:
-            mortPeriod = [house(1,1,n), house(1,1,n + 1) - 1]     
-
-        rateInt = house(1,3,n) / (100 * 12)    #r
-        termLength = house(1,2,n) * 12         #n
-        termToDate = house(1,1,n) - 1          #p
-
-        if n == 1:
-            mortDown = (house(1,5,n)/100) * house(1,4,n)
-            mortPrin = house(1,4,n) - mortDown
-        else:
-            mortDown = (house(1,5,n)/100) * house(1,4,n)
-            sellPrice = house(1,4,n - 1) * (1.0125 ** (house(1,1,n) - house (1,1,n - 1)))
-            mortRemain = houseBal(house(1,1,n) - 1,1)
-            mortPrin = house(1,4,n) - mortDown - sellPrice + mortRemain
-
-            for m = mortPeriod(1,1):mortPeriod(1,2)
-                houseBal(m) = (mortPrin * ((1 + rateInt) ** termLength - (1 + rateInt) ** ((m - termToDate) * 12)) / ((1 + rateInt) ** termLength - 1))
-                housePay(m) = 12 * mortPrin * ((rateInt * (1 + rateInt) ** termLength) / (((1 + rateInt) ** termLength) - 1))
-    elif isnan(house(3,1,n)) == 1:
-        if n == x
-            mortPeriod1 = [house(1,1,n), house(2,1,n) - 1]
-            mortPeriod2 = [house(2,1,n), year]
-        else
-            mortPeriod1 = [house(1,1,n), house(2,1,n) - 1]
-            mortPeriod2 = [house(2,1,n), house(1,1,n + 1) - 1]
-
-        rateInt1 = house(1,3,n) / (100 * 12)    #r
-        rateInt2 = house(2,3,n) / (100 * 12)
-        termLength1 = house(1,2,n) * 12         #n
-        termLength2 = house(2,2,n) * 12
-        termToDate1 = house(1,1,n) - 1          #p
-        termToDate2 = house(2,1,n) - 1
-
-        if n == 1
-            mortDown = (house(1,5,n)/100) * house(1,4,n)
-            mortPrin1 = house(1,4,n) - mortDown
-        else
-            mortDown = (house(1,5,n)/100) * house(1,4,n)
-            sellPrice = house(1,4,n - 1) * (1.0125 ** (house(1,1,n) - house (1,1,n - 1)))
-            mortRemain = houseBal(house(1,1,n) - 1,1)
-            mortPrin1 = house(1,4,n) - mortDown - sellPrice + mortRemain
-
-            for m = mortPeriod1(1,1):mortPeriod1(1,2)
-                houseBal(m) = (mortPrin1 * ((1 + rateInt1) ** termLength1 - (1 + rateInt1) ** ((m - termToDate1) * 12)) / ((1 + rateInt1) ** termLength1 - 1))
-                housePay(m) = 12 * mortPrin1 * ((rateInt1 * (1 + rateInt1) ** termLength1) / (((1 + rateInt1) ** termLength1) - 1))
-
-        mortPrin2 = houseBal(mortPeriod1(1,2))
+    startMort = int(house[n,0] * 12)
+    endMort = int((house[n,0] + house[n,1]) * 12) - 1
+    
+    mortDown = (house[n,4]/100) * house[n,3]    
+    mortPrin = house[n,3] - mortDown
+    
+    rateInt = house[n,2] / (100 * 12)     #r - interest rate, monthly
+    termLength = house[n,1] * 12          #n - number of months
+    termCount = 0
+    
+    for m in range(startMort,endMort):
+        termCount += 1 
         
-            for m = mortPeriod2(1,1):mortPeriod2(1,2)
-                houseBal(m) = (mortPrin2 * ((1 + rateInt2) ** termLength2 - (1 + rateInt2) ** ((m - termToDate2) * 12)) / ((1 + rateInt2) ** termLength2 - 1))
-                housePay(m) = 12 * mortPrin2 * ((rateInt2 * (1 + rateInt2) ** termLength2) / (((1 + rateInt2) ** termLength2) - 1))
-    else                                                        #3 mortgages
-        if n == x
-            mortPeriod1 = [house(1,1,n), house(2,1,n) - 1]
-            mortPeriod2 = [house(2,1,n), house(3,1,n) - 1]
-            mortPeriod3 = [house(3,1,n), year]
-        else
-            mortPeriod1 = [house(1,1,n), house(2,1,n) - 1]
-            mortPeriod2 = [house(2,1,n), house(3,1,n) - 1]
-            mortPeriod3 = [house(3,1,n), house(1,1,n + 1) - 1]
+        housePay[m,n] = mortPrin * (rateInt * (1 + rateInt) ** termLength) / ((1 + rateInt) ** termLength - 1)
+        houseBal[m,n] = mortPrin * ((1 + rateInt) ** termLength - (1 + rateInt) ** termCount) / ((1 + rateInt) ** termLength - 1)
+        
+        if m > 0:
+            housePrin[m,n] = houseBal[m-1,n] - houseBal[m,n]
+            houseInt[m,n] = housePay[m,n] - housePrin[m,n]
 
-        rateInt1 = house(1,3,n) / (100 * 12)    #r
-        rateInt2 = house(2,3,n) / (100 * 12)
-        rateInt3 = house(3,3,n) / (100 * 12)
-        termLength1 = house(1,2,n) * 12         #n
-        termLength2 = house(2,2,n) * 12
-        termLength3 = house(3,2,n) * 12
-        termToDate1 = house(1,1,n) - 1          #p
-        termToDate2 = house(2,1,n) - 1
-        termToDate3 = house(3,1,n) - 1
+housePrinSum =  np.zeros((main.years,x)) 
+houseIntSum =  np.zeros((main.years,x)) 
 
-        if n == 1
-            mortDown = (house(1,5,n)/100) * house(1,4,n)
-            mortPrin1 = house(1,4,n) - mortDown
-        else
-            mortDown = (house(1,5,n)/100) * house(1,4,n)
-            sellPrice = house(1,4,n - 1) * (1.0125 ** (house(1,1,n) - house (1,1,n - 1)))
-            mortRemain = houseBal(house(1,1,n) - 1,1)
-            mortPrin1 = house(1,4,n) - mortDown - sellPrice + mortRemain
+for n in range(0,main.years):
+    tempHousePrin = np.zeros((12,x))
+    tempHousePrin = housePrin[n*12:(n*12)+11]
+    housePrinSum[n] = np.sum(tempHousePrin,axis=0)
+    
+    tempHouseInt = np.zeros((12,x))
+    tempHouseInt = houseInt[n*12:(n*12)+11]
+    houseIntSum[n] = np.sum(tempHouseInt,axis=0)
 
-            for m = mortPeriod1(1,1):mortPeriod1(1,2)
-                houseBal(m) = (mortPrin1 * ((1 + rateInt1) ** termLength1 - (1 + rateInt1) ** ((m - termToDate1) * 12)) / ((1 + rateInt1) ** termLength1 - 1))
-                housePay(m) = 12 * mortPrin1 * ((rateInt1 * (1 + rateInt1) ** termLength1) / (((1 + rateInt1) ** termLength1) - 1))
+housePrinSum = np.sum(housePrinSum,axis=1).reshape((main.years,1))
+houseIntSum = np.sum(houseIntSum,axis=1).reshape((main.years,1))
 
-        mortPrin2 = houseBal(mortPeriod1(1,2))
+## Property 
+houseWorth = np.zeros((main.years,x))
+houseProp = np.zeros((main.years,x))
+app = 0.0375
 
-            for m = mortPeriod2(1,1):mortPeriod2(1,2)
-                houseBal(m) = (mortPrin2 * ((1 + rateInt2) ** termLength2 - (1 + rateInt2) ** ((m - termToDate2) * 12)) / ((1 + rateInt2) ** termLength2 - 1))
-                housePay(m) = 12 * mortPrin2 * ((rateInt2 * (1 + rateInt2) ** termLength2) / (((1 + rateInt2) ** termLength2) - 1))
+for n in range(x):
+    for m in range(main.years):
+        if m >= house[n,0]:
+            houseWorth[m,n] = house[n,3] * ((1 + app) ** (m - house[n,0]))
+            houseProp[m,n] = 0.015 * houseWorth[m,n]
 
-        mortPrin3 = houseBal(mortPeriod2(1,2))
-
-            for m = mortPeriod3(1,1):mortPeriod3(1,2)
-                houseBal(m) = (mortPrin3 * ((1 + rateInt3) ** termLength3 - (1 + rateInt3) ** ((m - termToDate3) * 12)) / ((1 + rateInt3) ** termLength3 - 1))
-                housePay(m) = 12 * mortPrin3 * ((rateInt3 * (1 + rateInt3) ** termLength3) / (((1 + rateInt3) ** termLength3) - 1))
-#
-### Balance and Payment
-#for n in range(main.years):
-#    if houseBal(n) < 0
-#        houseBal(n) = 0
-#
-#for n = 2:year
-#    if (houseBal(n - 1) == 0) and (houseBal(n) == 0)
-#        housePay(n) = 0
-#
-### Principal & Interest
-#for i = 1:x
-#    for n = house(1,1,i)
-#        if i == 1
-#            mortDown = (house(1,5,i)/100) * house(1,4,i)
-#            mortPrin = house(1,4,i) - mortDown
-#        else
-#            mortDown = (house(1,5,i)/100) * house(1,4,i)
-#            sellPrice = house(1,4,i - 1) * (1.0125 ** (house(1,1,i) - house (1,1,i - 1)))
-#            mortRemain = houseBal(house(1,1,i) - 1,1)
-#            mortPrin = house(1,4,i) - mortDown - sellPrice + mortRemain
-#            
-#        housePrin(n) = mortPrin - houseBal(n)
-#        houseInt(n) = housePay(n) - housePrin(n)
-#
-#for n = [house(1,1,1) + 1:house(1,1,2) - 1, house(1,1,2) + 1:house(1,1,3) - 1, house(1,1,3) + 1:year]
-#    housePrin(n) = houseBal(n - 1) - houseBal(n)
-#    houseInt(n) = housePay(n) - housePrin(n)
-#
-### Property 
-#houseWorth = np.zeros((main.years,1))
-#houseProp = np.zeros((main.years,1))
-#
-#for i = 1:x
-#    if i == x
-#        for n = house(1,1,i):year
-#            houseWorth(n) = house(1,4,i) * (1.0125 ** (n - house(1,1,i)))
-#            houseProp(n) = 0.02 * houseWorth(n)
-#            
-#    else
-#        for n = house(1,1,i):house(1,1,i + 1) - 1
-#            houseWorth(n) = house(1,4,i) * (1.0125 ** (n - house(1,1,i)))
-#            houseProp(n) = 0.02 * houseWorth(n)
-#
-### TOTAL
-#totalMortgage = aptRent + housePay + houseProp
-#percMort = totalMortgage ./ netEarnings
+print(houseWorth)
+#plt.plot(housePay)

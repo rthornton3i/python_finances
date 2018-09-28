@@ -33,4 +33,3 @@ for n in range(main.years):
         
 
 #plt.plot(salary)
-#plt.show()
