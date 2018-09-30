@@ -1,8 +1,10 @@
 import main
 import salary as sal
+import mortgage as mort
 import deductions as deds
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 ## Miscellaneous Taxes
 socialSecurity = .062
@@ -36,14 +38,18 @@ for n in range(main.years):
 
 miscTaxes = ssTax + mTax + amTax
 
-## State Taxes
+## State, Local, & Property Taxes
+localTaxPercent = 0.025
 stateTaxPercent = np.zeros((main.years,1))
 stateTaxOwed = np.zeros((main.years,1))
 bracketState = np.zeros((main.years,1))
 stateGrossIncome = np.zeros((main.years,1))
 
-for n in range(years):
-    stateGrossIncome[n] = sal.salary[n] - 
+for n in range(main.years):
+    if deds.itemStateDed[n] > deds.stdStateDed[n]:
+        stateGrossIncome[n] = sal.salary[n] - deds.totalStateEx[n] - deds.itemStateDed[n]
+    else:
+        stateGrossIncome[n] = sal.salary[n] - deds.totalStateEx[n] - deds.stdStateDed[n]
 
 bracketState1 = 1000
 bracketState2 = 2000
@@ -83,83 +89,73 @@ for n in range(main.years):
         stateTaxOwed[n] = 10947.5
         bracketState[n] = bracketState6
     else:
-        stateTaxPercent[n] = .0575
+        stateTaxPercent[n] = 0.0575
         stateTaxOwed[n] = 15072.5
         bracketState[n] = bracketState7
 
-stateTaxes = np.zeros((main.years,1))
+stateLocalPropTaxes = np.zeros((main.years,1))
 
 for n in range(main.years):              
-    stateTaxes[n] = stateTaxOwed[n] + (stateTaxPercent[n] * (sal.salary[n] - bracketState[n]))
+    stateLocalPropTaxes[n] = stateTaxOwed[n] + ((stateTaxPercent[n] + localTaxPercent) * (stateGrossIncome[n] - bracketState[n])) + mort.housePropSum[n]
 
-## Local Taxes
-localTaxPercent = 0.025
+## Federal Taxes
+fedTaxPercent = np.zeros((main.years,1))
+fedTaxOwed = np.zeros((main.years,1))
+bracketFed = np.zeros((main.years,1))
+fedGrossIncome = np.zeros((main.years,1))
 
-## Property Taxes
-propTax = 0.015
+deds.itemFedDed = deds.itemFedDed + stateLocalPropTaxes
 
-### Federal Taxes
-        
-#grossDedEarnings = sal.salary - totalDed
-#
-#fedTaxPercent = np.zeros((main.years,1))
-#fedTaxOwed = np.zeros((main.years,1))
-#bracketFed = np.zeros((main.years,1))
-#
-#if filing == 1:
-#    bracketFed1 = 77400
-#    bracketFed2 = 165000
-#    bracketFed3 = 315000
-#    bracketFed4 = 400000
-#    bracketFed5 = 600000
-#
-#    for n in range(main.years):
-#        if grossDedEarnings[n] < bracketFed1:
-#            fedTaxPercent[n] = 0
-#            fedTaxOwed[n] = 0
-#            bracketFed[n] = 0
-#        elif (grossDedEarnings[n] > bracketFed1) and (grossDedEarnings[n] < bracketFed2):
-#            fedTaxPercent[n] = .22
-#            fedTaxOwed[n] = 10452.5
-#            bracketFed[n] = bracketFed1
-#        elif (grossDedEarnings[n] > bracketFed2) and (grossDedEarnings[n] < bracketFed3):
-#            fedTaxPercent[n] = .24
-#            fedTaxOwed[n] = 29752.5
-#            bracketFed[n] = bracketFed2
-#        elif (grossDedEarnings[n] > bracketFed3) and (grossDedEarnings[n] < bracketFed4):
-#            fedTaxPercent[n] = .32
-#            fedTaxOwed[n] = 52222.5
-#            bracketFed[n] = bracketFed3
-#        elif (grossDedEarnings[n] > bracketFed4) and (grossDedEarnings[n] < bracketFed5):
-#            fedTaxPercent[n] = .35
-#            fedTaxOwed[n] = 112728
-#            bracketFed[n] = bracketFed4
-#        elif grossDedEarnings[n] > bracketFed5:
-#            fedTaxPercent[n] = .37
-#            fedTaxOwed[n] = 131628
-#            bracketFed[n] = bracketFed5  
-#    
-#elif filing ==2:
-#    bracketFed1 = 38700
-#    bracketFed2 = 82500
-#
-#    for n in range(main.years):
-#        if grossDedEarnings[n] < bracketFed1:
-#            fedTaxPercent[n] = 0
-#            fedTaxOwed[n] = 0
-#            bracketFed[n] = 0
-#        elif (grossDedEarnings[n] > bracketFed1) and (grossDedEarnings[n] < bracketFed2):
-#            fedTaxPercent[n] = .22
-#            fedTaxOwed[n] = 4453.5
-#            bracketFed[n] = bracketFed1
-#        elif grossDedEarnings[n] > bracketFed2:
-#            fedTaxPercent[n] = .24
-#            fedTaxOwed[n] = 14090
-#            bracketFed[n] = bracketFed2
-#
-#fedTaxes = np.zeros((main.years,1))
-#
-#for n in range(main.years):
-#    fedTaxes[n] = fedTaxOwed[n] + (fedTaxPercent[n] * (grossDedEarnings[n] - bracketFed[n]))
-#    if fedTaxes[n] < 0:
-#        fedTaxes[n] = 0
+for n in range(main.years):
+    if deds.itemFedDed[n] > deds.stdFedDed[n]:
+        fedGrossIncome[n] = sal.salary[n] - deds.itemFedDed[n]
+    else:
+        fedGrossIncome[n] = sal.salary[n] - deds.stdFedDed[n]
+
+bracketFed1 = 19050
+bracketFed2 = 77400
+bracketFed3 = 165000
+bracketFed4 = 315000
+bracketFed5 = 400000
+bracketFed6 = 600000
+
+for n in range(main.years):
+    if sal.salary[n] < bracketFed1:
+        fedTaxPercent[n] = 0.1
+        fedTaxOwed[n] = 0
+        bracketFed[n] = 0
+    elif sal.salary[n] < bracketFed2:
+        fedTaxPercent[n] = 0.12
+        fedTaxOwed[n] = 1905
+        bracketFed[n] = bracketFed1
+    elif sal.salary[n] < bracketFed3:
+        fedTaxPercent[n] = 0.22
+        fedTaxOwed[n] = 8907
+        bracketFed[n] = bracketFed2
+    elif sal.salary[n] < bracketFed4:
+        fedTaxPercent[n] = 0.24
+        fedTaxOwed[n] = 28179
+        bracketFed[n] = bracketFed3
+    elif sal.salary[n] < bracketFed5:
+        fedTaxPercent[n] = 0.32
+        fedTaxOwed[n] = 64179
+        bracketFed[n] = bracketFed4
+    elif sal.salary[n] < bracketFed6:
+        fedTaxPercent[n] = 0.35
+        fedTaxOwed[n] = 91379
+        bracketFed[n] = bracketFed5
+    else:
+        fedTaxPercent[n] = 0.37
+        fedTaxOwed[n] = 161379
+        bracketFed[n] = bracketFed6
+
+fedTaxes = np.zeros((main.years,1))
+
+for n in range(main.years):              
+    fedTaxes[n] = fedTaxOwed[n] + (fedTaxPercent[n] * (fedGrossIncome[n] - bracketFed[n]))
+    
+totalTaxes = fedTaxes + stateLocalPropTaxes
+
+netIncome = sal.salary - totalTaxes
+
+#plt.plot(netIncome)

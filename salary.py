@@ -10,7 +10,7 @@ salaryMax = main.salaryBase * (1 + salaryGrowthRate) ** main.years
 salary = np.zeros((main.years,1))
 
 for n in range(main.years):
-    dev = 0.1
+    dev = 0
     rMin = 1 - dev
     rMax = 1 + dev
     r = rMin + (rMax - rMin) * rand.random()
