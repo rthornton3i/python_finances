@@ -12,12 +12,23 @@ for n in range(1,main.years):
     if n % 5 == 0:
         roth401Percent[n:main.years] = roth401Percent[n] + 0.01
 
-#for n in range(main.years):
-#    if roth401Percent:
+for n in range(main.years):
+    if roth401Percent[n] <= 0.04:
+        roth401MatchPercent[n] = roth401Percent[n]
+    elif roth401Percent[n] <= 0.1:
+        roth401MatchPercent[n] = 0.04 + ((roth401Percent[n] - 0.04) * .5)
+    else:
+        roth401MatchPercent[n] = 0.07
         
 roth401 = roth401Percent * tx.netIncome
-#roth401Match = roth401MatchPercent * tx.netIncome
+roth401Match = roth401MatchPercent * tx.netIncome
 
+for n in range(main.years):
+    if roth401[n] > 18500:
+        roth401[n] = 18500
+    if roth401Match[n] > 18500:
+        roth401Match[n] = 18500
+        
 rothIRA = 0
 
 ## Benefits

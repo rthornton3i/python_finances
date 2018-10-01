@@ -1,31 +1,37 @@
 import main
+import salary as sal
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-# house# = [purchase year, mortgage period (yr), interest rate (%), purchase cost, down payment (%)
-#       OPT{remortgage yr2, mortgage period2, interest rate2, NaN, NaN}
-#       OPT{remortgage yr3, mortgage period3, interest rate3, NaN, NaN}]
+# house# = [purchase year, mortgage period (yr), interest rate (%), purchase cost, down payment (%)]
 
-house = np.array([[0  , 30 , 4.25 , 400000  , 10],
-                  [10 , 20 , 4    , 800000  , 10],
-                  [20 , 20 , 3.5  , 1500000 , 10],
-                  [30 , 10 , 3.25 , 2750000 , 10]])
+house = np.array([[6  , 30 , 4.25 , 400000  , 10],
+                  [18 , 20 , 4    , 650000  , 10],
+                  [30 , 10 , 3.75 , 1250000 , 10]])
 
-x = np.size(house,axis = 0)
+numHouse = np.size(house,axis = 0)
+
+## Rent
+rentPay = np.zeros((main.years,1))
+
+for n in range(int(house[0,0])):
+    rentPay[n] = 0.2 * sal.salary[n]
+    
+rentPay[0] = 1700 * 12
 
 ## Property 
-houseWorth = np.zeros((main.years,x))
-houseProp = np.zeros((main.years,x))
+houseWorth = np.zeros((main.years,numHouse))
+houseProp = np.zeros((main.years,numHouse))
 app = 0.0375
 
-for n in range(x):
+for n in range(numHouse):
     for m in range(main.years):
         if m >= house[n,0]:
             houseWorth[m,n] = house[n,3] * ((1 + app) ** (m - house[n,0]))
             houseProp[m,n] = 0.015 * houseWorth[m,n]
 
-for n in range(x-1):
+for n in range(numHouse-1):
     for m in range(main.years):
         if m >= house[n+1,0]:
             houseWorth[m,n] = 0
@@ -35,16 +41,18 @@ houseWorthSum = np.sum(houseWorth, axis=1).reshape((main.years,1))
 housePropSum = np.sum(houseProp, axis=1).reshape((main.years,1))
 
 ## Mortgage
-mortPeriod = np.zeros((x,2))
+mortPeriod = np.zeros((numHouse,2))
 
-housePay = np.zeros((main.years * 12,x))
-houseBal = np.zeros((main.years * 12,x))
-housePrin = np.zeros((main.years * 12,x))
-houseInt = np.zeros((main.years * 12,x)) 
+housePay = np.zeros((main.years * 12,numHouse))
+houseBal = np.zeros((main.years * 12,numHouse))
+housePrin = np.zeros((main.years * 12,numHouse))
+houseInt = np.zeros((main.years * 12,numHouse)) 
     
-for n in range(x):
+for n in range(numHouse):
     startMort = int(house[n,0] * 12)
     endMort = int((house[n,0] + house[n,1]) * 12) - 1
+    if endMort > (main.years * 12) - 1:
+        endMort = (main.years * 12) - 1
     
     mortDown = (house[n,4]/100) * house[n,3]  
     
@@ -55,7 +63,7 @@ for n in range(x):
     if n == 0:
         mortPrin = house[n,3] - mortDown
     else:
-        mortPrin = house[n,3] - mortDown - houseWorth[int(house[n,0]),n-1]
+        mortPrin = house[n,3] - mortDown - houseWorthSum[int(house[n-1,0])]
         
         if mortPrin < 0:
             mortPrin = 0
@@ -73,19 +81,19 @@ for n in range(x):
         
         houseInt[m,n] = housePay[m,n] - housePrin[m,n]
 
-houseBalSum = np.zeros((main.years,x))
-housePrinSum =  np.zeros((main.years,x)) 
-houseIntSum =  np.zeros((main.years,x)) 
+houseBalSum = np.zeros((main.years,numHouse))
+housePrinSum =  np.zeros((main.years,numHouse)) 
+houseIntSum =  np.zeros((main.years,numHouse)) 
 
 for n in range(main.years):
-    for m in range(x):
+    for m in range(numHouse):
         houseBalSum[n,m] = houseBal[n*12,m]
     
-    tempHousePrin = np.zeros((12,x))
+    tempHousePrin = np.zeros((12,numHouse))
     tempHousePrin = housePrin[n*12:(n*12)+11]
     housePrinSum[n] = np.sum(tempHousePrin,axis=0)
     
-    tempHouseInt = np.zeros((12,x))
+    tempHouseInt = np.zeros((12,numHouse))
     tempHouseInt = houseInt[n*12:(n*12)+11]
     houseIntSum[n] = np.sum(tempHouseInt,axis=0)
 
@@ -93,8 +101,17 @@ housePrinSum = np.sum(housePrinSum,axis=1).reshape((main.years,1))
 houseIntSum = np.sum(houseIntSum,axis=1).reshape((main.years,1))
 
 houseBalSum = np.sum(houseBalSum,axis=1).reshape((main.years,1))
-housePaySum = housePrinSum + houseIntSum + housePropSum
+housePaySum = housePrinSum + houseIntSum + housePropSum + rentPay
 
+percMortSal = np.zeros((main.years,1))
+
+for n in range(main.years):
+    percMortSal[n] = housePaySum[n] / sal.salary[n]
+    
 #plt.plot(houseBalSum)
+#plt.plot(housePaySum)
 #plt.plot(housePrinSum)
 #plt.plot(houseIntSum)
+
+#plt.plot(sal.salary)
+#plt.plot(percMortSal)

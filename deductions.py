@@ -1,6 +1,7 @@
 import main
 import salary as sal
 import mortgage as mort
+import expenses as ex
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,7 +14,7 @@ propDed = mort.housePropSum
 loanDed = mort.houseIntSum
  
 # Charitable Donations  
-charDed = 0 
+charDed = ex.charExpense 
 
 # Traditional 401k & IRA
 trad401 = 0
