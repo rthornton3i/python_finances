@@ -114,5 +114,7 @@ for n in range(main.years):
 #plt.plot(housePrinSum)
 #plt.plot(houseIntSum)
 
-#plt.plot(sal.salary)
+#plt.plot(houseWorthSum)
+#plt.plot(housePropSum)
+
 #plt.plot(percMortSal)

@@ -30,14 +30,14 @@ for n in range(main.years):
     for m in range(len(allocations)):
         if n == 0:
             savingsAlloc[n,m] = allocations[m][0]
-        elif n < 10:
-            savingsAlloc[n,m] = (((n % 10) / 10) * (allocations[m][1] - allocations[m][0])) + allocations[m][0]
-        elif n < 20:
-            savingsAlloc[n,m] = (((n % 10) / 10) * (allocations[m][2] - allocations[m][1])) + allocations[m][1]
-        elif n < 30:
-            savingsAlloc[n,m] = (((n % 10) / 10) * (allocations[m][3] - allocations[m][2])) + allocations[m][2]
-        elif n < 39:
-            savingsAlloc[n,m] = (((n % 10) / 10) * (allocations[m][4] - allocations[m][3])) + allocations[m][3]
+        elif n < int(main.years/4):
+            savingsAlloc[n,m] = (((n % int(main.years/4)) / int(main.years/4)) * (allocations[m][1] - allocations[m][0])) + allocations[m][0]
+        elif n < int(main.years/4)*2:
+            savingsAlloc[n,m] = (((n % int(main.years/4)) / int(main.years/4)) * (allocations[m][2] - allocations[m][1])) + allocations[m][1]
+        elif n < int(main.years/4)*3:
+            savingsAlloc[n,m] = (((n % int(main.years/4)) / int(main.years/4)) * (allocations[m][3] - allocations[m][2])) + allocations[m][2]
+        elif n < main.years-1:
+            savingsAlloc[n,m] = (((n % int(main.years/4)) / int(main.years/4)) * (allocations[m][4] - allocations[m][3])) + allocations[m][3]
         else:
             savingsAlloc[n,m] = allocations[m][4]
 

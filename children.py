@@ -1,7 +1,6 @@
 import main
 
 import numpy as np
-import random as rand
 
 ageChild = np.zeros((main.years,len(main.numChild)))
 

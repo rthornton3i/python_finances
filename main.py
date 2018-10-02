@@ -1,7 +1,9 @@
 import numpy as np
 
 years = 40
-yearsRef = np.arange(23,23+years).reshape((years,1))
+
+startAge = 23
+yearsRef = np.arange(startAge,startAge+years).reshape((years,1))
 yrs = np.arange(years).reshape((years,1))
 
 salaryBase = 160000

@@ -87,9 +87,9 @@ for i in range(loopLen):
 #print(shortTerm[5:10])
 #print(totalCont[main.years-1])
 
-#plt.clf()
-#plt.hist(totalWorth)
-#print(np.mean(totalWorth))
+plt.clf()
+plt.hist(totalWorth)
+print(np.mean(totalWorth))
 
 #plt.subplot(211)
 #plt.plot(contributionsSav,linewidth=2)

@@ -31,5 +31,5 @@ for n in range(main.years):
     elif main.growth == 4:
         salary[n] = (main.salaryBase + (1 - np.exp(-n * r * salaryGrowthRate)) * salaryMax)
         
-
-#plt.plot(salary)
+plt.clf()
+plt.plot(salary)

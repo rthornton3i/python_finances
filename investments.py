@@ -6,7 +6,7 @@ import numpy as np
 import random as rand
 import matplotlib.pyplot as plt
 
-loopLen = 5
+loopLen = 1
 earningsAlloc = np.zeros((loopLen,main.years,len(al.allocations)))
 
 #0) hiDiv
