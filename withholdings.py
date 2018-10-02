@@ -35,7 +35,7 @@ for n in range(main.years):
     elif trad401[n] + roth401Match[n] > 18500:
         roth401Match[n] = 18500 - trad401Match[n]
         
-rothIRA = 0
+rothIRA = np.full((main.years,1),0)
 
 ## Benefits
 # Medical
@@ -45,13 +45,13 @@ healthCont = np.zeros((main.years,1))
 healthCont = monthlyHealthPrem * 12 * 2
 
 # Vision
-visPrem = 0
+visPrem = 10
 visCont = np.zeros((main.years,1))
 
 visCont = visPrem * 12 * 2
 
 # Dental
-denPrem = 0
+denPrem = 20
 denCont = np.zeros((main.years,1))
 
 denCont = denPrem * 12 * 2

@@ -16,8 +16,9 @@ for n in range(main.years):
     r = rMin + (rMax - rMin) * rand.random()
 
     if main.growth == 1:
+        randFactor = rand.randint(75,95)/100
         initialValueFactor = (salaryMax / main.salaryBase) * (main.years / 5)
-        growthFactor = np.log(((1 / .95) - 1) / initialValueFactor) / ((-7/8) * main.years)
+        growthFactor = np.log(((1 / .95) - 1) / initialValueFactor) / ((-randFactor) * main.years)
 
         rMin = rMin * growthFactor
         rMax = rMax * growthFactor
@@ -31,5 +32,5 @@ for n in range(main.years):
     elif main.growth == 4:
         salary[n] = (main.salaryBase + (1 - np.exp(-n * r * salaryGrowthRate)) * salaryMax)
         
-plt.clf()
-plt.plot(salary)
+#plt.clf()
+#plt.plot(salary)

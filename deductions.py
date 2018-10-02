@@ -41,11 +41,11 @@ for n in range(main.years):
     if trad401Match[n] > 18500:
         trad401Match[n] = 18500
 
-tradIRA = 0
+tradIRA = np.full((main.years,1),0)
 
 # HSA & FSA  
-hsaCont = 0  
-fsaCont = 0
+hsaCont = np.full((main.years,1),0)  
+fsaCont = np.full((main.years,1),0)
 
 ### Federal Taxes
 ## Deductions
@@ -54,7 +54,7 @@ stdFedDed = np.full((main.years,1),24000)
 
 # Itemized
 itemFedDed = propDed + loanDed + charDed + trad401 + tradIRA + hsaCont + fsaCont
-        
+
 ### State Taxes
 ## Deductions
 # Standard Deduction

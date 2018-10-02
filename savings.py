@@ -1,4 +1,5 @@
 import main
+import salary as sal
 import allocations as al
 import withholdings as wh
 import deductions as deds
@@ -9,10 +10,11 @@ import importlib as il
 import numpy as np
 import matplotlib.pyplot as plt
 
-loopLen = 250
-totalWorth = []
+loopLen = 1000
+totalWorth, initWorth = [], []
 
 for i in range(loopLen):
+    il.reload(sal)
     il.reload(ex)
     il.reload(inv)
     
@@ -77,18 +79,19 @@ for i in range(loopLen):
         shortTerm[n] = (1 + inv.meanEarningsAlloc[n,9]) * shortTerm[n]
         excSpend[n] = (1 + inv.meanEarningsAlloc[n,10]) * excSpend[n]
     
-    #contributions = np.concatenate((hiDiv,ltLowVol,largeCap,stHiVol,retRoth401,retTrad401,col529,emergFunds,medTerm,shortTerm,excSpend),axis = 1)
+    contributions = np.concatenate((hiDiv,ltLowVol,largeCap,stHiVol,retRoth401,retTrad401,col529,emergFunds,medTerm,shortTerm,excSpend),axis = 1)
     contributionsInv = np.concatenate((hiDiv,ltLowVol,largeCap,stHiVol,retRoth401,retTrad401),axis = 1)
     contributionsSav = np.concatenate((col529,emergFunds,medTerm,shortTerm,excSpend),axis = 1)
-    tempTotalWorth = hiDiv + ltLowVol + largeCap + stHiVol + retRoth401 + retTrad401 + col529 + emergFunds + medTerm + shortTerm + excSpend 
-    totalWorth.append(int(tempTotalWorth[-1]))
     
-#print((totalCont[0]/2) - 4000)
-#print(shortTerm[5:10])
-#print(totalCont[main.years-1])
+    tempTotalWorth = hiDiv + ltLowVol + largeCap + stHiVol + retRoth401 + retTrad401 + col529 + emergFunds + medTerm + shortTerm + excSpend 
+    
+    totalWorth.append(int(tempTotalWorth[-1]))
+    initWorth.append(int(tempTotalWorth[0]))
+    
+#print((np.mean(initWorth)/2) - 4000)
 
-plt.clf()
-plt.hist(totalWorth)
+#plt.clf()
+#plt.hist(totalWorth)
 print(np.mean(totalWorth))
 
 #plt.subplot(211)
