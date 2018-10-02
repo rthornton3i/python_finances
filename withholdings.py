@@ -1,5 +1,6 @@
 import main
 import taxes as tx
+from deductions import trad401, trad401Match
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,10 +25,15 @@ roth401 = roth401Percent * tx.netIncome
 roth401Match = roth401MatchPercent * tx.netIncome
 
 for n in range(main.years):
-    if roth401[n] > 18500:
-        roth401[n] = 18500
-    if roth401Match[n] > 18500:
-        roth401Match[n] = 18500
+    if trad401[n] >= 18500:
+        roth401[n] = 0
+    elif trad401[n] + roth401[n] > 18500:
+        roth401[n] = 18500 - trad401[n]
+            
+    if trad401Match[n] >= 18500:
+        roth401Match[n] = 0
+    elif trad401[n] + roth401Match[n] > 18500:
+        roth401Match[n] = 18500 - trad401Match[n]
         
 rothIRA = 0
 

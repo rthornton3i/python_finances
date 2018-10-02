@@ -9,17 +9,17 @@ import matplotlib.pyplot as plt
 # savings =     [yr 0, yr 10, yr 20, yr 30, yr 40]
 
 # Investments/Savings
-allocations = [[7.5  , 7.5  , 10   , 17.5 , 15],    #hiDiv
-               [7.5  , 7.5  , 7.5  , 12.5 , 15],    #ltLowVol
-               [7.5  , 5    , 7.5  , 12.5 , 7.5],   #largeCap
-               [12.5 , 10   , 7.5  , 5    , 5],     #stHiVol
-               [0    , 0    , 0    , 5    , 12.5],  #retRoth401
-               [0    , 0    , 0    , 0    , 0],     #retTrad401
-               [0    , 17.5 , 15   , 0    , 0],     #col529
-               [5    , 2.5  , 5    , 5    , 5],     #emergFunds
-               [30   , 20   , 30   , 25   , 25],    #medTerm
-               [15   , 20   , 7.5  , 10   , 7.5],   #shortTerm
-               [15   , 10   , 10   , 7.5  , 7.5]]   #excSpend
+allocations = [[7.5  , 7.5  , 12.5 , 15   , 15   ],     #hiDiv
+               [7.5  , 7.5  , 7.5  , 15   , 12.5 ],     #ltLowVol
+               [7.5  , 10   , 7.5  , 10   , 7.5  ],     #largeCap
+               [12.5 , 12.5 , 7.5  , 5    , 0    ],     #stHiVol
+               [0    , 0    , 0    , 0    , 0    ],     #retRoth401
+               [0    , 0    , 0    , 0    , 0    ],     #retTrad401
+               [0    , 5    , 10   , 0    , 0    ],     #col529
+               [5    , 2.5  , 5    , 2.5  , 2.5  ],     #emergFunds
+               [30   , 25   , 30   , 32.5 , 40   ],     #medTerm
+               [15   , 22.5 , 10   , 10   , 10   ],     #shortTerm
+               [15   , 7.5  , 10   , 10   , 12.5 ]]     #excSpend
 
 #savingsCheck = np.sum(allocations,axis=0)
 #print(savingsCheck)
@@ -55,4 +55,4 @@ for n in range(main.years):
         savingsCont[n,m] = savingsAlloc[n,m] * netSavings[n]
 
 #print(savingsCont)
-#plt.plot(savingsCont)
+#plt.plot(netSavings)

@@ -17,9 +17,32 @@ loanDed = mort.houseIntSum
 charDed = ex.charExpense 
 
 # Traditional 401k & IRA
-trad401 = 0
+trad401Percent = np.full((main.years,1),0)
+trad401MatchPercent = np.zeros((main.years,1))
+
+for n in range(1,main.years):
+    if n % 5 == 0:
+        trad401Percent[n:main.years] = trad401Percent[n] + 0
+
+for n in range(main.years):
+    if trad401Percent[n] <= 0.04:
+        trad401MatchPercent[n] = trad401Percent[n]
+    elif trad401Percent[n] <= 0.1:
+        trad401MatchPercent[n] = 0.04 + ((trad401Percent[n] - 0.04) * .5)
+    else:
+        trad401MatchPercent[n] = 0.07
+        
+trad401 = trad401Percent * sal.salary
+trad401Match = trad401MatchPercent * sal.salary
+
+for n in range(main.years):
+    if trad401[n] > 18500:
+        trad401[n] = 18500
+    if trad401Match[n] > 18500:
+        trad401Match[n] = 18500
+
 tradIRA = 0
-  
+
 # HSA & FSA  
 hsaCont = 0  
 fsaCont = 0

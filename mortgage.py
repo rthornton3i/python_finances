@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 
 # house# = [purchase year, mortgage period (yr), interest rate (%), purchase cost, down payment (%)]
 
-house = np.array([[6  , 30 , 4.25 , 400000  , 10],
-                  [18 , 20 , 4    , 650000  , 10],
-                  [30 , 10 , 3.75 , 1250000 , 10]])
+house = np.array([[5  , 30 , 4.25 , 450000  , 10 ],
+                  [18 , 20 , 4    , 700000  , 10 ],
+                  [28 , 20 , 3.5  , 1500000 , 10 ]])
 
 numHouse = np.size(house,axis = 0)
 
@@ -16,7 +16,7 @@ numHouse = np.size(house,axis = 0)
 rentPay = np.zeros((main.years,1))
 
 for n in range(int(house[0,0])):
-    rentPay[n] = 0.2 * sal.salary[n]
+    rentPay[n] = 0.175 * sal.salary[n]
     
 rentPay[0] = 1700 * 12
 
@@ -108,6 +108,7 @@ percMortSal = np.zeros((main.years,1))
 for n in range(main.years):
     percMortSal[n] = housePaySum[n] / sal.salary[n]
     
+#plt.clf()
 #plt.plot(houseBalSum)
 #plt.plot(housePaySum)
 #plt.plot(housePrinSum)

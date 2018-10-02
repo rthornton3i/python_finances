@@ -9,10 +9,23 @@ import matplotlib.pyplot as plt
 
 ## Periodic Expenses
 # Holidays
-numFamily = 7
+numFamily = np.full((main.years,1),7)
+familyBday = np.zeros((main.years,1))
+familyXmas = np.zeros((main.years,1))
 
-familyBday = 50 * numFamily
-familyXmas = 50 * numFamily
+addKid = [6,8,10,10,12,13,14]
+removeKid = [x+20 for x in addKid]
+
+for n in range(main.years):
+    for kid in addKid:
+        if n == kid:
+            numFamily[n:] = numFamily[n] + 1
+    for kid in removeKid:
+        if n == kid:
+            numFamily[n:] = numFamily[n] - 1
+    
+    familyBday[n] = 50 * numFamily[n]
+    familyXmas[n] = 50 * numFamily[n]
 
 childBday = np.zeros((main.years,len(main.numChild)))
 childXmas = np.zeros((main.years,len(main.numChild)))
@@ -33,7 +46,7 @@ anniv = 300
 
 totalHol = np.zeros((main.years,1))
 for n in range(main.years):
-    totalHol[n] = familyBday + familyXmas + bday + xmas + valDay + anniv + childBday[n] + childXmas[n]
+    totalHol[n] = bday + xmas + valDay + anniv + familyBday[n] + familyXmas[n] + childBday[n] + childXmas[n]
 
 # Subscriptions
 nflx = 120
@@ -52,7 +65,7 @@ utilGas = np.zeros((main.years,1))
 utilWater = np.zeros((main.years,1))
 
 for n in range(main.years):
-    repHouse[n] = mort.houseWorthSum[n] * 0.01
+    repHouse[n] = mort.houseWorthSum[n] * 0.015
     insHouse[n] = mort.houseWorthSum[n] * 0.005
     utilElec[n] = (35 + ((35/500000) * mort.houseWorthSum[n])) * 12
     utilGas[n] = (20 + ((20/500000) * mort.houseWorthSum[n])) * 12
@@ -62,24 +75,24 @@ totalHouse = repHouse + insHouse + utilElec + utilGas + utilWater
 
 # Auto
 # carYears = [purchase Yr, sell Yr, amount ($), down payment ($)]
-carYears = [[0  , 8  , 23500 , 5000],   #Rich
-            [0  , 10 , 19500 , 4000],   #Becca
-            [8  , 16 , 25000 , 5000],   #Crossover1
-            [10 , 18 , 25000 , 7500],   #Sedan1
-            [16 , 26 , 30000 , 10000],  #Crossover2
-            [18 , 27 , 30000 , 15000],  #Sedan2
-            [23 , 27 , 22500 , 5000],   #Child1
-            [25 , 29 , 22500 , 5000],   #Child2
-            [26 , 33 , 40000 , 15000],  #Sedan3a
-            [27 , 35 , 40000 , 15000],  #Sedan3b
-            [33 , 40 , 45000 , 15000],  #Sedan4a
-            [35 , 40 , 45000 , 20000]]  #Sedan4b
+carYears = [[0  , 8  , 23500 , 5000  ],   #Rich
+            [0  , 10 , 19500 , 4000  ],   #Becca
+            [8  , 16 , 25000 , 5000  ],   #Crossover1
+            [10 , 18 , 25000 , 7500  ],   #Sedan1
+            [16 , 26 , 30000 , 10000 ],   #Crossover2
+            [18 , 27 , 30000 , 12500 ],   #Sedan2
+            [23 , 27 , 22500 , 5000  ],   #Child1
+            [25 , 29 , 22500 , 5000  ],   #Child2
+            [26 , 33 , 40000 , 15000 ],   #Sedan3a
+            [27 , 35 , 40000 , 15000 ],   #Sedan3b
+            [33 , 40 , 45000 , 17500 ],   #Sedan4a
+            [35 , 40 , 45000 , 20000 ]]   #Sedan4b
 
 carMonthly = np.zeros((len(carYears),2))
 carPayment = np.zeros((main.years,1))
 insCar = np.zeros((main.years,1))
 repCar = np.zeros((main.years,1))
-carInt = 0.009  # %
+carInt = 0.019  # %
 carLen = 60     # months
 
 n = 0
@@ -96,8 +109,8 @@ for n in range(main.years):
     for car in carYears:
         if n >= car[0] and n < car[1]:
             insCar[n] = insCar[n] + (car[2] * 0.075)
-            repCar[n] = repCar[n] + (car[2] * 0.1)
-            
+            repCar[n] = repCar[n] + (car[2] * 0.075)
+
 ezPass = 50
 
 milesDaily = 75
@@ -125,7 +138,7 @@ for n in range(main.years):
 # Miscellaneous
 clothHair = 100
 food = 450
-otherMisc = 150
+otherMisc = 200
 
 totalMisc = np.zeros((main.years,1))
 for n in range(main.years):
@@ -186,7 +199,7 @@ downCarExpense[0] = 0
 vacExpense = np.zeros((main.years,1))
 
 for n in range(main.years):
-    vacExpense[n] = 3000 + ((n / main.years) * 5000)
+    vacExpense[n] = 4000 + ((n / main.years) * 3000)
     
     for m in range(len(main.numChild)):
         if ch.ageChild[n,m] >= 5:
@@ -199,14 +212,14 @@ for n in range(main.years):
     charExpense[n] = sal.salary[n] * 0.025
 
 # Miscellaneous
-miscCost = [[250   , 0.9   , 0],
-            [500   , 0.8   , 0],
-            [750   , 0.7   , 5],
-            [1500  , 0.5   , 7],
-            [3000  , 0.2   , 10],
-            [5000  , 0.1   , 15],
-            [10000 , 0.05  , 20],
-            [20000 , 0.025 , 30]]
+miscCost = [[250   , 0.9   , 0  ],
+            [500   , 0.8   , 0  ],
+            [750   , 0.7   , 5  ],
+            [1500  , 0.5   , 7  ],
+            [3000  , 0.25  , 10 ],
+            [5000  , 0.15  , 15 ],
+            [10000 , 0.05  , 20 ],
+            [20000 , 0.025 , 30 ]]
 
 miscExpense = np.zeros((main.years,1))
 

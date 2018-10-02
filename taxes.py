@@ -158,4 +158,6 @@ totalTaxes = fedTaxes + stateLocalPropTaxes
 
 netIncome = sal.salary - totalTaxes
 
+#plt.plot(fedGrossIncome)
+#plt.plot(sal.salary)
 #plt.plot(netIncome)

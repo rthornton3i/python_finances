@@ -1,27 +1,25 @@
 ## Total Savings/Investments
 import main
 import allocations as al
-import expenses as ex
-import withholdings as wh
 
 import numpy as np
 import random as rand
 import matplotlib.pyplot as plt
 
-loopLen = 10
+loopLen = 5
 earningsAlloc = np.zeros((loopLen,main.years,len(al.allocations)))
 
-#hiDiv
-#ltLowVol
-#largeCap
-#stHiVol
-#retRoth401
-#retTrad401
-#col529
-#emergFunds
-#medTerm
-#shortTerm
-#excSpend
+#0) hiDiv
+#1) ltLowVol
+#2) largeCap
+#3) stHiVol
+#4) retRoth401
+#5) retTrad401
+#6) col529
+#7) emergFunds
+#8) medTerm
+#9) shortTerm
+#10) excSpend
 
 for n in range(main.years):
     for m in range(len(al.allocations)):
@@ -33,7 +31,7 @@ for n in range(main.years):
             elif m == 2:
                 earningsAlloc[i,n,m] = rand.normalvariate(12.0,4.5)
             elif m == 3:
-                earningsAlloc[i,n,m] = rand.normalvariate(18.0,7.5)
+                earningsAlloc[i,n,m] = rand.normalvariate(16.0,7.5)
                 if earningsAlloc[i,n,m] > 30:
                     earningsAlloc[i,n,m] = 30
             elif m == 4 or m == 5:
@@ -70,4 +68,5 @@ for n in range(main.years):
 earningsAlloc = earningsAlloc / 100
 meanEarningsAlloc = np.mean(earningsAlloc,axis = 0)
 
-plt.plot(meanEarningsAlloc)
+#print(meanEarningsAlloc)
+#plt.plot(meanEarningsAlloc)
