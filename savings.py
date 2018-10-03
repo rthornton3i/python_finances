@@ -10,8 +10,8 @@ import importlib as il
 import numpy as np
 import matplotlib.pyplot as plt
 
-loopLen = 1000
-totalWorth, initWorth = [], []
+loopLen = 250
+totalWorth, initWorth, contInv, contSav = [], [], [], []
 
 for i in range(loopLen):
     il.reload(sal)
@@ -79,25 +79,31 @@ for i in range(loopLen):
         shortTerm[n] = (1 + inv.meanEarningsAlloc[n,9]) * shortTerm[n]
         excSpend[n] = (1 + inv.meanEarningsAlloc[n,10]) * excSpend[n]
     
-    contributions = np.concatenate((hiDiv,ltLowVol,largeCap,stHiVol,retRoth401,retTrad401,col529,emergFunds,medTerm,shortTerm,excSpend),axis = 1)
-    contributionsInv = np.concatenate((hiDiv,ltLowVol,largeCap,stHiVol,retRoth401,retTrad401),axis = 1)
-    contributionsSav = np.concatenate((col529,emergFunds,medTerm,shortTerm,excSpend),axis = 1)
+    cont = np.concatenate((hiDiv,ltLowVol,largeCap,stHiVol,retRoth401,retTrad401,col529,emergFunds,medTerm,shortTerm,excSpend),axis = 1)
+    contInv.append(np.concatenate((hiDiv,ltLowVol,largeCap,stHiVol,retRoth401,retTrad401),axis = 1))
+    contSav.append(np.concatenate((col529,emergFunds,medTerm,shortTerm,excSpend),axis = 1))
     
     tempTotalWorth = hiDiv + ltLowVol + largeCap + stHiVol + retRoth401 + retTrad401 + col529 + emergFunds + medTerm + shortTerm + excSpend 
     
     totalWorth.append(int(tempTotalWorth[-1]))
     initWorth.append(int(tempTotalWorth[0]))
-    
-#print((np.mean(initWorth)/2) - 4000)
+
+totalInv = np.mean(contInv,axis=0)
+totalSav = np.mean(contSav,axis=0)
+
+print((np.mean(initWorth)/2) - 4000)
 
 #plt.clf()
+#plt.plot(medTerm)
+
 #plt.hist(totalWorth)
-print(np.mean(totalWorth))
+#print(np.mean(totalWorth))
 
 #plt.subplot(211)
-#plt.plot(contributionsSav,linewidth=2)
+#plt.plot(totalSav,linewidth=2)
 #plt.legend(('col529','emergFunds','medTerm','shortTerm','excSpend'))
+#print(contSav)
 
 #plt.subplot(212)
-#plt.plot(contributionsInv,linewidth=2)
+#plt.plot(totalInv,linewidth=2)
 #plt.legend(('hiDiv','ltLowVol','largeCap','stHiVol','retRoth401','retTrad401'))

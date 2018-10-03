@@ -65,7 +65,7 @@ utilGas = np.zeros((main.years,1))
 utilWater = np.zeros((main.years,1))
 
 for n in range(main.years):
-    repHouse[n] = mort.houseWorthSum[n] * 0.015
+    repHouse[n] = min(mort.houseWorthSum[n] * 0.015,20000)
     insHouse[n] = mort.houseWorthSum[n] * 0.005
     utilElec[n] = (35 + ((35/500000) * mort.houseWorthSum[n])) * 12
     utilGas[n] = (20 + ((20/500000) * mort.houseWorthSum[n])) * 12
@@ -125,7 +125,7 @@ for n in range(main.years):
 # Entertainment
 wifiCable = 75
 cellular = 80
-otherEnt = 50
+otherEnt = 150
 
 totalEnt = np.zeros((main.years,1))
 for n in range(main.years):
@@ -133,7 +133,7 @@ for n in range(main.years):
 
     for m in range(len(main.numChild)):
         if n >= main.numChild[m] and n <= (main.numChild[m] + 22):
-            totalEnt[n] = totalEnt[n] + (totalEnt[n] * 0.20) 
+            totalEnt[n] = totalEnt[n] + (totalEnt[n] * 0.25) 
 
 # Miscellaneous
 clothHair = 100
@@ -212,7 +212,7 @@ for n in range(main.years):
     charExpense[n] = sal.salary[n] * 0.025
 
 # Miscellaneous
-miscCost = [[250   , 0.9   , 0  ],
+miscCost = [[250   , 0.95  , 0  ],
             [500   , 0.8   , 0  ],
             [750   , 0.7   , 5  ],
             [1500  , 0.5   , 7  ],

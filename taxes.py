@@ -154,7 +154,7 @@ fedTaxes = np.zeros((main.years,1))
 for n in range(main.years):              
     fedTaxes[n] = fedTaxOwed[n] + (fedTaxPercent[n] * (fedGrossIncome[n] - bracketFed[n]))
     
-totalTaxes = fedTaxes + stateLocalPropTaxes
+totalTaxes = fedTaxes + stateLocalPropTaxes + miscTaxes
 
 netIncome = sal.salary - totalTaxes
 
