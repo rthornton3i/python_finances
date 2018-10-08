@@ -1,6 +1,5 @@
 import main
 import salary as sal
-import mortgage as mort
 import deductions as deds
 
 import numpy as np
@@ -46,8 +45,8 @@ bracketState = np.zeros((main.years,1))
 stateGrossIncome = np.zeros((main.years,1))
 
 for n in range(main.years):
-    if deds.itemStateDed[n] > deds.stdStateDed[n]:
-        stateGrossIncome[n] = sal.salary[n] - deds.totalStateEx[n] - deds.itemStateDed[n]
+    if deds.itemDed[n] > deds.stdStateDed[n]:
+        stateGrossIncome[n] = sal.salary[n] - deds.totalStateEx[n] - deds.itemDed[n]
     else:
         stateGrossIncome[n] = sal.salary[n] - deds.totalStateEx[n] - deds.stdStateDed[n]
 
@@ -93,10 +92,12 @@ for n in range(main.years):
         stateTaxOwed[n] = 15072.5
         bracketState[n] = bracketState7
 
-stateLocalPropTaxes = np.zeros((main.years,1))
+stateLocalTaxes = np.zeros((main.years,1))
 
 for n in range(main.years):              
-    stateLocalPropTaxes[n] = stateTaxOwed[n] + ((stateTaxPercent[n] + localTaxPercent) * (stateGrossIncome[n] - bracketState[n])) + mort.housePropSum[n]
+    stateLocalTaxes[n] = stateTaxOwed[n] + ((stateTaxPercent[n] + localTaxPercent) * (stateGrossIncome[n] - bracketState[n]))
+
+propTaxes = deds.propDed
 
 ## Federal Taxes
 fedTaxPercent = np.zeros((main.years,1))
@@ -104,11 +105,17 @@ fedTaxOwed = np.zeros((main.years,1))
 bracketFed = np.zeros((main.years,1))
 fedGrossIncome = np.zeros((main.years,1))
 
-deds.itemFedDed = deds.itemFedDed + stateLocalPropTaxes
+slpDed = stateLocalTaxes + propTaxes
 
 for n in range(main.years):
-    if deds.itemFedDed[n] > deds.stdFedDed[n]:
-        fedGrossIncome[n] = sal.salary[n] - deds.itemFedDed[n]
+    if slpDed[n] > 10000:
+        slpDed[n] = 10000
+        
+deds.itemDed = deds.itemDed + slpDed
+
+for n in range(main.years):
+    if deds.itemDed[n] > deds.stdFedDed[n]:
+        fedGrossIncome[n] = sal.salary[n] - deds.itemDed[n]
     else:
         fedGrossIncome[n] = sal.salary[n] - deds.stdFedDed[n]
 
@@ -154,7 +161,7 @@ fedTaxes = np.zeros((main.years,1))
 for n in range(main.years):              
     fedTaxes[n] = fedTaxOwed[n] + (fedTaxPercent[n] * (fedGrossIncome[n] - bracketFed[n]))
     
-totalTaxes = fedTaxes + stateLocalPropTaxes + miscTaxes
+totalTaxes = fedTaxes + stateLocalTaxes + propTaxes + miscTaxes
 
 netIncome = sal.salary - totalTaxes
 

@@ -53,7 +53,7 @@ fsaCont = np.full((main.years,1),0)
 stdFedDed = np.full((main.years,1),24000)
 
 # Itemized
-itemFedDed = propDed + loanDed + charDed + trad401 + tradIRA + hsaCont + fsaCont
+itemDed = loanDed + charDed + trad401 + tradIRA + hsaCont + fsaCont
 
 ### State Taxes
 ## Deductions
@@ -66,9 +66,6 @@ for n in range(main.years):
         stdStateDed[n] = 3000
     elif stdStateDed[n] > 4000:
         stdStateDed[n] = 4000
-
-# Itemized 
-itemStateDed = loanDed + charDed + trad401 + tradIRA + hsaCont + fsaCont
 
 ## Exemptions
 # Personal Exemption

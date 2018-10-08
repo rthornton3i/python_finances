@@ -10,7 +10,7 @@ import importlib as il
 import numpy as np
 import matplotlib.pyplot as plt
 
-loopLen = 250
+loopLen = 1000
 totalWorth, initWorth, contInv, contSav = [], [], [], []
 
 for i in range(loopLen):
@@ -91,17 +91,18 @@ for i in range(loopLen):
 totalInv = np.mean(contInv,axis=0)
 totalSav = np.mean(contSav,axis=0)
 
-print((np.mean(initWorth)/2) - 4000)
+#print((np.mean(initWorth)/2) - 4000)
+#print(totalSav[1]/2)
 
-#plt.clf()
+plt.clf()
 #plt.plot(medTerm)
 
 #plt.hist(totalWorth)
-#print(np.mean(totalWorth))
+print(np.mean(totalWorth))
 
 #plt.subplot(211)
-#plt.plot(totalSav,linewidth=2)
-#plt.legend(('col529','emergFunds','medTerm','shortTerm','excSpend'))
+plt.plot(totalSav,linewidth=2)
+plt.legend(('col529','emergFunds','medTerm','shortTerm','excSpend'))
 #print(contSav)
 
 #plt.subplot(212)
