@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 # house# = [purchase year, mortgage period (yr), interest rate (%), purchase cost, down payment (%)]
 
 house = np.array([[7  , 30 , 4.25 , 450000  , 20 ],
-                  [20 , 20 , 4    , 650000  , 20 ],
-                  [32 , 10 , 3.25 , 1250000 , 20 ]])
+                  [20 , 30 , 4    , 650000  , 20 ],
+                  [32 , 10 , 3.25 , 5000000 , 20 ]])
 
 numHouse = np.size(house,axis = 0)
 

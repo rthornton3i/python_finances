@@ -31,7 +31,7 @@ for n in range(main.years):
             elif m == 2:
                 earningsAlloc[i,n,m] = rand.normalvariate(12.0,4.5)
             elif m == 3:
-                earningsAlloc[i,n,m] = rand.normalvariate(16.0,7.0)
+                earningsAlloc[i,n,m] = rand.normalvariate(16.0,8.0)
                 if earningsAlloc[i,n,m] > 30:
                     earningsAlloc[i,n,m] = 30
             elif m == 4 or m == 5:
@@ -68,6 +68,7 @@ for n in range(main.years):
 earningsAlloc = earningsAlloc / 100
 meanEarningsAlloc = np.mean(earningsAlloc,axis = 0)
 
-#plt.clf()
 #print(meanEarningsAlloc)
+
+#plt.clf()
 #plt.plot(meanEarningsAlloc)

@@ -1,4 +1,5 @@
 import main
+import loans as ln
 import mortgage as mort
 import salary as sal
 import children as ch
@@ -154,8 +155,11 @@ colExpense = np.zeros((main.years,1))
 
 for n in range(main.years):
     for m in range(len(main.numChild)):
-        if ch.ageChild[n,m] >= 18 and ch.ageChild[n,m] < 22:
+        if ch.ageChild[n,m] >= 18 and ch.ageChild[n,m] <= 21:
             colExpense[n] = colExpense[n] + 50000
+
+# College Loan
+loanExpense = ln.loanPaySum
 
 # Wedding & Honeymoon
 wedExpense = np.zeros((main.years,1))
@@ -230,7 +234,7 @@ for n in range(main.years):
 
 # TOTAL
 totalPerExp = totalHol + totalSub + totalHouse + totalAuto + totalEnt + totalMisc + miscExpense + charExpense
-totalMajorExp = colExpense + wedExpense + downHomeExpense + downCarExpense + vacExpense
+totalMajorExp = colExpense + loanExpense + wedExpense + downHomeExpense + downCarExpense + vacExpense
 totalExpenses = totalPerExp + totalMajorExp
 
 #print(totalExpenses)
