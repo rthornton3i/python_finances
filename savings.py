@@ -11,8 +11,8 @@ import importlib as il
 import numpy as np
 import matplotlib.pyplot as plt
 
-loopLen = 100
-tempTotalWorth, tempNetWorth, contInv, contSav = [], [], [], []
+loopLen = 1000
+tempTotalWorth, tempNetWorth, cont, contInv, contSav = [], [], [], [], []
 
 for i in range(loopLen):
     il.reload(sal)
@@ -39,7 +39,7 @@ for i in range(loopLen):
     retTrad401[0] = 0
     col529[0] = 0
     emergFunds[0] = 0
-    medTerm[0] = 4000 + 27000 + 15000
+    medTerm[0] = 4000 + 27000 + 30000
     shortTerm[0] = 0
     excSpend[0] = 0
     
@@ -100,21 +100,22 @@ for i in range(loopLen):
             
             medTerm[n] = medTerm[n] + transferVal
         
-        maxVal = 5e6
-        if stHiVol[n] > maxVal:
-            transferVal = stHiVol[n] - maxVal
+        if n <= 35:
+            maxVal = 5e6
+            if stHiVol[n] > maxVal:
+                transferVal = stHiVol[n] - maxVal
+                
+                stHiVol[n] = maxVal
+                
+                largeCap[n] = largeCap[n] + transferVal
             
-            stHiVol[n] = maxVal
-            
-            largeCap[n] = largeCap[n] + transferVal
-        
-        maxVal = 5e6
-        if largeCap[n] > maxVal:
-            transferVal = largeCap[n] - maxVal
-            
-            largeCap[n] = maxVal
-            
-            ltLowVol[n] = ltLowVol[n] + transferVal
+            maxVal = 5e6
+            if largeCap[n] > maxVal:
+                transferVal = largeCap[n] - maxVal
+                
+                largeCap[n] = maxVal
+                
+                ltLowVol[n] = ltLowVol[n] + transferVal
         
         maxVal = 2.5e6
         if ltLowVol[n] > maxVal:
@@ -130,11 +131,12 @@ for i in range(loopLen):
             
             hiDiv[n] = maxVal
             
-            medTerm[n] = medTerm[n] + (transferVal * 0.6)
-            shortTerm[n] = shortTerm[n] + (transferVal * 0.3)
+            medTerm[n] = medTerm[n] + (transferVal * 0.7)
+            shortTerm[n] = shortTerm[n] + (transferVal * 0.1)
             excSpend[n] = excSpend[n] + (transferVal * 0.1)
+            emergFunds[n] = excSpend[n] + (transferVal * 0.1)
             
-    cont = np.concatenate((hiDiv,ltLowVol,largeCap,stHiVol,retRoth401,retTrad401,col529,emergFunds,medTerm,shortTerm,excSpend),axis = 1)
+    cont.append(np.concatenate((hiDiv,ltLowVol,largeCap,stHiVol,retRoth401,retTrad401,col529,emergFunds,medTerm,shortTerm,excSpend),axis = 1))
     contInv.append(np.concatenate((hiDiv,ltLowVol,largeCap,stHiVol,retRoth401,retTrad401),axis = 1))
     contSav.append(np.concatenate((col529,emergFunds,medTerm,shortTerm,excSpend),axis = 1))
     
@@ -159,12 +161,15 @@ plt.clf()
 
 #plt.hist(tempNetWorth,30)
 
-#plt.subplot(211)
-plt.plot(totalSav,linewidth=2)
-plt.legend(('col529','emergFunds','medTerm','shortTerm','excSpend'))
-#plt.yscale('log', basey=10)
+#plt.plot(totalCont,linewidth=2)
+#plt.legend(('hiDiv','ltLowVol','largeCap','stHiVol','retRoth401','retTrad401','col529','emergFunds','medTerm','shortTerm','excSpend'),loc=0)
 
-#plt.subplot(212)
+plt.plot(totalSav,linewidth=2)
+plt.legend(('col529','emergFunds','medTerm','shortTerm','excSpend'),loc=0)
+plt.ylim([0e0,4e5])
+
 #plt.plot(totalInv,linewidth=2)
-#plt.legend(('hiDiv','ltLowVol','largeCap','stHiVol','retRoth401','retTrad401'))
+#plt.legend(('hiDiv','ltLowVol','largeCap','stHiVol','retRoth401','retTrad401'),loc=0)
+#plt.ylim([0e0,2e5])
+
 #plt.yscale('log', basey=10)

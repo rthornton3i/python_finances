@@ -34,8 +34,8 @@ childXmas = np.zeros((main.years,len(main.numChild)))
 for n in range(main.years):
     for m in range(len(main.numChild)):
         if n >= main.numChild[m] and n <= (main.numChild[m] + 22):
-            childBday[n,m] = 200
-            childXmas[n,m] = 300
+            childBday[n,m] = 100 + ((ch.ageChild[n,m] / 22) * 200)
+            childXmas[n,m] = 300 + ((ch.ageChild[n,m] / 22) * 700)
 
 childBday = np.sum(childBday, axis=1).reshape((main.years,1))
 childXmas = np.sum(childXmas, axis=1).reshape((main.years,1))
@@ -66,7 +66,7 @@ utilGas = np.zeros((main.years,1))
 utilWater = np.zeros((main.years,1))
 
 for n in range(main.years):
-    repHouse[n] = min(mort.houseWorthSum[n] * 0.015,20000)
+    repHouse[n] = min(mort.houseWorthSum[n] * 0.015,50000)
     insHouse[n] = mort.houseWorthSum[n] * 0.005
     utilElec[n] = (35 + ((35/500000) * mort.houseWorthSum[n])) * 12
     utilGas[n] = (20 + ((20/500000) * mort.houseWorthSum[n])) * 12
@@ -163,9 +163,10 @@ loanExpense = ln.loanPaySum
 
 # Wedding & Honeymoon
 wedExpense = np.zeros((main.years,1))
+marYr = 4
 
-wedExpense[4] = 30000
-wedExpense[4] = 10000
+wedExpense[marYr] = wedExpense[marYr] + 30000
+wedExpense[marYr] = wedExpense[marYr] + 10000
 
 # Home Down Payments
 downHomeExpense = np.zeros((main.years,1))
@@ -216,14 +217,14 @@ for n in range(main.years):
     charExpense[n] = sal.salary[n] * 0.025
 
 # Miscellaneous
-miscCost = [[250   , 0.95  , 0  ],
-            [500   , 0.8   , 0  ],
-            [750   , 0.7   , 5  ],
-            [1500  , 0.5   , 7  ],
+miscCost = [[250   , 0.975 , 0  ],
+            [500   , 0.9   , 0  ],
+            [750   , 0.75  , 5  ],
+            [1500  , 0.5   , 5  ],
             [3000  , 0.25  , 10 ],
             [5000  , 0.15  , 15 ],
-            [10000 , 0.05  , 20 ],
-            [20000 , 0.025 , 30 ]]
+            [10000 , 0.05  , 15 ],
+            [20000 , 0.025 , 25 ]]
 
 miscExpense = np.zeros((main.years,1))
 
@@ -237,5 +238,6 @@ totalPerExp = totalHol + totalSub + totalHouse + totalAuto + totalEnt + totalMis
 totalMajorExp = colExpense + loanExpense + wedExpense + downHomeExpense + downCarExpense + vacExpense
 totalExpenses = totalPerExp + totalMajorExp
 
-#print(totalExpenses)
+#print(totalExpenses/12)
+#plt.clf()
 #plt.plot(totalExpenses)

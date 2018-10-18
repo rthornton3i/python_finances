@@ -3,7 +3,7 @@ import main
 import numpy as np
 import matplotlib.pyplot as plt
 
-loan = np.array([[0 , 5 , 4.0 , 36700]])
+loan = np.array([[0 , 7 , 4.0 , 36700]])
 
 numLoan = np.size(loan,axis = 0)
 compTime = 12*30
