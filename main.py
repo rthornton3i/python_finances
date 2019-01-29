@@ -1,3 +1,6 @@
+import setup
+import loans
+
 import numpy as np
 
 years = 40
@@ -6,7 +9,7 @@ startAge = 23
 yearsRef = np.arange(startAge,startAge+years).reshape((years,1))
 yrs = np.arange(years).reshape((years,1))
 
-salaryBase = 160000
+salaryBase = 77000 + 86000
 
 # Number of Children
 #==============================================================================
@@ -22,7 +25,7 @@ numChild = [6,8]
 #  3) Exponential Growth
 #  4) Exponential CDF
 #==============================================================================
-growth = 1
+growthType = 1
 
 # Tax Filing
 #==============================================================================
@@ -30,3 +33,10 @@ growth = 1
 #  2) Single
 #==============================================================================
 filing = 1
+
+loan = np.array([[0 , 7 , 4.0 , 36700]])
+
+salary = setup.salaryCalc(salaryBase,years,growthRate=0.028,growthType=1)
+ageChild = setup.childCalc(years,numChild)
+
+loanPaySum = loans.genLoanCalc(loan)

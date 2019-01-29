@@ -59,7 +59,7 @@ for n in range(main.years):
             elif m == 7:
                 earningsAlloc[i,n,m] = 0.05
             elif m == 8:
-                earningsAlloc[i,n,m] = 1.5
+                earningsAlloc[i,n,m] = 1.95
             elif m == 9:
                 earningsAlloc[i,n,m] = 1.0
             elif m == 10:
