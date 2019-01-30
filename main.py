@@ -4,6 +4,7 @@ import expenses as exp
 import taxes as tax
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 years = 40
 
@@ -36,9 +37,10 @@ growthType = 1
 #==============================================================================
 filing = 1
 
-loan = np.array([[0 , 7 , 4.0 , 36700]])
+# loan = [star year, end year, interest rate (%), loan amount]
+loan = np.array([0 , 7 , 4.0 , 36700])
 
-# house# = [purchase year, mortgage period (yr), interest rate (%), purchase cost, down payment (%)]
+# house = [purchase year, mortgage period (yr), interest rate (%), purchase cost, down payment (%)]
 house = np.array([[6  , 30 , 4.25 , 450000  , 20 ],
                   [20 , 30 , 4    , 700000  , 20 ],
                   [33 , 10 , 3.25 , 7500000 , 20 ]])
@@ -46,8 +48,31 @@ house = np.array([[6  , 30 , 4.25 , 450000  , 20 ],
 salary = setup.salaryCalc(salaryBase,years,growthRate=0.028,growthType=1)
 ageChild = setup.childCalc(years,numChild)
 
-loanPaySum = ln.genLoanCalc(loan)
 
-[houseWorthSum,housePaySum,housePropSum,houseIntSum] = ln.mortgageCalc(house,years,salary)
 
-[totalExpenses,charExpense] = exp.expensesCalc(salary,years,numChild,ageChild,house,houseWorthSum,loanPaySum)
+#healthDed = tax.healthDedCalc(years,hsa=0,fsa=0,hra=0)  
+#trad401 = tax.trad401Calc(salary,years,base401Perc=0,growth401Perc=0)
+#    
+#itemDed = tax.itemDedCalc(houseIntSum,charExpense,slpTaxes=0)
+#[stdDedFed,stdDedState] = tax.stdDedCalc(salary,years)
+#[totalExState,totalExFed] = tax.exemptCalc(salary,years,numChild)
+#
+#[grossIncState,grossIncFed] = tax.grossIncCalc(salary,trad401,healthDed,totalExFed,totalExState)
+#
+#miscTaxes = tax.miscTaxCalc(salary,years)
+#stateLocalTax = tax.slTaxCalc(grossIncState,years,itemDed,stdDedState)
+#fedTax = tax.fedTaxCalc(grossIncFed,years,itemDed,stdDedFed,stateLocalTax,propTax)  
+#
+#roth401 = tax.roth401Calc(salary,years,base401Perc=0.04,growth401Perc=0.01)
+#benefits = tax.benefitsCalc(years,healthPrem=200,visPrem=10,denPrem=20)
+#
+#netIncome = tax.netIncCalc(salary,fedTax,stateLocalTax,propTax,miscTaxes,roth401,benefits)
+
+loanPaySum = ln.genLoanCalc(loan,years)
+
+plt.clf()
+plt.plot(loanPaySum)
+
+#[houseWorthSum,housePaySum,housePropSum,houseIntSum] = ln.mortgageCalc(house,years,salary)
+
+#[totalExpenses,charExpense] = exp.expensesCalc(salary,years,numChild,ageChild,house,houseWorthSum,loanPaySum)
