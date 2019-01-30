@@ -1,5 +1,7 @@
 import setup
-import loans
+import loans as ln
+import expenses as exp
+import taxes as tax
 
 import numpy as np
 
@@ -36,7 +38,16 @@ filing = 1
 
 loan = np.array([[0 , 7 , 4.0 , 36700]])
 
+# house# = [purchase year, mortgage period (yr), interest rate (%), purchase cost, down payment (%)]
+house = np.array([[6  , 30 , 4.25 , 450000  , 20 ],
+                  [20 , 30 , 4    , 700000  , 20 ],
+                  [33 , 10 , 3.25 , 7500000 , 20 ]])
+
 salary = setup.salaryCalc(salaryBase,years,growthRate=0.028,growthType=1)
 ageChild = setup.childCalc(years,numChild)
 
-loanPaySum = loans.genLoanCalc(loan)
+loanPaySum = ln.genLoanCalc(loan)
+
+[houseWorthSum,housePaySum,housePropSum,houseIntSum] = ln.mortgageCalc(house,years,salary)
+
+[totalExpenses,charExpense] = exp.expensesCalc(salary,years,numChild,ageChild,house,houseWorthSum,loanPaySum)
