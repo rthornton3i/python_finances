@@ -37,16 +37,27 @@ growthType = 1
 #==============================================================================
 filing = 1
 
-# loan = [star year, end year, interest rate (%), loan amount]
-loan = np.array([0 , 7 , 4.0 , 36700])
-
-# house = [purchase year, mortgage period (yr), interest rate (%), purchase cost, down payment (%)]
-house = np.array([[6  , 30 , 4.25 , 450000  , 20 ],
-                  [20 , 30 , 4    , 700000  , 20 ],
-                  [33 , 10 , 3.25 , 7500000 , 20 ]])
-
 salary = setup.salaryCalc(salaryBase,years,growthRate=0.028,growthType=1)
 ageChild = setup.childCalc(years,numChild)
+
+# Loans
+#==============================================================================
+#  Loan = [Start Yr, End Yr, Interest Rate (%), Loan Amount]
+#==============================================================================
+collegeLoan = np.array([0,7,4.0,36700])
+[colLoanPay,colLoanBal,colLoanInt] = ln.genLoanCalc(collegeLoan,years,compType='daily')
+
+# Housing/Rent
+#==============================================================================
+#  House = [Purchase Yr, Mortgage Period (yrs), Interest Rate (%), Purchase Amount, Down Payment (%)]
+#==============================================================================
+rentPay = ln.rentCalc(salary,years,0,30,basePerc=0.25,percSal=None)
+
+house1 = np.array([6  , 30 , 4.25 , 450000  , 20 ])
+house2 = np.array([20 , 30 , 4    , 700000  , 20 ])
+house3 = np.array([33 , 10 , 3.25 , 7500000 , 20 ])
+
+
 
 
 
