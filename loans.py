@@ -54,13 +54,14 @@ def rentCalc(salary,years,termStart,termEnd,basePerc=0.25,percSal=None):
     
     return rentPay
 
-def mortgageCalc(house,years,curPay=None,curBal=None,curInt=None,curWth=None,curTax=None,app=0.0375):        
-    bal = 0 if curBal == None else curBal[house[0]]
-    worth = 0 if curWth == None else curWth[house[0]]
+def mortgageCalc(house,years,curBal=None,curPay=None,curInt=None,curWth=None,curTax=None,curDwn=None,app=0.0375):        
+    bal = 0 if curBal is None else curBal[int(house[0]),0]
+    worth = 0 if curWth is None else curWth[int(house[0]),0]
     
-    curPay = np.zeros((years,1)) if curPay == None else np.vstack((curPay[:house[0]],np.zeros((years,1))[house[0]:]))
-    curBal = np.zeros((years,1)) if curBal == None else np.vstack((curBal[:house[0]],np.zeros((years,1))[house[0]:]))
-    curInt = np.zeros((years,1)) if curInt == None else np.vstack((curInt[:house[0]],np.zeros((years,1))[house[0]:]))
+    curBal = np.zeros((years,1)) if curBal is None else np.vstack((curBal[:int(house[0])],np.zeros((years,1))[int(house[0]):]))
+    curPay = np.zeros((years,1)) if curPay is None else np.vstack((curPay[:int(house[0])],np.zeros((years,1))[int(house[0]):]))
+    curInt = np.zeros((years,1)) if curInt is None else np.vstack((curInt[:int(house[0])],np.zeros((years,1))[int(house[0]):]))
+    curDwn = np.zeros((years,1)) if curDwn is None else np.vstack((curDwn[:int(house[0])],np.zeros((years,1))[int(house[0]):]))
     
     housePay = np.zeros((years * 365,1))
     houseBal = np.zeros((years * 365,1))
@@ -74,32 +75,34 @@ def mortgageCalc(house,years,curPay=None,curBal=None,curInt=None,curWth=None,cur
     termLength = house[1] * 365          #n - number of months
     down = (house[4] / 100) * house[3]
     prin = house[3] + bal - worth - down
-    
+      
     termCount = 0
     for n in range(startHouse*365,endHouse*365):
-        termCount += 1 
-        
-        housePay[n] = prin * (rateInt * (1 + rateInt) ** termLength) / ((1 + rateInt) ** termLength - 1)
-        houseBal[n] = prin * ((1 + rateInt) ** termLength - (1 + rateInt) ** termCount) / ((1 + rateInt) ** termLength - 1)
-        
-        if n > startHouse:
-            housePrin[n] = houseBal[n-1] - houseBal[n]                
+        if prin > 0: 
+            termCount += 1 
+            
+            houseBal[n] = prin * ((1 + rateInt) ** termLength - (1 + rateInt) ** termCount) / ((1 + rateInt) ** termLength - 1)        
+            housePay[n] = prin * (rateInt * (1 + rateInt) ** termLength) / ((1 + rateInt) ** termLength - 1)
+            housePrin[n] = houseBal[n-1] - houseBal[n] if n > startHouse*365 else prin - houseBal[n]
+            houseInt[n] = housePay[n] - housePrin[n]
         else:
-            housePrin[n] = prin - houseBal[n]
+            houseBal[n] = 0
+            housePay[n] = 0
+            housePrin[n] = 0
+            houseInt[n] = 0
         
-        houseInt[n] = housePay[n] - housePrin[n]
-    
     mortBal = np.reshape([houseBal[i] for i in range(0,len(houseBal),365)],(years,1))
     mortPrin = np.reshape([sum(housePrin[i:i+365]) for i in range(0,len(housePrin),365)],(years,1))
     mortInt = np.reshape([sum(houseInt[i:i+365]) for i in range(0,len(houseInt),365)],(years,1))
     mortPay = mortPrin + mortInt
-    
+        
+    totalBal = sum((curBal,mortBal))    
     totalPay = sum((curPay,mortPay))
-    totalBal = sum((curBal,mortBal))
     totalInt = sum((curInt,mortInt))
+    totalDwn = np.asarray([value if index != int(house[0]) else down for index,value in np.ndenumerate(curDwn)])
     
-    curWth = np.zeros((years,1)) if curWth == None else np.vstack((curWth[:house[0]],np.zeros((years,1))[house[0]:])) 
-    curTax = np.zeros((years,1)) if curTax == None else np.vstack((curTax[:house[0]],np.zeros((years,1))[house[0]:]))
+    curWth = np.zeros((years,1)) if curWth is None else np.vstack((curWth[:int(house[0])],np.zeros((years,1))[int(house[0]):])) 
+    curTax = np.zeros((years,1)) if curTax is None else np.vstack((curTax[:int(house[0])],np.zeros((years,1))[int(house[0]):]))
     
     houseWorth = np.zeros((years,1)) 
     houseTax = np.zeros((years,1)) 
@@ -108,12 +111,7 @@ def mortgageCalc(house,years,curPay=None,curBal=None,curInt=None,curWth=None,cur
         houseWorth[n] = house[3] * ((1 + app) ** (n - house[0]))
         houseTax[n] = 0.015 * houseWorth[n]
     
-    totalWth = sum((curWth,houseWorth))
-    totalTax = sum((curTax,houseTax))
+    houseWth = sum((curWth,houseWorth))
+    propTax = sum((curTax,houseTax))
     
-#    percMortSal = np.zeros((years,1))
-#    
-#    for n in range(years):
-#        percMortSal[n] = housePaySum[n] / salary[n]
-    
-    return [totalPay,totalBal,totalInt,totalWth,totalTax]
+    return [totalBal,totalPay,totalInt,houseWth,propTax,totalDwn]

@@ -8,8 +8,6 @@ import setup
 years = 40
 salary = setup.salaryCalc(160000,years)
 
-house = np.array([6  , 30 , 4.25 , 450000  , 20 ])
-[totalPay,totalBal,totalInt,totalWth,totalTax] = ln.mortgageCalc(house,years,curPay=None,curBal=None,curInt=None,curWth=None,curTax=None,app=0.0375)
-
-plt.clf()
-plt.plot(totalInt[])
+a = np.arange(10)
+b = np.asarray([(index,value) if index != 4 else 20 for index,value in enumerate(a)])
+print(b)

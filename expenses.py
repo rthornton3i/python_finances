@@ -1,14 +1,11 @@
 import numpy as np
 import random as rand
 
-def expensesCalc(salary,years,numChild,ageChild,house,houseWorthSum,loanPaySum):
-    ## Periodic Expenses
-    # Holidays
-    numFamily = np.full((years,1),7)
+def holidayExp(years,numChild,ageChild,addKid=None):
+    numFamily = np.full((years,1),len(addKid))
     familyBday = np.zeros((years,1))
     familyXmas = np.zeros((years,1))
     
-    addKid = [6,8,10,10,12,13,14]
     removeKid = [x+20 for x in addKid]
     
     for n in range(years):
@@ -29,13 +26,13 @@ def expensesCalc(salary,years,numChild,ageChild,house,houseWorthSum,loanPaySum):
         for m in range(len(numChild)):
             if n >= numChild[m] and n <= (numChild[m] + 22):
                 childBday[n,m] = 100 + ((ageChild[n,m] / 22) * 200)
-                childXmas[n,m] = 300 + ((ageChild[n,m] / 22) * 700)
+                childXmas[n,m] = 300 + ((ageChild[n,m] / 22) * 1200)
     
     childBday = np.sum(childBday, axis=1).reshape((years,1))
     childXmas = np.sum(childXmas, axis=1).reshape((years,1))
     
     bday = 400
-    xmas = 400
+    xmas = 500
     valDay = 200
     anniv = 300
     
@@ -43,16 +40,9 @@ def expensesCalc(salary,years,numChild,ageChild,house,houseWorthSum,loanPaySum):
     for n in range(years):
         totalHol[n] = bday + xmas + valDay + anniv + familyBday[n] + familyXmas[n] + childBday[n] + childXmas[n]
     
-    # Subscriptions
-    nflx = 120
-    amzn = 130
-    hulu = 100
+    return totalHol
     
-    totalSub = np.zeros((years,1))
-    for n in range(years):
-        totalSub[n] = nflx + amzn + hulu
-    
-    # Housing
+def housingExp(years,houseWth):    
     repHouse = np.zeros((years,1))
     insHouse = np.zeros((years,1))
     utilElec = np.zeros((years,1))
@@ -60,30 +50,56 @@ def expensesCalc(salary,years,numChild,ageChild,house,houseWorthSum,loanPaySum):
     utilWater = np.zeros((years,1))
     
     for n in range(years):
-        repHouse[n] = min(houseWorthSum[n] * 0.015,50000)
-        insHouse[n] = houseWorthSum[n] * 0.005
-        utilElec[n] = (35 + ((35/500000) * houseWorthSum[n])) * 12
-        utilGas[n] = (20 + ((20/500000) * houseWorthSum[n])) * 12
-        utilWater[n] = (25 + ((25/1000000) * houseWorthSum[n])) * 12
+        repHouse[n] = min(houseWth[n] * 0.015,50000)
+        insHouse[n] = houseWth[n] * 0.005
+        utilElec[n] = (35 + ((35/500000) * houseWth[n])) * 12
+        utilGas[n] = (20 + ((20/500000) * houseWth[n])) * 12
+        utilWater[n] = (25 + ((25/1000000) * houseWth[n])) * 12
     
     totalHouse = repHouse + insHouse + utilElec + utilGas + utilWater
     
-    # Auto
-    # carYears = [purchase Yr, sell Yr, amount ($), down payment ($)]
-    carYears = [[0  , 8  , 23500 , 5000  ],   #Rich
-                [0  , 10 , 19500 , 4000  ],   #Becca
-                [8  , 16 , 25000 , 5000  ],   #Crossover1
-                [10 , 18 , 25000 , 7500  ],   #Sedan1
-                [16 , 26 , 30000 , 10000 ],   #Crossover2
-                [18 , 27 , 30000 , 12500 ],   #Sedan2
-                [23 , 27 , 22500 , 5000  ],   #Child1
-                [25 , 29 , 22500 , 5000  ],   #Child2
-                [26 , 33 , 40000 , 15000 ],   #Sedan3a
-                [27 , 35 , 40000 , 15000 ],   #Sedan3b
-                [33 , 40 , 45000 , 17500 ],   #Sedan4a
-                [35 , 40 , 45000 , 20000 ]]   #Sedan4b
+    return totalHouse  
+
+def homeDown(house,years):
+    # Home Down Payments
+    downHomeExpense = np.zeros((years,1))
+    houseDown = np.zeros((len(house),2))
     
-    carMonthly = np.zeros((len(carYears),2))
+    n = 0
+    for home in house:
+        houseDown[n,0] = home[0]
+        houseDown[n,1] = home[3] * (home[4] / 100)
+        n += 1
+    
+    for n in range(years):
+        for home in houseDown:
+            if n == home[0]:
+                downHomeExpense[n] = home[1]
+                
+    return
+
+def carDown():
+    # Auto Down Payments
+    downCarExpense = np.zeros((years,1))
+    carDown = np.zeros((len(carYears),2))
+    
+    n = 0
+    for car in carYears:
+        carDown[n,0] = car[0]
+        carDown[n,1] = car[3]
+        n += 1
+    
+    for n in range(years):
+        for car in carDown:
+            if n == car[0]:
+                downCarExpense[n] = downCarExpense[n] + car[1]
+                
+    downCarExpense[0] = 0
+    
+    return
+    
+def carExp(years,carYears):    
+    carMonthly = np.zeros((np.shape(carYears)[0],2))
     carPayment = np.zeros((years,1))
     insCar = np.zeros((years,1))
     repCar = np.zeros((years,1))
@@ -106,90 +122,80 @@ def expensesCalc(salary,years,numChild,ageChild,house,houseWorthSum,loanPaySum):
                 insCar[n] = insCar[n] + (car[2] * 0.075)
                 repCar[n] = repCar[n] + (car[2] * 0.075)
     
-    ezPass = 50
+    ezPass = 50 * 12
     
-    milesDaily = 75
-    mpg = 25
+    milesDaily = 15000 / 365
+    mpg = 35
     costFuel = 2.75
-    gas = (milesDaily * costFuel * 30) / mpg
+    gas = (milesDaily * costFuel * 365) / mpg
     
     totalAuto = np.zeros((years,1))
     for n in range(years):
-        totalAuto[n] = ((ezPass + gas) * 12) + carPayment[n] + insCar[n] + repCar[n]
+        totalAuto[n] = ezPass + gas + carPayment[n] + insCar[n] + repCar[n]
     
-    # Entertainment
+    return totalAuto
+
+def entExp(years,numChild):
     wifiCable = 75
     cellular = 80
-    otherEnt = 150
+    
+    nflx = 120
+    amzn = 130
+    hulu = 100
+    
+    totalSub = np.zeros((years,1))
+    for n in range(years):
+        totalSub[n] = nflx + amzn + hulu
     
     totalEnt = np.zeros((years,1))
     for n in range(years):
-        totalEnt[n] = (wifiCable + cellular + otherEnt) * 12
+        totalEnt[n] = (wifiCable + cellular) * 12 + totalSub
     
         for m in range(len(numChild)):
             if n >= numChild[m] and n <= (numChild[m] + 22):
                 totalEnt[n] = totalEnt[n] + (totalEnt[n] * 0.25) 
     
-    # Miscellaneous
-    clothHair = 100
-    food = 450
-    otherMisc = 200
+    return totalEnt
+    
+def miscExp(years,numChild):
+    clothHair = 150
+    grocery = 450
+    restaurant = 400
+    genMerch = 200
     
     totalMisc = np.zeros((years,1))
     for n in range(years):
-        totalMisc[n] = (clothHair + food + otherMisc) * 12
+        totalMisc[n] = (clothHair + grocery + restaurant + genMerch) * 12
         
         for m in range(len(numChild)):
             if n >= numChild[m] and n <= (numChild[m] + 22):
                 totalMisc[n] = totalMisc[n] + (totalMisc[n] * 0.25) 
     
-    ## Major Expenses
-    # College Expenses
-    colExpense = np.zeros((years,1))
+    return totalMisc
+    
+def collegeExp(years,numChild,ageChild):
+    totalCollege = np.zeros((years,1))
     
     for n in range(years):
         for m in range(len(numChild)):
             if ageChild[n,m] >= 18 and ageChild[n,m] <= 21:
-                colExpense[n] = colExpense[n] + 50000
+                totalCollege[n] = totalCollege[n] + 50000
     
-    # Wedding & Honeymoon
-    wedExpense = np.zeros((years,1))
-    marYr = 4
+    return totalCollege
     
-    wedExpense[marYr] = wedExpense[marYr] + 30000
-    wedExpense[marYr] = wedExpense[marYr] + 10000
+def wedExp(years,marYr):
+    totalWed = np.zeros((years,1))
     
-    # Home Down Payments
-    downHomeExpense = np.zeros((years,1))
-    houseDown = np.zeros((len(house),2))
+    wedding = 30000
+    honeymoon = 15000
+    ring = 6000
     
-    n = 0
-    for home in house:
-        houseDown[n,0] = home[0]
-        houseDown[n,1] = home[3] * (home[4] / 100)
-        n += 1
+    totalWed[marYr-2] = totalWed[marYr] + ring
+    totalWed[marYr] = totalWed[marYr] + wedding + honeymoon
     
-    for n in range(years):
-        for home in houseDown:
-            if n == home[0]:
-                downHomeExpense[n] = home[1]
+    return totalWed
     
-    # Auto Down Payments
-    downCarExpense = np.zeros((years,1))
-    carDown = np.zeros((len(carYears),2))
-    
-    n = 0
-    for car in carYears:
-        carDown[n,0] = car[0]
-        carDown[n,1] = car[3]
-        n += 1
-    
-    for n in range(years):
-        for car in carDown:
-            if n == car[0]:
-                downCarExpense[n] = downCarExpense[n] + car[1]
-                
-    downCarExpense[0] = 0
+
     
     # Vacation
     vacExpense = np.zeros((years,1))
