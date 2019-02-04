@@ -35,12 +35,17 @@ def trad401Calc(salary,years,base401Perc=0,growth401Perc=0):
     
     return trad401
     
-def itemDedCalc(houseIntSum,charExpense,slpTaxes=0):
-    slpTaxes = 10000 if slpTaxes > 10000 else slpTaxes
+def itemDedCalc(years,houseInt,charExp,slpTax=None):
+    if slpTax is not None :
+        for n in range(years):
+            slpTax[n] = 10000 if slpTax[n] > 10000 else slpTax[n]
+    else:
+        slpTax = np.zeros((years,1))
             
-    itemDed = houseIntSum + charExpense + slpTaxes
+    itemDedState = houseInt + charExp
+    itemDedFed = itemDedState + slpTax
     
-    return itemDed
+    return [itemDedFed,itemDedState]
 
 def stdDedCalc(salary,years):
     stdDedFed = np.full((years,1),24000)
@@ -84,7 +89,7 @@ def exemptCalc(salary,years,numChild):
     childStateEx = childStateEx.sum(axis=1).reshape(years,1)    
         
     totalExState = persStateEx + childStateEx
-    totalExFed = np.zeros((years,1),0)
+    totalExFed = np.zeros((years,1))
     
     return [totalExState,totalExFed]
 
@@ -128,14 +133,14 @@ def miscTaxCalc(salary,years):
     
     return miscTaxes
 
-def slTaxCalc(grossIncState,years,itemDed,stdDedState):
+def slTaxCalc(grossIncState,years,itemDedState,stdDedState):
     localTaxPerc = 0.025
     stateTax = np.zeros((years,1))
     stateLocalTax = np.zeros((years,1))
     
     for n in range(years):
-        if itemDed[n] > stdDedState[n]:
-            grossIncState[n] = grossIncState[n] - itemDed[n]
+        if itemDedState[n] > stdDedState[n]:
+            grossIncState[n] = grossIncState[n] - itemDedState[n]
         else:
             grossIncState[n] = grossIncState[n] - stdDedState[n]
     
@@ -155,21 +160,16 @@ def slTaxCalc(grossIncState,years,itemDed,stdDedState):
             elif grossIncState[n] > bracket[0]:
                 stateTax[n] = stateTax[n] + ((grossIncState[n] - bracket[0]) * bracket[2])
                            
-        stateLocalTax[n] = stateTax[n] + (grossIncState[n] + localTaxPerc)
+        stateLocalTax[n] = stateTax[n] + (grossIncState[n] * localTaxPerc)
 
     return stateLocalTax
     
-def fedTaxCalc(grossIncFed,years,itemDed,stdDedFed,stateLocalTax,propTax):
+def fedTaxCalc(grossIncFed,years,itemDedFed,stdDedFed):
     fedTax = np.zeros((years,1))
     
-    slpDed = stateLocalTax + propTax
     for n in range(years):
-        slpDed[n] = 10000 if slpDed[n] > 10000 else slpDed[n]
-    itemDed = itemDed + slpDed
-    
-    for n in range(years):
-        if itemDed[n] > stdDedFed[n]:
-            grossIncFed[n] = grossIncFed[n] - itemDed[n]
+        if itemDedFed[n] > stdDedFed[n]:
+            grossIncFed[n] = grossIncFed[n] - itemDedFed[n]
         else:
             grossIncFed[n] = grossIncFed[n] - stdDedFed[n]
     
@@ -233,6 +233,7 @@ def netIncCalc(salary,fedTax,stateLocalTax,propTax,miscTaxes,roth401,benefits):
     totalTaxes = fedTax + stateLocalTax + propTax + miscTaxes
     totalWithheld = roth401 + benefits
     
-    netIncome = salary - totalTaxes - totalWithheld
+    netIncome = salary - totalTaxes
+    netIncomeB = netIncome - totalWithheld
     
-    return netIncome
+    return [netIncome,netIncomeB]

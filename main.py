@@ -65,9 +65,6 @@ house = np.array([18,20,4,900000,20])
 house = np.array([30,10,3.25,2000000,20])
 [totalBal,totalPay,totalInt,houseWth,propTax,totalDwn] = ln.mortgageCalc(house,years,totalBal,totalPay,totalInt,houseWth,propTax,totalDwn,app=0.0375)
 
-plt.clf()
-plt.plot(totalDown)
-
 # Expenses
 #==============================================================================
 
@@ -76,13 +73,19 @@ totalHol = exp.holidayExp(years,numChild,ageChild,addKid=kids)
 
 totalEnt = exp.entExp(years,numChild)
 
-totalMisc = exp.miscExp(years,numChild)
+totalMisc = exp.miscExp(years,numChild,growthFactor=0.5,childFactor=0.25)
 
-totalCollege = exp.collegeExp(years,numChild,ageChild)
+totalRand = exp.randExp(years,maxExp=25000,decayFactor=3,binWid=5)
 
-totalWed = exp.wedExp(years,4)
+totalCollege = exp.collegeExp(years,numChild,ageChild,baseCol=50000)
 
-totalHouse = exp.housingExp(years,houseWth)
+totalWed = exp.wedExp(years,marYr=4)
+
+totalVac = exp.vacExp(years,numChild,ageChild,baseVac=4000,growthFactor=1,childFactor=0.375)
+
+totalChar = exp.charExp(salary,years,baseChar=0.025)
+
+totalHouse = exp.housingExp(years,houseWth,totalDwn)
 
 # carYears = [purchase Yr, sell Yr, amount ($), down payment ($)]
 carYears = np.array([[0  , 8  , 23500 , 5000  ],   #Rich
@@ -100,28 +103,65 @@ carYears = np.array([[0  , 8  , 23500 , 5000  ],   #Rich
 
 totalAuto = exp.carExp(years,carYears)
 
+totalPerpExp = totalHol + totalEnt + totalMisc + totalRand
+totalMajorExp = totalCollege + totalWed + totalVac + totalChar + totalHouse + totalAuto
 
+totalExpenses = totalPerpExp + totalMajorExp
+
+perpExp = np.hstack((totalHol,totalEnt,totalMisc,totalRand))
+perpLabels = ['totalHol','totalEnt','totalMisc','totalRand']
+
+majExp = np.hstack((totalCollege,totalWed,totalVac,totalChar,totalHouse,totalAuto))
+majLabels = ['totalCollege','totalWed','totalVac','totalChar','totalHouse','totalAuto']
+
+plt.clf()
+plt.plot(perpExp)
+plt.legend(perpLabels)
+
+#plt.clf()
+#plt.plot(majExp)
+#plt.legend(majLabels)
+
+#plt.clf()
+#plt.plot(totalExpenses)
 
 # Taxes/Deductions/Withholdings
 #==============================================================================
-#  Rent  = [Salary, Years, Start Yr, End Yr, Base Salary Percentage (%), Yearly Salary Percentage (%)]
-#  House = [Purchase Yr, Mortgage Period (yrs), Interest Rate (%), Purchase Amount, Down Payment (%)]
-#==============================================================================
 
-#healthDed = tax.healthDedCalc(years,hsa=0,fsa=0,hra=0)  
-#trad401 = tax.trad401Calc(salary,years,base401Perc=0,growth401Perc=0)
-#    
-#itemDed = tax.itemDedCalc(totalInt,charExpense,slpTaxes=0)
-#[stdDedFed,stdDedState] = tax.stdDedCalc(salary,years)
-#[totalExState,totalExFed] = tax.exemptCalc(salary,years,numChild)
-#
-#[grossIncState,grossIncFed] = tax.grossIncCalc(salary,trad401,healthDed,totalExFed,totalExState)
-#
-#miscTaxes = tax.miscTaxCalc(salary,years)
-#stateLocalTax = tax.slTaxCalc(grossIncState,years,itemDed,stdDedState)
-#fedTax = tax.fedTaxCalc(grossIncFed,years,itemDed,stdDedFed,stateLocalTax,propTax)  
-#
-#roth401 = tax.roth401Calc(salary,years,base401Perc=0.04,growth401Perc=0.01)
-#benefits = tax.benefitsCalc(years,healthPrem=200,visPrem=10,denPrem=20)
-#
-#netIncome = tax.netIncCalc(salary,fedTax,stateLocalTax,propTax,miscTaxes,roth401,benefits)
+#Pretax Benefits
+healthDed = tax.healthDedCalc(years,hsa=0,fsa=0,hra=0)  
+trad401 = tax.trad401Calc(salary,years,base401Perc=0,growth401Perc=0)
+   
+#Deductions
+[stdDedFed,stdDedState] = tax.stdDedCalc(salary,years)
+[totalExState,totalExFed] = tax.exemptCalc(salary,years,numChild)
+
+[grossIncState,grossIncFed] = tax.grossIncCalc(salary,trad401,healthDed,totalExFed,totalExState)
+
+#SS & Medicare Taxes
+miscTaxes = tax.miscTaxCalc(salary,years)
+
+#State Taxes
+[itemDedFed,itemDedState] = tax.itemDedCalc(years,totalInt,totalChar)
+stateLocalTax = tax.slTaxCalc(grossIncState,years,itemDedState,stdDedState)
+
+#Federal Taxes
+slpTax = stateLocalTax + propTax
+[itemDedFed,itemDedState] = tax.itemDedCalc(years,totalInt,totalChar,slpTax)
+fedTax = tax.fedTaxCalc(grossIncFed,years,itemDedFed,stdDedFed)  
+
+#Posttax Benefits
+roth401 = tax.roth401Calc(salary,years,base401Perc=0.04,growth401Perc=0.01)
+benefits = tax.benefitsCalc(years,healthPrem=200,visPrem=10,denPrem=20)
+
+[netIncome,netIncomeB] = tax.netIncCalc(salary,fedTax,stateLocalTax,propTax,miscTaxes,roth401,benefits)
+effTaxRate = [(salary[n] - netIncome[n]) / salary[n] for n in range(years)]
+
+#plt.clf()
+#plt.subplot(121),plt.plot(salary),plt.plot(netIncome),plt.plot(netIncomeB),plt.legend(('Gross Income','Net Income','Net Benefits'))
+#bt,tp = plt.ylim()
+#plt.ylim((0,tp))
+#plt.subplot(122),plt.plot(effTaxRate)
+
+# Investments
+#==============================================================================

@@ -99,7 +99,7 @@ def mortgageCalc(house,years,curBal=None,curPay=None,curInt=None,curWth=None,cur
     totalBal = sum((curBal,mortBal))    
     totalPay = sum((curPay,mortPay))
     totalInt = sum((curInt,mortInt))
-    totalDwn = np.asarray([value if index != int(house[0]) else down for index,value in np.ndenumerate(curDwn)])
+    totalDwn = np.asarray([value if index != (int(house[0]),0) else down for index,value in np.ndenumerate(curDwn)]).reshape((years,1))
     
     curWth = np.zeros((years,1)) if curWth is None else np.vstack((curWth[:int(house[0])],np.zeros((years,1))[int(house[0]):])) 
     curTax = np.zeros((years,1)) if curTax is None else np.vstack((curTax[:int(house[0])],np.zeros((years,1))[int(house[0]):]))
