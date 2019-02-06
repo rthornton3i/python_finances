@@ -229,11 +229,11 @@ def benefitsCalc(years,healthPrem=200,visPrem=10,denPrem=20):
     
     return benefits
 
-def netIncCalc(salary,fedTax,stateLocalTax,propTax,miscTaxes,roth401,benefits):
+def netIncCalc(salary,fedTax,stateLocalTax,propTax,miscTaxes,roth401,trad401,benefits,healthDed):
     totalTaxes = fedTax + stateLocalTax + propTax + miscTaxes
-    totalWithheld = roth401 + benefits
+    totalWithheld = roth401 + trad401 + benefits + healthDed
     
     netIncome = salary - totalTaxes
-    netIncomeB = netIncome - totalWithheld
+    netCash = netIncome - totalWithheld
     
-    return [netIncome,netIncomeB]
+    return [netIncome,netCash]

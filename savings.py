@@ -1,175 +1,177 @@
-import main
-import salary as sal
-import children as ch
-import allocations as al
-import withholdings as wh
-import deductions as deds
-import expenses as ex
-import investments as inv
-
-import importlib as il
 import numpy as np
-import matplotlib.pyplot as plt
+import math
+import random as rand
+    
+#      0        1        2         3         4        5         6          7         8         9    
+#((totalHol,totalEnt,totalMisc,totalRand,totalVac,totalChar,totalHouse,totalAuto,totalWed,totalCollege)) 
+    
+#0) hiDiv
+#1) ltLowVol
+#2) largeCap
+#3) stHiVol
 
-loopLen = 1000
-tempTotalWorth, tempNetWorth, cont, contInv, contSav = [], [], [], [], []
+#4) retRoth401
+#5) retTrad401
 
-for i in range(loopLen):
-    il.reload(sal)
-    il.reload(ex)
-    il.reload(inv)
+#6) col529
+
+#7) emergFunds
+#8) medTerm
+#9) shortTerm
+#10) excSpend
+
+def savingsAllocations(years,allocations):
+    binWid = years / (np.shape(allocations)[1] - 1)
+    accounts = np.shape(allocations)[0]
+    savingsAlloc = np.zeros((years,accounts))
     
-    hiDiv = np.zeros((main.years,1))
-    ltLowVol = np.zeros((main.years,1))
-    largeCap = np.zeros((main.years,1))
-    stHiVol = np.zeros((main.years,1))
-    retRoth401 = np.zeros((main.years,1))
-    retTrad401 = np.zeros((main.years,1))
-    col529 = np.zeros((main.years,1))
-    emergFunds = np.zeros((main.years,1))
-    medTerm = np.zeros((main.years,1))
-    shortTerm = np.zeros((main.years,1))
-    excSpend = np.zeros((main.years,1))
+    for n in range(years):
+        for m in range(accounts):
+            if n == 0:
+                savingsAlloc[n,m] = allocations[m][0]
+            elif n > 0 and n < years:
+                curBin = math.floor(n / binWid)
+                savingsAlloc[n,m] = allocations[m][curBin] + (((n % binWid) / binWid) * (allocations[m][curBin+1] - allocations[m][curBin]))
+            else:
+                savingsAlloc[n,m] = allocations[m][-1]
     
-    hiDiv[0] = 0
-    ltLowVol[0] = 0
-    largeCap[0] = 0
-    stHiVol[0] = 4000
-    retRoth401[0] = 0
-    retTrad401[0] = 0
-    col529[0] = 0
-    emergFunds[0] = 0
-    medTerm[0] = 4000 + 27000 + 30000
-    shortTerm[0] = 0
-    excSpend[0] = 0
+    savingsAlloc = savingsAlloc / 100
+            
+    return savingsAlloc
     
-    for n in range(main.years):
-        # Contributions
+def savingsContributions(years,savingsAlloc,earningsAlloc,netCash,totalExpenses,ageChild,baseSavings=None):
+    accounts = np.shape(savingsAlloc)[1]
+    savingsCont= np.zeros((years,accounts))
+    savingsTotal = np.zeros((years,accounts))
+    baseSavings = np.zeros((accounts,1)) if baseSavings is None else baseSavings
+    
+    for n in range(years):
+        for m in range(accounts):
+            savingsCont[n,m] = savingsAlloc[n,m] * netCash[n]
+            
+            if n == 0:
+                savingsTotal[n,m] = savingsCont[n,m] + baseSavings[m]
+            else:
+                savingsTotal[n,m] = savingsTotal[n-1,m] + savingsCont[n,m]
+                
+            if m == 6:
+                savingsTotal[n,m] = savingsTotal[n,m] - totalExpenses[n,9]
+            elif m == 7:
+                savingsTotal[n,m] = savingsTotal[n,m] - totalExpenses[n,3]
+            elif m == 8:
+                savingsTotal[n,m] = savingsTotal[n,m] - totalExpenses[n,6] - totalExpenses[n,8]
+            elif m == 9:
+                savingsTotal[n,m] = savingsTotal[n,m] - totalExpenses[n,4] - totalExpenses[n,5] - totalExpenses[n,7]
+            elif m == 10:
+                savingsTotal[n,m] = savingsTotal[n,m] - totalExpenses[n,0] - totalExpenses[n,1] - totalExpenses[n,2]    
+            
+            savingsTotal[n,m] = savingsTotal[n,m] * (1 + earningsAlloc[n,m])
+    
+
+        if n > 20 and ageChild[n,-1] == 0:
+            transferVal = savingsTotal[n,6]
+            savingsTotal[n,6] = 0
+            
+            savingsTotal[n,8] = savingsTotal[n,8] + transferVal
+        
+#        if n <= 35:
+#            maxVal = 5e6
+#            if stHiVol[n] > maxVal:
+#                transferVal = stHiVol[n] - maxVal
+#                
+#                stHiVol[n] = maxVal
+#                
+#                largeCap[n] = largeCap[n] + transferVal
+#            
+#            maxVal = 5e6
+#            if largeCap[n] > maxVal:
+#                transferVal = largeCap[n] - maxVal
+#                
+#                largeCap[n] = maxVal
+#                
+#                ltLowVol[n] = ltLowVol[n] + transferVal
+#        
+#        maxVal = 2.5e6
+#        if ltLowVol[n] > maxVal:
+#            transferVal = ltLowVol[n] - maxVal
+#            
+#            ltLowVol[n] = maxVal
+#            
+#            hiDiv[n] = hiDiv[n] + transferVal
+#        
+#        maxVal = 2.5e6
+#        if hiDiv[n] > maxVal:
+#            transferVal = hiDiv[n] - maxVal
+#            
+#            hiDiv[n] = maxVal
+#            
+#            medTerm[n] = medTerm[n] + (transferVal * 0.7)
+#            shortTerm[n] = shortTerm[n] + (transferVal * 0.1)
+#            excSpend[n] = excSpend[n] + (transferVal * 0.1)
+#            emergFunds[n] = excSpend[n] + (transferVal * 0.1)
+    
+    return [savingsTotal,savingsCont]
+
+def investAllocations(years,allocations):
+    accounts = np.shape(allocations)[0]
+    earningsAlloc = np.zeros((years,accounts))
+    
+    for n in range(years):
+        for m in range(accounts):
+            if m == 0:
+                earningsAlloc[n,m] = rand.normalvariate(4.0,0.5)
+            elif m == 1:
+                earningsAlloc[n,m] = rand.normalvariate(8.0,2.5)
+            elif m == 2:
+                earningsAlloc[n,m] = rand.normalvariate(12.0,4.5)
+            elif m == 3:
+                earningsAlloc[n,m] = rand.normalvariate(16.0,8.0)
+                if earningsAlloc[n,m] > 30:
+                    earningsAlloc[n,m] = 30
+            elif m == 4 or m == 5:
+                mu = np.zeros((years,1))
+                sigma = np.zeros((years,1))
+                
+                muStart = 8.0
+                muEnd = 4.0
+                
+                mu[n] = muStart - ((n / years) * (muStart - muEnd))
+                sigma[n] = 0.25 * mu[n]
+                
+                earningsAlloc[n,m] = rand.normalvariate(mu[n],sigma[n])
+            elif m == 6:
+                mu = np.zeros((years,1))
+                sigma = np.zeros((years,1))
+                
+                muStart = 7.0
+                muEnd = 5.0
+                
+                mu[n] = muStart - ((n / years) * (muStart - muEnd))
+                sigma[n] = 0.35 * mu[n]
+                
+                earningsAlloc[n,m] = rand.normalvariate(mu[n],sigma[n])
+            elif m == 7:
+                earningsAlloc[n,m] = 0.05
+            elif m == 8:
+                earningsAlloc[n,m] = 2.15
+            elif m == 9:
+                earningsAlloc[n,m] = 1.0
+            elif m == 10:
+                earningsAlloc[n,m] = 0.05
+            
+    earningsAlloc = earningsAlloc / 100
+    
+    return earningsAlloc
+
+def savingsCalc(years,netCash,totalExpenses):
+    totalExpenses = np.sum(totalExpenses,axis=1).reshape((years,1))
+    savings = np.zeros((years,1))
+    annualSavings = netCash - totalExpenses
+    
+    for n in range(years):
         if n == 0:
-            hiDiv[n] = hiDiv[n] + al.savingsCont[n,0]
-            ltLowVol[n] = ltLowVol[n] + al.savingsCont[n,1]
-            largeCap[n] = largeCap[n] + al.savingsCont[n,2]
-            stHiVol[n] = stHiVol[n] + al.savingsCont[n,3]
-            col529[n] = col529[n] + al.savingsCont[n,6]
-            emergFunds[n] = emergFunds[n] + al.savingsCont[n,7]
-            medTerm[n] = medTerm[n] + al.savingsCont[n,8]
-            shortTerm[n] = shortTerm[n] + al.savingsCont[n,9]
-            excSpend[n] = excSpend[n] + al.savingsCont[n,10]
-            
-            retRoth401[n] = wh.roth401[n] + wh.roth401Match[n]
-            retTrad401[n] = deds.trad401[n] + deds.trad401Match[n]
+            savings[n] = annualSavings[n]
         else:
-            hiDiv[n] = hiDiv[n-1] + al.savingsCont[n,0]
-            ltLowVol[n] = ltLowVol[n-1] + al.savingsCont[n,1]
-            largeCap[n] = largeCap[n-1] + al.savingsCont[n,2]
-            stHiVol[n] = stHiVol[n-1] + al.savingsCont[n,3]
-            col529[n] = col529[n-1] + al.savingsCont[n,6]
-            emergFunds[n] = emergFunds[n-1] + al.savingsCont[n,7]
-            medTerm[n] = medTerm[n-1] + al.savingsCont[n,8]
-            shortTerm[n] = shortTerm[n-1] + al.savingsCont[n,9]
-            excSpend[n] = excSpend[n-1] + al.savingsCont[n,10]
+            savings[n] = savings[n-1] + annualSavings[n]
             
-            retRoth401[n] = retRoth401[n-1] + wh.roth401[n] + wh.roth401Match[n]
-            retTrad401[n] = retTrad401[n-1] + deds.trad401[n] + deds.trad401Match[n]
-    
-        # Expenses
-        col529[n] = col529[n] - ex.colExpense[n]
-        emergFunds[n] = emergFunds[n] - ex.miscExpense[n]
-        medTerm[n] = medTerm[n] - ex.totalHouse[n] - ex.totalAuto[n] - ex.downHomeExpense[n] - ex.downCarExpense[n] - ex.loanExpense[n]
-        shortTerm[n] = shortTerm[n] - ex.totalHol[n] - ex.totalSub[n] - ex.totalEnt[n] - ex.totalMisc[n]
-        excSpend[n] = excSpend[n] - ex.wedExpense[n] - ex.vacExpense[n] - ex.charExpense[n]
-        
-        # Earnings
-        hiDiv[n] = (1 + inv.meanEarningsAlloc[n,0]) * hiDiv[n]
-        ltLowVol[n] = (1 + inv.meanEarningsAlloc[n,1]) * ltLowVol[n]
-        largeCap[n] = (1 + inv.meanEarningsAlloc[n,2]) * largeCap[n]
-        stHiVol[n] = (1 + inv.meanEarningsAlloc[n,3]) * stHiVol[n]
-        retRoth401[n] = (1 + inv.meanEarningsAlloc[n,4]) * retRoth401[n]
-        retTrad401[n] = (1 + inv.meanEarningsAlloc[n,5]) * retTrad401[n]
-        col529[n] = (1 + inv.meanEarningsAlloc[n,6]) * col529[n]
-        emergFunds[n] = (1 + inv.meanEarningsAlloc[n,7]) * emergFunds[n]
-        medTerm[n] = (1 + inv.meanEarningsAlloc[n,8]) * medTerm[n]
-        shortTerm[n] = (1 + inv.meanEarningsAlloc[n,9]) * shortTerm[n]
-        excSpend[n] = (1 + inv.meanEarningsAlloc[n,10]) * excSpend[n]
-        
-        # Transfers
-        if n > 20 and ch.ageChild[n,-1] == 0:
-            transferVal = col529[n]
-            
-            col529[n] = 0
-            
-            medTerm[n] = medTerm[n] + transferVal
-        
-        if n <= 35:
-            maxVal = 5e6
-            if stHiVol[n] > maxVal:
-                transferVal = stHiVol[n] - maxVal
-                
-                stHiVol[n] = maxVal
-                
-                largeCap[n] = largeCap[n] + transferVal
-            
-            maxVal = 5e6
-            if largeCap[n] > maxVal:
-                transferVal = largeCap[n] - maxVal
-                
-                largeCap[n] = maxVal
-                
-                ltLowVol[n] = ltLowVol[n] + transferVal
-        
-        maxVal = 2.5e6
-        if ltLowVol[n] > maxVal:
-            transferVal = ltLowVol[n] - maxVal
-            
-            ltLowVol[n] = maxVal
-            
-            hiDiv[n] = hiDiv[n] + transferVal
-        
-        maxVal = 2.5e6
-        if hiDiv[n] > maxVal:
-            transferVal = hiDiv[n] - maxVal
-            
-            hiDiv[n] = maxVal
-            
-            medTerm[n] = medTerm[n] + (transferVal * 0.7)
-            shortTerm[n] = shortTerm[n] + (transferVal * 0.1)
-            excSpend[n] = excSpend[n] + (transferVal * 0.1)
-            emergFunds[n] = excSpend[n] + (transferVal * 0.1)
-            
-    cont.append(np.concatenate((hiDiv,ltLowVol,largeCap,stHiVol,retRoth401,retTrad401,col529,emergFunds,medTerm,shortTerm,excSpend),axis = 1))
-    contInv.append(np.concatenate((hiDiv,ltLowVol,largeCap,stHiVol,retRoth401,retTrad401),axis = 1))
-    contSav.append(np.concatenate((col529,emergFunds,medTerm,shortTerm,excSpend),axis = 1))
-    
-    totalWorthSum = hiDiv + ltLowVol + largeCap + stHiVol + retRoth401 + retTrad401 + col529 + emergFunds + medTerm + shortTerm + excSpend 
-    tempTotalWorth.append(list(map(int,totalWorthSum)))
-
-totalInv = np.mean(contInv,axis=0)
-totalSav = np.mean(contSav,axis=0)
-totalCont = np.mean(cont,axis=0)
-
-for worth in tempTotalWorth:
-    tempNetWorth.append(worth[-1])
-    
-netWorth = np.mean(tempNetWorth)
-#netWorth = np.median(tempNetWorth)
-totalWorth = np.mean(tempTotalWorth,axis=0)
-
-#print(totalSav[0]/2)
-print(netWorth)
-
-plt.clf()
-
-#plt.hist(tempNetWorth,30)
-
-#plt.plot(totalCont,linewidth=2)
-#plt.legend(('hiDiv','ltLowVol','largeCap','stHiVol','retRoth401','retTrad401','col529','emergFunds','medTerm','shortTerm','excSpend'),loc=0)
-
-plt.plot(totalSav,linewidth=2)
-plt.legend(('col529','emergFunds','medTerm','shortTerm','excSpend'),loc=0)
-plt.ylim([0e0,4e5])
-
-#plt.plot(totalInv,linewidth=2)
-#plt.legend(('hiDiv','ltLowVol','largeCap','stHiVol','retRoth401','retTrad401'),loc=0)
-#plt.ylim([0e0,2e5])
-
-#plt.yscale('log', basey=10)
+    return [annualSavings,savings]

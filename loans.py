@@ -41,19 +41,6 @@ def genLoanCalc(loan,years,compType='daily'):
     
     return [loanPaySum,loanBalSum,loanIntSum]
 
-def rentCalc(salary,years,termStart,termEnd,basePerc=0.25,percSal=None):
-    if percSal == None:
-        rentPerc = [basePerc * 0.99 ** n for n in range(years)]
-    else:
-        rentPerc = [percSal for n in range(years)]
-    
-    rentPay = np.zeros((years,1))
-    
-    for n in range(termStart,termEnd):
-        rentPay[n] = rentPerc[n] * salary[n]
-    
-    return rentPay
-
 def mortgageCalc(house,years,curBal=None,curPay=None,curInt=None,curWth=None,curTax=None,curDwn=None,app=0.0375):        
     bal = 0 if curBal is None else curBal[int(house[0]),0]
     worth = 0 if curWth is None else curWth[int(house[0]),0]

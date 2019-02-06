@@ -2,6 +2,7 @@ import setup
 import loans as ln
 import expenses as exp
 import taxes as tax
+import savings as sav
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,9 +16,6 @@ yrs = np.arange(years).reshape((years,1))
 salaryBase = 77000 + 86000
 
 # Number of Children
-#==============================================================================
-# [Yr @ Kid1 (+1), Yr @ Kid2 (+1),...]
-# Children in year 7 and 9, ages 29 and 31
 #==============================================================================
 numChild = [6,8]
 
@@ -42,21 +40,14 @@ ageChild = setup.childCalc(years,numChild)
 
 # Loans
 #==============================================================================
-#  Loan = [Start Yr, End Yr, Interest Rate (%), Loan Amount]
-#==============================================================================
 
 collegeLoan = np.array([0,7,4.0,36700])
 [colLoanPay,colLoanBal,colLoanInt] = ln.genLoanCalc(collegeLoan,years,compType='daily')
 
 # Housing/Rent
 #==============================================================================
-#  Rent  = [Salary, Years, Start Yr, End Yr, Base Salary Percentage (%), Yearly Salary Percentage (%)]
-#  House = [Purchase Yr, Mortgage Period (yrs), Interest Rate (%), Purchase Amount, Down Payment (%)]
-#==============================================================================
 
-rentPay = ln.rentCalc(salary,years,0,5,basePerc=0.25,percSal=None)
-
-house = np.array([6,30,4.25,450000,20])
+house = np.array([8,30,4.25,450000,20])
 [totalBal,totalPay,totalInt,houseWth,propTax,totalDwn] = ln.mortgageCalc(house,years,curBal=None,curPay=None,curInt=None,curWth=None,curTax=None,curDwn=None,app=0.0375)
 
 house = np.array([18,20,4,900000,20])
@@ -65,27 +56,13 @@ house = np.array([18,20,4,900000,20])
 house = np.array([30,10,3.25,2000000,20])
 [totalBal,totalPay,totalInt,houseWth,propTax,totalDwn] = ln.mortgageCalc(house,years,totalBal,totalPay,totalInt,houseWth,propTax,totalDwn,app=0.0375)
 
+#plt.clf()
+#plt.plot(totalPay)
+
 # Expenses
 #==============================================================================
 
 kids = [6,8,10,10,12,13,14]
-totalHol = exp.holidayExp(years,numChild,ageChild,addKid=kids)
-
-totalEnt = exp.entExp(years,numChild)
-
-totalMisc = exp.miscExp(years,numChild,growthFactor=0.5,childFactor=0.25)
-
-totalRand = exp.randExp(years,maxExp=25000,decayFactor=3,binWid=5)
-
-totalCollege = exp.collegeExp(years,numChild,ageChild,baseCol=50000)
-
-totalWed = exp.wedExp(years,marYr=4)
-
-totalVac = exp.vacExp(years,numChild,ageChild,baseVac=4000,growthFactor=1,childFactor=0.375)
-
-totalChar = exp.charExp(salary,years,baseChar=0.025)
-
-totalHouse = exp.housingExp(years,houseWth,totalDwn)
 
 # carYears = [purchase Yr, sell Yr, amount ($), down payment ($)]
 carYears = np.array([[0  , 8  , 23500 , 5000  ],   #Rich
@@ -100,30 +77,39 @@ carYears = np.array([[0  , 8  , 23500 , 5000  ],   #Rich
                      [27 , 35 , 40000 , 15000 ],   #Sedan3b
                      [33 , 40 , 45000 , 17500 ],   #Sedan4a
                      [35 , 40 , 45000 , 20000 ]])  #Sedan4b
+                     
+totalHol = exp.holidayExp(years,numChild,ageChild,addKid=kids)
+totalEnt = exp.entExp(years,numChild)
+totalMisc = exp.miscExp(years,numChild,growthFactor=0.5,childFactor=0.25)
 
-totalAuto = exp.carExp(years,carYears)
+totalRand = exp.randExp(years,maxExp=25000,decayFactor=3,binWid=4)
+totalVac = exp.vacExp(years,numChild,ageChild,baseVac=3000,growthFactor=1,childFactor=0.35)
+totalChar = exp.charExp(salary,years,baseChar=0.005)
 
-totalPerpExp = totalHol + totalEnt + totalMisc + totalRand
-totalMajorExp = totalCollege + totalWed + totalVac + totalChar + totalHouse + totalAuto
+totalRent = exp.rentExp(salary,years,0,8,basePerc=0.15,percDec=0.01,percSal=None)
+totalHouse = exp.housingExp(years,totalRent,totalPay,houseWth,totalDwn)
+totalAuto = exp.carExp(years,carYears,insRate=0.075,repRate=0.025)
 
-totalExpenses = totalPerpExp + totalMajorExp
+totalWed = exp.wedExp(years,marYr=4)
+totalCollege = exp.collegeExp(years,numChild,ageChild,baseCol=50000)
 
-perpExp = np.hstack((totalHol,totalEnt,totalMisc,totalRand))
-perpLabels = ['totalHol','totalEnt','totalMisc','totalRand']
+totalExpenses = np.hstack((totalHol,totalEnt,totalMisc,totalRand,totalVac,totalChar,totalHouse,totalAuto,totalWed,totalCollege))
 
-majExp = np.hstack((totalCollege,totalWed,totalVac,totalChar,totalHouse,totalAuto))
-majLabels = ['totalCollege','totalWed','totalVac','totalChar','totalHouse','totalAuto']
+minExpPlot = np.hstack((totalHol,totalEnt,totalMisc))
+minExpLabels = ['totalHol','totalEnt','totalMisc']
 
-plt.clf()
-plt.plot(perpExp)
-plt.legend(perpLabels)
+medExpPlot = np.hstack((totalRand,totalVac,totalChar))
+medExpLabels = ['totalRand','totalVac','totalChar']
+
+maxExpPlot = np.hstack((totalHouse,totalAuto,totalWed,totalCollege))
+maxExpLabels = ['totalHouse','totalAuto','totalWed','totalCollege']
 
 #plt.clf()
-#plt.plot(majExp)
-#plt.legend(majLabels)
+#plt.plot(minExpPlot)
+#plt.legend(minExpLabels)
 
 #plt.clf()
-#plt.plot(totalExpenses)
+#plt.plot(totalAuto)
 
 # Taxes/Deductions/Withholdings
 #==============================================================================
@@ -154,14 +140,73 @@ fedTax = tax.fedTaxCalc(grossIncFed,years,itemDedFed,stdDedFed)
 roth401 = tax.roth401Calc(salary,years,base401Perc=0.04,growth401Perc=0.01)
 benefits = tax.benefitsCalc(years,healthPrem=200,visPrem=10,denPrem=20)
 
-[netIncome,netIncomeB] = tax.netIncCalc(salary,fedTax,stateLocalTax,propTax,miscTaxes,roth401,benefits)
-effTaxRate = [(salary[n] - netIncome[n]) / salary[n] for n in range(years)]
+[netIncome,netCash] = tax.netIncCalc(salary,fedTax,stateLocalTax,propTax,miscTaxes,roth401,trad401,benefits,healthDed)
+effTaxRate = np.asarray([(salary[n] - netIncome[n]) / salary[n] for n in range(years)])
 
 #plt.clf()
-#plt.subplot(121),plt.plot(salary),plt.plot(netIncome),plt.plot(netIncomeB),plt.legend(('Gross Income','Net Income','Net Benefits'))
+#plt.subplot(121),plt.plot(salary),plt.plot(netIncome),plt.plot(netCash),plt.legend(('Gross Income','Net Income','Net Benefits'))
 #bt,tp = plt.ylim()
 #plt.ylim((0,tp))
 #plt.subplot(122),plt.plot(effTaxRate)
 
-# Investments
+#plt.clf()
+#plt.plot(itemDedFed)
+
+# Savings/Investments
 #==============================================================================
+
+baseSavings = np.asarray([[700],    #hiDiv      (VYM)
+                          [700],    #ltLowVol   (VTI)
+                          [700],    #largeCap   (MGK)
+                          [5500],   #stHiVol    (Robinhood)
+                          [3300],   #retRoth401 (Fidelity)
+                          [0],      #retTrad401 (Fidelity)
+                          [400],    #col529     (Fidelity)
+                          [1000],   #emergFunds (PNC Short)
+                          [6500],   #medTerm    (Goldman Sach's)
+                          [1800],   #shortTerm  (PNC Growth)
+                          [1000]])  #excSpend   (PNC Spend)
+                          
+
+#                         [yr 0 , yr 10 , yr 20 , yr 30 , yr 40 ]
+allocations = np.asarray([[2.5  , 5     , 5     , 10    , 5     ],     #hiDiv
+                          [2.5  , 7.5   , 7.5   , 12.5  , 5     ],     #ltLowVol
+                          [2.5  , 7.5   , 7.5   , 12.5  , 5     ],     #largeCap
+                          [12.5 , 12.5  , 7.5   , 5     , 5     ],     #stHiVol
+                          [0    , 0     , 0     , 0     , 0     ],     #retRoth401
+                          [0    , 0     , 0     , 0     , 0     ],     #retTrad401
+                          [0    , 5     , 12.5  , 0     , 0     ],     #col529
+                          [5    , 2.5   , 2.5   , 2.5   , 15    ],     #emergFunds
+                          [35   , 27.5  , 35    , 32.5  , 30    ],     #medTerm
+                          [17.5 , 22.5  , 12.5  , 15    , 20    ],     #shortTerm
+                          [22.5 , 10    , 10    , 10    , 15    ]])    #excSpend
+
+#savingsCheck = np.sum(allocations,axis=0)
+#print(savingsCheck)
+
+[annualSavings,savings] = sav.savingsCalc(years,netCash,totalExpenses)
+
+savingsAlloc = sav.savingsAllocations(years,allocations)
+earningsAlloc = sav.investAllocations(years,allocations)
+
+[savingsTotal,savingsCont] = sav.savingsContributions(years,savingsAlloc,earningsAlloc,netCash,totalExpenses,ageChild,baseSavings)
+
+hiDiv = savingsTotal[:,0]
+ltLowVol = savingsTotal[:,1]
+largeCap = savingsTotal[:,2]
+stHiVol = savingsTotal[:,3]
+
+retRoth401 = savingsTotal[:,4]
+retTrad401 = savingsTotal[:,5]
+
+col529 = savingsTotal[:,6]
+emergFunds = savingsTotal[:,7]
+medTerm = savingsTotal[:,8]
+shortTerm = savingsTotal[:,9]
+excSpend = savingsTotal[:,10]
+            
+#plt.clf()
+#plt.plot(medTerm)
+#plt.legend(('hiDiv','ltLowVol','largeCap','stHiVol','retRoth401','retTrad401','col529','emergFunds','medTerm','shortTerm','excSpend'))
+
+#print(savingsTotal)
