@@ -172,17 +172,17 @@ baseSavings = np.asarray([[700],    #hiDiv      (VYM)
 allocations = np.asarray([[2.5  , 5     , 5     , 10    , 5     ],     #hiDiv
                           [2.5  , 7.5   , 7.5   , 12.5  , 5     ],     #ltLowVol
                           [2.5  , 7.5   , 7.5   , 12.5  , 5     ],     #largeCap
-                          [12.5 , 12.5  , 7.5   , 5     , 5     ],     #stHiVol
+                          [7.5  , 12.5  , 7.5   , 5     , 5     ],     #stHiVol
                           [0    , 0     , 0     , 0     , 0     ],     #retRoth401
                           [0    , 0     , 0     , 0     , 0     ],     #retTrad401
                           [0    , 5     , 12.5  , 0     , 0     ],     #col529
                           [5    , 2.5   , 2.5   , 2.5   , 15    ],     #emergFunds
                           [35   , 27.5  , 35    , 32.5  , 30    ],     #medTerm
-                          [17.5 , 22.5  , 12.5  , 15    , 20    ],     #shortTerm
-                          [22.5 , 10    , 10    , 10    , 15    ]])    #excSpend
+                          [25   , 22.5  , 12.5  , 15    , 20    ],     #shortTerm
+                          [20   , 10    , 10    , 10    , 15    ]])    #excSpend
 
-#savingsCheck = np.sum(allocations,axis=0)
-#print(savingsCheck)
+savingsCheck = np.sum(allocations,axis=0)
+print(savingsCheck)
 
 [annualSavings,savings] = sav.savingsCalc(years,netCash,totalExpenses)
 
@@ -205,8 +205,8 @@ medTerm = savingsTotal[:,8]
 shortTerm = savingsTotal[:,9]
 excSpend = savingsTotal[:,10]
             
-#plt.clf()
-#plt.plot(medTerm)
+plt.clf()
+plt.plot(shortTerm[:10])
 #plt.legend(('hiDiv','ltLowVol','largeCap','stHiVol','retRoth401','retTrad401','col529','emergFunds','medTerm','shortTerm','excSpend'))
 
 #print(savingsTotal)
