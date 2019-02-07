@@ -1,6 +1,7 @@
 import numpy as np
 
 def genLoanCalc(loan,years,compType='daily'):
+#    loan = [Start Yr, Term Length (Yrs), Interest Rate (%), Amount]
     if compType == 'daily':
         compTime = 365
     elif compType == 'monthly':
@@ -41,9 +42,9 @@ def genLoanCalc(loan,years,compType='daily'):
     
     return [loanPaySum,loanBalSum,loanIntSum]
 
-def mortgageCalc(house,years,curBal=None,curPay=None,curInt=None,curWth=None,curTax=None,curDwn=None,app=0.0375):        
+def mortgageCalc(house,years,curBal=None,curPay=None,curInt=None,curWth=None,curTax=None,curDwn=None,sellPrev=True,app=0.0375):        
     bal = 0 if curBal is None else curBal[int(house[0]),0]
-    worth = 0 if curWth is None else curWth[int(house[0]),0]
+    worth = 0 if curWth is None or sellPrev == False else curWth[int(house[0]),0]
     
     curBal = np.zeros((years,1)) if curBal is None else np.vstack((curBal[:int(house[0])],np.zeros((years,1))[int(house[0]):]))
     curPay = np.zeros((years,1)) if curPay is None else np.vstack((curPay[:int(house[0])],np.zeros((years,1))[int(house[0]):]))
@@ -88,8 +89,12 @@ def mortgageCalc(house,years,curBal=None,curPay=None,curInt=None,curWth=None,cur
     totalInt = sum((curInt,mortInt))
     totalDwn = np.asarray([value if index != (int(house[0]),0) else down for index,value in np.ndenumerate(curDwn)]).reshape((years,1))
     
-    curWth = np.zeros((years,1)) if curWth is None else np.vstack((curWth[:int(house[0])],np.zeros((years,1))[int(house[0]):])) 
-    curTax = np.zeros((years,1)) if curTax is None else np.vstack((curTax[:int(house[0])],np.zeros((years,1))[int(house[0]):]))
+    if sellPrev == True:
+        curWth = np.zeros((years,1)) if curWth is None else np.vstack((curWth[:int(house[0])],np.zeros((years,1))[int(house[0]):])) 
+        curTax = np.zeros((years,1)) if curTax is None else np.vstack((curTax[:int(house[0])],np.zeros((years,1))[int(house[0]):]))
+    else:
+        curWth = np.zeros((years,1)) if curWth is None else curWth
+        curTax = np.zeros((years,1)) if curTax is None else curTax
     
     houseWorth = np.zeros((years,1)) 
     houseTax = np.zeros((years,1)) 

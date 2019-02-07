@@ -2,8 +2,8 @@ import numpy as np
 import math
 import random as rand
     
-#      0        1        2         3         4        5         6          7         8         9    
-#((totalHol,totalEnt,totalMisc,totalRand,totalVac,totalChar,totalHouse,totalAuto,totalWed,totalCollege)) 
+#      0        1        2         3         4        5         6          7         8         9           10
+#((totalHol,totalEnt,totalMisc,totalRand,totalVac,totalChar,totalHouse,totalAuto,totalWed,totalCollege,totalLoan)) 
     
 #0) hiDiv
 #1) ltLowVol
@@ -39,7 +39,7 @@ def savingsAllocations(years,allocations):
             
     return savingsAlloc
     
-def savingsContributions(years,savingsAlloc,earningsAlloc,netCash,totalExpenses,ageChild,baseSavings=None):
+def savingsContributions(years,savingsAlloc,earningsAlloc,netCash,totalExpenses,ret401,ageChild,baseSavings=None):
     accounts = np.shape(savingsAlloc)[1]
     savingsCont= np.zeros((years,accounts))
     savingsTotal = np.zeros((years,accounts))
@@ -47,6 +47,7 @@ def savingsContributions(years,savingsAlloc,earningsAlloc,netCash,totalExpenses,
     
     for n in range(years):
         for m in range(accounts):
+            #Contributions
             savingsCont[n,m] = savingsAlloc[n,m] * netCash[n]
             
             if n == 0:
@@ -54,6 +55,12 @@ def savingsContributions(years,savingsAlloc,earningsAlloc,netCash,totalExpenses,
             else:
                 savingsTotal[n,m] = savingsTotal[n-1,m] + savingsCont[n,m]
                 
+            if m == 4:
+                savingsTotal[n,m] = savingsTotal[n,m] + ret401[n,0] + ret401[n,1]
+            elif m == 5:
+                savingsTotal[n,m] = savingsTotal[n,m] + ret401[n,2] + ret401[n,3]
+            
+            #Expenses
             if m == 6:
                 savingsTotal[n,m] = savingsTotal[n,m] - totalExpenses[n,9]
             elif m == 7:
@@ -61,54 +68,55 @@ def savingsContributions(years,savingsAlloc,earningsAlloc,netCash,totalExpenses,
             elif m == 8:
                 savingsTotal[n,m] = savingsTotal[n,m] - totalExpenses[n,6] - totalExpenses[n,8]
             elif m == 9:
-                savingsTotal[n,m] = savingsTotal[n,m] - totalExpenses[n,4] - totalExpenses[n,5] - totalExpenses[n,7]
+                savingsTotal[n,m] = savingsTotal[n,m] - totalExpenses[n,4] - totalExpenses[n,5] - totalExpenses[n,7] - totalExpenses[n,10]
             elif m == 10:
                 savingsTotal[n,m] = savingsTotal[n,m] - totalExpenses[n,0] - totalExpenses[n,1] - totalExpenses[n,2]    
             
+            #Earnings
             savingsTotal[n,m] = savingsTotal[n,m] * (1 + earningsAlloc[n,m])
     
-
+        #Transfers
         if n > 20 and ageChild[n,-1] == 0:
             transferVal = savingsTotal[n,6]
             savingsTotal[n,6] = 0
             
             savingsTotal[n,8] = savingsTotal[n,8] + transferVal
+
+        if n <= 35:
+            maxVal = 5e6
+            if savingsTotal[n,3] > maxVal:
+                transferVal = savingsTotal[n,3] - maxVal
+                savingsTotal[n,3] = maxVal
+                
+                savingsTotal[n,2] = savingsTotal[n,2] + (transferVal * 0.8)
+                savingsTotal[n,8] = savingsTotal[n,8] + (transferVal * 0.2)
+            
+            maxVal = 5e6
+            if savingsTotal[n,2] > maxVal:
+                transferVal = savingsTotal[n,2] - maxVal
+                savingsTotal[n,2] = maxVal
+                
+                savingsTotal[n,1] = savingsTotal[n,1] + (transferVal * 0.9)
+                savingsTotal[n,8] = savingsTotal[n,8] + (transferVal * 0.1)
+
+        maxVal = 2.5e6
+        if savingsTotal[n,1] > maxVal:
+            transferVal = savingsTotal[n,1] - maxVal
+            
+            savingsTotal[n,1] = maxVal
+            
+            savingsTotal[n,0] = savingsTotal[n,0] + (transferVal * 0.9)
+            savingsTotal[n,8] = savingsTotal[n,8] + (transferVal * 0.1)
         
-#        if n <= 35:
-#            maxVal = 5e6
-#            if stHiVol[n] > maxVal:
-#                transferVal = stHiVol[n] - maxVal
-#                
-#                stHiVol[n] = maxVal
-#                
-#                largeCap[n] = largeCap[n] + transferVal
-#            
-#            maxVal = 5e6
-#            if largeCap[n] > maxVal:
-#                transferVal = largeCap[n] - maxVal
-#                
-#                largeCap[n] = maxVal
-#                
-#                ltLowVol[n] = ltLowVol[n] + transferVal
-#        
-#        maxVal = 2.5e6
-#        if ltLowVol[n] > maxVal:
-#            transferVal = ltLowVol[n] - maxVal
-#            
-#            ltLowVol[n] = maxVal
-#            
-#            hiDiv[n] = hiDiv[n] + transferVal
-#        
-#        maxVal = 2.5e6
-#        if hiDiv[n] > maxVal:
-#            transferVal = hiDiv[n] - maxVal
-#            
-#            hiDiv[n] = maxVal
-#            
-#            medTerm[n] = medTerm[n] + (transferVal * 0.7)
-#            shortTerm[n] = shortTerm[n] + (transferVal * 0.1)
-#            excSpend[n] = excSpend[n] + (transferVal * 0.1)
-#            emergFunds[n] = excSpend[n] + (transferVal * 0.1)
+        maxVal = 2.5e6
+        if savingsTotal[n,0] > maxVal:
+            transferVal = savingsTotal[n,0] - maxVal
+            savingsTotal[n,0] = maxVal
+            
+            savingsTotal[n,7] = savingsTotal[n,7] + (transferVal * 0.1)
+            savingsTotal[n,8] = savingsTotal[n,8] + (transferVal * 0.4)
+            savingsTotal[n,9] = savingsTotal[n,9] + (transferVal * 0.2)
+            savingsTotal[n,10] = savingsTotal[n,10] + (transferVal * 0.3)
     
     return [savingsTotal,savingsCont]
 
@@ -132,11 +140,11 @@ def investAllocations(years,allocations):
                 mu = np.zeros((years,1))
                 sigma = np.zeros((years,1))
                 
-                muStart = 8.0
+                muStart = 7.0
                 muEnd = 4.0
                 
                 mu[n] = muStart - ((n / years) * (muStart - muEnd))
-                sigma[n] = 0.25 * mu[n]
+                sigma[n] = 0.35 * mu[n]
                 
                 earningsAlloc[n,m] = rand.normalvariate(mu[n],sigma[n])
             elif m == 6:
@@ -147,7 +155,7 @@ def investAllocations(years,allocations):
                 muEnd = 5.0
                 
                 mu[n] = muStart - ((n / years) * (muStart - muEnd))
-                sigma[n] = 0.35 * mu[n]
+                sigma[n] = 0.25 * mu[n]
                 
                 earningsAlloc[n,m] = rand.normalvariate(mu[n],sigma[n])
             elif m == 7:

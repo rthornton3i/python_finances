@@ -87,7 +87,7 @@ def rentExp(salary,years,termStart,termEnd,basePerc=0.25,percDec=0.01,percSal=No
     if percSal == None:
         rentPerc = [basePerc * (1-percDec) ** n for n in range(years)]
     else:
-        rentPerc = [percSal for n in range(years)]
+        rentPerc = percSal
     
     rentPay = np.zeros((years,1))
     
@@ -165,15 +165,11 @@ def collegeExp(years,numChild,ageChild,baseCol=50000):
     
     return totalCollege
     
-def wedExp(years,marYr):
+def wedExp(years,marYr,wed,hm,ring):
     totalWed = np.zeros((years,1))
     
-    wedding = 20000
-    honeymoon = 12500
-    ring = 6000
-    
     totalWed[marYr-2] = totalWed[marYr] + ring
-    totalWed[marYr] = totalWed[marYr] + wedding + honeymoon
+    totalWed[marYr] = totalWed[marYr] + wed + hm
     
     return totalWed
     

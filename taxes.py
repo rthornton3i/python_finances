@@ -33,7 +33,7 @@ def trad401Calc(salary,years,base401Perc=0,growth401Perc=0):
         trad401[n] = 19000 if trad401[n] > 19000 else trad401[n]
         trad401Match[n] = 37000 if trad401Match[n] > 37000 else trad401Match[n]
     
-    return trad401
+    return [trad401,trad401Match]
     
 def itemDedCalc(years,houseInt,charExp,slpTax=None):
     if slpTax is not None :
@@ -213,7 +213,7 @@ def roth401Calc(salary,years,base401Perc=0.04,growth401Perc=0.01):
         roth401[n] = 19000 if roth401[n] > 19000 else roth401[n]
         roth401Match[n] = 37000 if roth401Match[n] > 37000 else roth401Match[n]
     
-    return roth401
+    return [roth401,roth401Match]
     
 def benefitsCalc(years,healthPrem=200,visPrem=10,denPrem=20):    
     health = np.zeros((years,1))    
