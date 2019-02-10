@@ -76,7 +76,27 @@ def savingsContributions(years,savingsAlloc,earningsAlloc,netCash,totalExpenses,
             savingsTotal[n,m] = savingsTotal[n,m] * (1 + earningsAlloc[n,m])
     
         #Transfers
-        if n > 20 and ageChild[n,-1] == 0:
+        maxVal = 50e3
+        if savingsTotal[n,10] > maxVal:     #Excessive --> Short Term
+            transferVal = savingsTotal[n,10] - maxVal
+            savingsTotal[n,10] = maxVal
+            
+            savingsTotal[n,9] = savingsTotal[n,9] + transferVal
+            
+        maxVal = 50e3
+        if savingsTotal[n,9] > maxVal:      #Short Term --> Medium Term
+            transferVal = savingsTotal[n,9] - maxVal
+            savingsTotal[n,9] = maxVal
+            
+            savingsTotal[n,8] = savingsTotal[n,8] + transferVal
+        
+        if savingsTotal[n,6] < 0:           #College negative
+            transferVal = -savingsTotal[n,6]
+            savingsTotal[n,6] = 0
+            
+            savingsTotal[n,8] = savingsTotal[n,8] - transferVal
+            
+        if n > 20 and ageChild[n,-1] == 0:  #College excessive
             transferVal = savingsTotal[n,6]
             savingsTotal[n,6] = 0
             
@@ -84,7 +104,7 @@ def savingsContributions(years,savingsAlloc,earningsAlloc,netCash,totalExpenses,
 
         if n <= 35:
             maxVal = 5e6
-            if savingsTotal[n,3] > maxVal:
+            if savingsTotal[n,3] > maxVal:  #ST Inv
                 transferVal = savingsTotal[n,3] - maxVal
                 savingsTotal[n,3] = maxVal
                 
@@ -92,7 +112,7 @@ def savingsContributions(years,savingsAlloc,earningsAlloc,netCash,totalExpenses,
                 savingsTotal[n,8] = savingsTotal[n,8] + (transferVal * 0.2)
             
             maxVal = 5e6
-            if savingsTotal[n,2] > maxVal:
+            if savingsTotal[n,2] > maxVal:  #Large Cap Inv
                 transferVal = savingsTotal[n,2] - maxVal
                 savingsTotal[n,2] = maxVal
                 
@@ -100,7 +120,7 @@ def savingsContributions(years,savingsAlloc,earningsAlloc,netCash,totalExpenses,
                 savingsTotal[n,8] = savingsTotal[n,8] + (transferVal * 0.1)
 
         maxVal = 2.5e6
-        if savingsTotal[n,1] > maxVal:
+        if savingsTotal[n,1] > maxVal:      #LT Inv
             transferVal = savingsTotal[n,1] - maxVal
             
             savingsTotal[n,1] = maxVal
@@ -109,7 +129,7 @@ def savingsContributions(years,savingsAlloc,earningsAlloc,netCash,totalExpenses,
             savingsTotal[n,8] = savingsTotal[n,8] + (transferVal * 0.1)
         
         maxVal = 2.5e6
-        if savingsTotal[n,0] > maxVal:
+        if savingsTotal[n,0] > maxVal:      #Hi Div Inv
             transferVal = savingsTotal[n,0] - maxVal
             savingsTotal[n,0] = maxVal
             

@@ -84,7 +84,7 @@ def miscExp(years,numChild,growthFactor=0.5,childFactor=0.25):
     return totalMisc
     
 def rentExp(salary,years,termStart,termEnd,basePerc=0.25,percDec=0.01,percSal=None):
-    if percSal == None:
+    if percSal is None:
         rentPerc = [basePerc * (1-percDec) ** n for n in range(years)]
     else:
         rentPerc = percSal

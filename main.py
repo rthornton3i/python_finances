@@ -15,7 +15,7 @@ yrs = np.arange(years).reshape((years,1))
 
 # Number of Children
 #==============================================================================
-numChild = [6,8]
+numChild = [7,9]
 
 # Salary Growth  
 #==============================================================================
@@ -49,17 +49,17 @@ carYears = np.array([[0  , 8  , 23500 , 5000  ],   #Rich
                      [33 , 40 , 45000 , 17500 ],   #Sedan4a
                      [35 , 40 , 45000 , 20000 ]])  #Sedan4b
 
-baseSavings = np.asarray([[700],    #hiDiv      (VYM)
-                          [700],    #ltLowVol   (VTI)
-                          [700],    #largeCap   (MGK)
-                          [5500],   #stHiVol    (Robinhood)
-                          [3300],   #retRoth401 (Fidelity)
-                          [0],      #retTrad401 (Fidelity)
-                          [400],    #col529     (Fidelity)
-                          [1000],   #emergFunds (PNC Short)
-                          [6500],   #medTerm    (Goldman Sach's)
-                          [1800],   #shortTerm  (PNC Growth)
-                          [1000]])  #excSpend   (PNC Spend)
+baseSavings = np.asarray([[700],            #hiDiv      (VYM)
+                          [700],            #ltLowVol   (VTI)
+                          [700],            #largeCap   (MGK)
+                          [5500],           #stHiVol    (Robinhood)
+                          [3300 + 40000],   #retRoth401 (Fidelity, TBD)
+                          [0],              #retTrad401 (Fidelity)
+                          [400],            #col529     (Fidelity)
+                          [1000],           #emergFunds (PNC Short)
+                          [6500 + 35000],   #medTerm    (Goldman Sach's, BoA)
+                          [1800 + 2000],    #shortTerm  (PNC Growth, BoA)
+                          [1000]])          #excSpend   (PNC Spend)
                           
 
 #                         [yr 0 , yr 10 , yr 20 , yr 30 , yr 40 ]
@@ -75,21 +75,34 @@ allocations = np.asarray([[2.5  , 2.5   , 5     , 12.5  , 5     ],     #hiDiv
                           [25   , 10    , 20    , 10    , 20    ],     #shortTerm
                           [20   , 17.5  , 20    , 10    , 15    ]])    #excSpend
 
+#allocations = np.asarray([[2.5  , 0     , 2.5   , 12.5  , 5     ],     #hiDiv
+#                          [2.5  , 0     , 2.5   , 12.5  , 5     ],     #ltLowVol
+#                          [2.5  , 0     , 2.5   , 12.5  , 5     ],     #largeCap
+#                          [7.5  , 2.5   , 5     , 5     , 5     ],     #stHiVol
+#                          [0    , 0     , 0     , 0     , 0     ],     #retRoth401
+#                          [0    , 0     , 0     , 0     , 0     ],     #retTrad401
+#                          [0    , 2.5   , 12.5  , 0     , 0     ],     #col529
+#                          [5    , 2.5   , 5     , 2.5   , 15    ],     #emergFunds
+#                          [25   , 45    , 10    , 32.5  , 30    ],     #medTerm
+#                          [30   , 27.5  , 35    , 10    , 20    ],     #shortTerm
+#                          [25   , 20    , 25    , 12.5  , 15    ]])    #excSpend
+
 #savingsCheck = np.sum(allocations,axis=0)
 #print(savingsCheck)
 
-lawSchool = True
+lawSchool = False
 lawYears = [4,6]
 
-loops = 1
+loops = 50
 savingsTotal_iter = np.zeros((years,np.shape(allocations)[0],loops))
 earningsAlloc_iter = np.zeros((years,np.shape(allocations)[0],loops))
 
 for x in range(loops):
-    if lawSchool == True:
+    if lawSchool is True:
         salary1_1 = setup.salaryCalc(86000,years,growthRate=0.028,growthType=1)
-        salary1_2 = setup.salaryCalc(60000,years,growthRate=0.04,growthType=1)
-        salary1 = np.vstack((salary1_1[:lawYears[0]],np.zeros((3,1)),salary1_2[:years-(lawYears[1]+1)]))
+        salary1_2 = setup.salaryCalc(25000,years,growthRate=0.05,growthType=2)
+        salary1_3 = setup.salaryCalc(60000,years,growthRate=0.04,growthType=1)
+        salary1 = np.vstack((salary1_1[:lawYears[0]],salary1_2[:3],salary1_3[:years-(lawYears[1]+1)]))
         
         salary2 = setup.salaryCalc(77000,years,growthRate=0.028,growthType=1)        
         
@@ -108,23 +121,23 @@ for x in range(loops):
 # Loans
 #==============================================================================
     
-    collegeLoan = np.array([0,7,4.0,36700])
+    collegeLoan = np.array([0,8,4.0,36700])
     [colLoanPay,colLoanBal,colLoanInt] = ln.genLoanCalc(collegeLoan,years,compType='daily')
     
-    lawLoan = np.array([3,7,4.0,50000*3])
+    lawLoan = np.array([lawYears[1]+1,12,4.0,50000*3])
     [lawLoanPay,lawLoanBal,lawLoanInt] = ln.genLoanCalc(lawLoan,years,compType='daily')
     
 #    plt.clf()
-#    plt.plot(lawLoanPay)
+#    plt.plot(colLoanPay/12)
     
 # Housing/Rent
 #==============================================================================
-    
-    if lawSchool == True:
+
+    if lawSchool is True:
         rentPerc = np.vstack((np.full((lawYears[0],1),0.125),np.full((3,1),0.225),np.full((1,1),0.125)))
         totalRent = exp.rentExp(salary,years,0,lawYears[1]+2,basePerc=0.15,percDec=0.01,percSal=rentPerc)
         
-        house = np.array([lawYears[1]+2,30,4.25,450000,20])
+        house = np.array([lawYears[1]+2,30,4.25,400000,20])
         [totalBal,totalPay,totalInt,houseWth,propTax,totalDwn] = ln.mortgageCalc(house,years,curBal=None,curPay=None,curInt=None,curWth=None,curTax=None,curDwn=None,sellPrev=False,app=0.0375)
         
         house = np.array([22,30,4,750000,20])
@@ -165,9 +178,8 @@ for x in range(loops):
     totalCollege = exp.collegeExp(years,numChild,ageChild,baseCol=50000)
     totalLoan = colLoanPay
     
-    if lawSchool == True:
-        totalVac[lawYears[0]:lawYears[1]+1,0] = totalVac[lawYears[0]:lawYears[1]+1,0] / 2
-        totalVac[lawYears[0]:lawYears[1]+1,0] = 0
+    if lawSchool is True:
+        totalVac[lawYears[0]:lawYears[1]+1] = totalVac[lawYears[0]:lawYears[1]+1] / 2
         totalChar = exp.charExp(salary,years,baseChar=0.0025)
         totalWed = exp.wedExp(years,marYr=4,wed=15000,hm=10000,ring=6000)
         totalLoan = colLoanPay + lawLoanPay
@@ -188,7 +200,7 @@ for x in range(loops):
 #    plt.legend(medExpLabels)
     
 #    plt.clf()
-#    plt.plot(totalExpenses)
+#    plt.plot(totalExpenses[:10,:])
     
 # Taxes/Deductions/Withholdings
 #==============================================================================
@@ -279,6 +291,8 @@ for x in range(loops):
 savingsTotal_iter = np.mean(savingsTotal_iter,axis=2)
 earningsAlloc_iter = np.mean(earningsAlloc_iter,axis=2)
 
+netWorth = np.sum(savingsTotal_iter,axis=1)
+
 #0) hiDiv
 #1) ltLowVol
 #2) largeCap
@@ -295,13 +309,14 @@ earningsAlloc_iter = np.mean(earningsAlloc_iter,axis=2)
 #10) excSpend
 
 m = 0
-n = 25
+n = 40
 x = 8
 
 #plt.clf()
 #plt.plot(savingsTotal_iter[m:n,x])
+#plt.legend(('emerg','med','short','exc'))
 
-#plt.clf()
-#plt.plot(savingsTotal_iter)
+plt.clf()
+plt.plot(netWorth)
 
-print(sum(savingsTotal_iter[-1]))
+print(netWorth[-1])
