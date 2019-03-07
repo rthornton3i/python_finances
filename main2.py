@@ -68,51 +68,33 @@ allocations = np.asarray([[2.5  , 2.5   , 5     , 12.5  , 5     ],     #hiDiv
 #savingsCheck = np.sum(allocations,axis=0)
 #print(savingsCheck)
 
+###############################################################################
+#plt.clf()
 
 setup = stp.Setup(salaryBase,years,childYrs)
-setupAtts = vars(setup)
+[salary,childAges] = setup.setupRun()
+
+##Loans/Housing
+#==============================================================================
 
 
+loans = lns.Loans(years)
 
-#lawSchool = False
-#lawYears = [4,6]
-#
-#loops = 50
-#savingsTotal_iter = np.zeros((years,np.shape(allocations)[0],loops))
-#earningsAlloc_iter = np.zeros((years,np.shape(allocations)[0],loops))
-#
-#for x in range(loops):
-#    if lawSchool is True:
-#        salary1_1 = setup.salaryCalc(86000,years,growthRate=0.028,growthType=1)
-#        salary1_2 = setup.salaryCalc(25000,years,growthRate=0.05,growthType=2)
-#        salary1_3 = setup.salaryCalc(60000,years,growthRate=0.04,growthType=1)
-#        salary1 = np.vstack((salary1_1[:lawYears[0]],salary1_2[:3],salary1_3[:years-(lawYears[1]+1)]))
-#        
-#        salary2 = setup.salaryCalc(77000,years,growthRate=0.028,growthType=1)        
-#        
-#        salary = salary1 + salary2
-#    else:
-#        salary = setup.salaryCalc(77000+86000,years,growthRate=0.028,growthType=1)      
-#    
-#    ageChild = setup.childCalc(years,numChild)
-#    
-##    plt.clf()
-##    plt.plot(salary)
-##    plt.plot(salary1)
-##    plt.plot(salary2)
-##    plt.legend(('salary','salary1','salary2'))
-#    
-## Loans
-##==============================================================================
-#    
-#    collegeLoan = np.array([0,8,4.0,36700])
-#    [colLoanPay,colLoanBal,colLoanInt] = ln.genLoanCalc(collegeLoan,years,compType='daily')
-#    
-#    lawLoan = np.array([lawYears[1]+1,12,4.0,50000*3])
-#    [lawLoanPay,lawLoanBal,lawLoanInt] = ln.genLoanCalc(lawLoan,years,compType='daily')
-#    
-##    plt.clf()
-##    plt.plot(colLoanPay/12)
+house = np.array([6,30,4.25,450000,20])
+[totalBal,totalPay,totalInt,houseWth,propTax,totalDwn] = loans.mortgageCalc(house)
+
+house = np.array([18,30,4,900000,20])
+[totalBal,totalPay,totalInt,houseWth,propTax,totalDwn] = loans.mortgageCalc(house)
+
+house = np.array([32,10,3.25,3500000,20])
+[totalBal,totalPay,totalInt,houseWth,propTax,totalDwn] = loans.mortgageCalc(house)
+
+house = np.array([35,10,3.25,1500000,20])
+[totalBal,totalPay,totalInt,houseWth,propTax,totalDwn] = loans.mortgageCalc(house)
+
+collegeLoan = np.array([0,8,4.0,36700])
+[colLoanPay,colLoanBal,colLoanInt] = loans.genLoanCalc(collegeLoan)
+
 #    
 ## Housing/Rent
 ##==============================================================================

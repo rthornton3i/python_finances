@@ -13,9 +13,6 @@ class Setup():
         self.growthDev = growthDev
         self.growthType = growthType
         
-        self.salaryCalc()
-        self.childCalc()
-        
     def salaryCalc(self):
         salary = []
         for base in self.salaryBase:
@@ -36,14 +33,20 @@ class Setup():
         self.salary = salary
     
     def childCalc(self):
-        ageChild = np.zeros((self.years,len(self.childYrs)))
+        childAges = np.zeros((self.years,len(self.childYrs)))
         
         for n in range(self.years):
             for m in range(len(self.childYrs)):
                 if n >= self.childYrs[m] and n <= (self.childYrs[m] + self.maxChildYr):
-                    ageChild[n,m] = n - self.childYrs[m]
+                    childAges[n,m] = n - self.childYrs[m]
                     
-        self.ageChild = ageChild
+        self.childAges = childAges
+        
+    def setupRun(self):
+        self.salaryCalc()
+        self.childCalc()
+        
+        return [self.salary,self.childAges]
         
 def salaryCalc(salaryBase,years,growthRate=0.028,growthType=1):
     salaryMax = salaryBase * (1 + growthRate) ** years
