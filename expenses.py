@@ -4,19 +4,24 @@ import math
 
 class Expenses:
     
-    def __init__(self,years,salary):
+    def __init__(self,years,salary,childYrs,childAges,familyKids,maxChildYr=22):
         self.years = years        
         self.salary = salary
         
-    def holidayExp(self,numChild,ageChild,addKid=None):
-        numFamily = np.full((self.years,1),len(addKid))
+        self.childYrs = childYrs
+        self.childAges = childAges
+        self.maxChildYr = maxChildYr
+        self.familyKids = familyKids
+        
+    def holidayExp(self):
+        numFamily = np.full((self.years,1),len(self.familyKids))
         familyBday = np.zeros((self.years,1))
         familyXmas = np.zeros((self.years,1))
         
-        removeKid = [x+20 for x in addKid]
+        removeKid = [x + self.maxChildYr for x in self.familyKids]
         
         for n in range(self.years):
-            for kid in addKid:
+            for kid in self.familyKids:
                 if n == kid:
                     numFamily[n:] = numFamily[n] + 1
             for kid in removeKid:
@@ -26,14 +31,14 @@ class Expenses:
             familyBday[n] = 50 * numFamily[n]
             familyXmas[n] = 50 * numFamily[n]
         
-        childBday = np.zeros((self.years,len(numChild)))
-        childXmas = np.zeros((self.years,len(numChild)))
+        childBday = np.zeros((self.years,len(self.childYrs)))
+        childXmas = np.zeros((self.years,len(self.childYrs)))
         
         for n in range(self.years):
-            for m in range(len(numChild)):
-                if n >= numChild[m] and n <= (numChild[m] + 22):
-                    childBday[n,m] = 100 + ((ageChild[n,m] / 22) * 200)
-                    childXmas[n,m] = 300 + ((ageChild[n,m] / 22) * 1200)
+            for m in range(len(self.childYrs)):
+                if n >= self.childYrs[m] and n <= (self.childYrs[m] + self.maxChildYr):
+                    childBday[n,m] = 100 + ((self.childAges[n,m] / self.maxChildYr) * 200)
+                    childXmas[n,m] = 300 + ((self.childAges[n,m] / self.maxChildYr) * 1200)
         
         childBday = np.sum(childBday, axis=1).reshape((self.years,1))
         childXmas = np.sum(childXmas, axis=1).reshape((self.years,1))
@@ -47,31 +52,27 @@ class Expenses:
         for n in range(self.years):
             totalHol[n] = bday + xmas + valDay + anniv + familyBday[n] + familyXmas[n] + childBday[n] + childXmas[n]
         
-        return totalHol
+        self.totalHol = totalHol
         
-    def entExp(self,numChild):
-        wifiCable = 75
-        cellular = 80
+    def entExp(self):
+        wifiCable = 75*12
+        cellular = 80*12
         
         nflx = 120
         amzn = 130
         hulu = 100
         
-        totalSub = np.zeros((self.years,1))
-        for n in range(self.years):
-            totalSub[n] = nflx + amzn + hulu
-        
         totalEnt = np.zeros((self.years,1))
         for n in range(self.years):
-            totalEnt[n] = (wifiCable + cellular) * 12 + totalSub[n]
+            totalEnt[n] = wifiCable + cellular + nflx + amzn + hulu
         
-            for m in range(len(numChild)):
-                if n >= (numChild[m] + 8) and n <= (numChild[m] + 22):
+            for m in range(len(self.childYrs)):
+                if n >= (self.childYrs[m] + 8) and n <= (self.childYrs[m] + self.maxChildYr):
                     totalEnt[n] = totalEnt[n] + (totalEnt[n] * 0.25) 
         
-        return totalEnt
+        self.totalEnt = totalEnt 
         
-    def miscExp(self,numChild,growthFactor=0.5,childFactor=0.25):
+    def miscExp(self,growthFactor=0.5,childFactor=0.25):
         clothHair = 150
         grocery = 450
         restaurant = 200
@@ -83,31 +84,23 @@ class Expenses:
         for n in range(self.years):
             totalMisc[n] = miscSum + ((n / self.years) * (growthFactor * miscSum))
             
-            for m in range(len(numChild)):
-                if n >= numChild[m] and n <= (numChild[m] + 22):
+            for m in range(len(self.childYrs)):
+                if n >= self.childYrs[m] and n <= (self.childYrs[m] + self.maxChildYr):
                     totalMisc[n] = totalMisc[n] + (totalMisc[n] * childFactor) 
         
-        return totalMisc
+        self.totalMisc = totalMisc  
         
-    def rentExp(self,termStart,termEnd,basePerc=0.25,percDec=0.01,percSal=None):
-        if percSal is None:
-            rentPerc = [basePerc * (1-percDec) ** n for n in range(self.years)]
-        else:
-            rentPerc = percSal
+    def rentExp(self,termStart,termEnd,basePerc=0.25,percDec=0.01,rentPerc=None):
+        rentPerc = [basePerc * (1-percDec) ** n for n in range(self.years)] if rentPerc is None else rentPerc
         
         rentPay = np.zeros((self.years,1))
-        
         for n in range(termStart,termEnd):
             rentPay[n] = rentPerc[n] * self.salary[n]
         
-        return rentPay
+        return rentPay 
         
-    def housingExp(self,rentPay,totalPay,houseWth,totalDwn):    
-        repHouse = np.zeros((self.years,1))
-        insHouse = np.zeros((self.years,1))
-        utilElec = np.zeros((self.years,1))
-        utilGas = np.zeros((self.years,1))
-        utilWater = np.zeros((self.years,1))
+    def housingExp(self,housePay,houseWth,houseDwn):    
+        repHouse = insHouse = utilElec = utilGas = utilWater = np.zeros((self.years,1))
         
         for n in range(self.years):
             repHouse[n] = min(houseWth[n] * 0.015,50000)
@@ -116,16 +109,18 @@ class Expenses:
             utilGas[n] = (20 + ((20/500000) * houseWth[n])) * 12
             utilWater[n] = (25 + ((25/1000000) * houseWth[n])) * 12
         
-        totalHouse = repHouse + insHouse + utilElec + utilGas + utilWater + totalDwn + totalPay + rentPay
+        totalHouse = repHouse + insHouse + utilElec + utilGas + utilWater + houseDwn + housePay
         
-        return totalHouse  
+        self.totalHouse = totalHouse   
         
-    def carExp(self,carYears,insRate=0.075,repRate=0.025):    
+    def carExp(self,carYears):    
         carMonthly = np.zeros((np.shape(carYears)[0],2))
         carPayment = np.zeros((self.years,1))
         carDown = np.zeros((self.years,1))
         insCar = np.zeros((self.years,1))
         repCar = np.zeros((self.years,1))
+        insRate = 0.075 # %
+        repRate = 0.025 # %
         carInt = 0.019  # %
         carLen = 60     # months
         
@@ -161,12 +156,12 @@ class Expenses:
         
         return totalAuto
         
-    def collegeExp(self,numChild,ageChild,baseCol=50000):
+    def collegeExp(self,baseCol=50000):
         totalCollege = np.zeros((self.years,1))
         
         for n in range(self.years):
-            for m in range(len(numChild)):
-                if ageChild[n,m] >= 18 and ageChild[n,m] <= 21:
+            for m in range(len(self.childYrs)):
+                if self.childAges[n,m] >= 18 and self.childAges[n,m] <= 21:
                     totalCollege[n] = totalCollege[n] + baseCol
         
         return totalCollege
@@ -179,14 +174,14 @@ class Expenses:
         
         return totalWed
         
-    def vacExp(self,numChild,ageChild,baseVac=3000,growthFactor=1,childFactor=0.35):    
+    def vacExp(self,baseVac=3000,growthFactor=1,childFactor=0.35):    
         totalVac = np.zeros((self.years,1))
         
         for n in range(self.years):
             totalVac[n] = baseVac + ((n / self.years) * (growthFactor * baseVac))
             
-            for m in range(len(numChild)):
-                if ageChild[n,m] >= 5:
+            for m in range(len(self.childYrs)):
+                if self.childAges[n,m] >= 5:
                     totalVac[n] = totalVac[n] + (totalVac[n] * childFactor)
         
         return totalVac
@@ -199,7 +194,7 @@ class Expenses:
         
         return totalChar
     
-    def randExp(self,maxExp,decayFactor=3,binWid=5):
+    def randExp(self,maxExp=25000,decayFactor=3,binWid=5):
         totalRand = np.zeros((self.years,1))
         
         x = np.arange(maxExp)
@@ -220,6 +215,19 @@ class Expenses:
                     break
         
         return totalRand
+        
+    def expRun(self):
+        self.holidayExp()
+        self.entExp()
+        self.miscExp()
+        self.rentExp()
+        self.housingExp()
+        self.carExp()
+        self.collegeExp()
+        self.wedExp()
+        self.vacExp()
+        self.charExp()
+        self.randExp()
     
 def holidayExp(years,numChild,ageChild,addKid=None):
     numFamily = np.full((years,1),len(addKid))

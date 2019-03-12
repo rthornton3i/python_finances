@@ -81,16 +81,16 @@ setup = stp.Setup(salaryBase,years,childYrs)
 loans = lns.Loans(years)
 
 house = np.array([6,30,4.25,450000,20])
-[totalBal,totalPay,totalInt,houseWth,propTax,totalDwn] = loans.mortgageCalc(house)
+[houseBal,housePay,houseInt,houseWth,propTax,houseDwn] = loans.mortgageCalc(house)
 
 house = np.array([18,30,4,900000,20])
-[totalBal,totalPay,totalInt,houseWth,propTax,totalDwn] = loans.mortgageCalc(house)
+[houseBal,housePay,houseInt,houseWth,propTax,houseDwn] = loans.mortgageCalc(house)
 
 house = np.array([32,10,3.25,3500000,20])
-[totalBal,totalPay,totalInt,houseWth,propTax,totalDwn] = loans.mortgageCalc(house)
+[houseBal,housePay,houseInt,houseWth,propTax,houseDwn] = loans.mortgageCalc(house)
 
 house = np.array([35,10,3.25,1500000,20])
-[totalBal,totalPay,totalInt,houseWth,propTax,totalDwn] = loans.mortgageCalc(house)
+[houseBal,housePay,houseInt,houseWth,propTax,houseDwn] = loans.mortgageCalc(house)
 
 collegeLoan = np.array([0,8,4.0,36700])
 [colLoanPay,colLoanBal,colLoanInt] = loans.genLoanCalc(collegeLoan)
