@@ -1,9 +1,12 @@
 import numpy as np
 
-class Loans():
+class Loans:
     
-    def __init__(self,years):
-        self.years = years
+    def __init__(self,var,
+                 salary):
+        
+        self.years = var['years']
+        self.salary = sum(salary)
         
         self.curBal = None
         self.curPay = None
@@ -13,7 +16,7 @@ class Loans():
         self.curDwn = None
     
     def mortgageCalc(self,house,sellPrev=True,app=0.0375,propTaxRate=0.015):
-        """house = [Start Yr, Term length (Yrs), Interest Rate (%), Amount ($), Down Payment (%)] """
+        """house = [Start Yr, Term length (Yrs), Interest Rate (%), Amount ($), Down Payment (%)]"""
         
         def curSet(vals):
             vals = np.zeros((self.years,1)) if vals is None else np.vstack((vals[:int(house[0])],np.zeros((self.years,1))[int(house[0]):]))
@@ -27,7 +30,10 @@ class Loans():
         self.curInt = curSet(self.curInt)
         self.curDwn = curSet(self.curDwn)
         
-        mortPay = mortBal = mortPrin = mortInt = np.zeros((self.years * 365,1))
+        mortPay = np.zeros((self.years * 365,1))
+        mortBal = np.zeros((self.years * 365,1))
+        mortPrin = np.zeros((self.years * 365,1))
+        mortInt = np.zeros((self.years * 365,1))
         
         startHouse = int(house[0])
         endHouse = int(house[0] + house[1]) if house[0] + house[1] < self.years else self.years
@@ -43,19 +49,22 @@ class Loans():
                 termCount += 1 
                 termConst = (1 + rateInt) ** termLength
                 
-                mortBal[n] = prin * (termConst - (1 + rateInt) ** termCount) / (termConst - 1)        
+                mortBal[n] = prin * (termConst - (1 + rateInt) ** termCount) / (termConst - 1)            
                 mortPay[n] = prin * (rateInt * termConst) / (termConst - 1)
                 mortPrin[n] = mortBal[n-1] - mortBal[n] if n > startHouse*365 else prin - mortBal[n]
                 mortInt[n] = mortPay[n] - mortPrin[n]
             else:
-                mortBal[n] = mortPay[n] = mortPrin[n] = mortInt[n] = 0
-            
+                mortBal[n] = 0
+                mortPay[n] = 0
+                mortPrin[n] = 0
+                mortInt[n] = 0
+        
         mortBal = np.reshape([mortBal[i] for i in range(0,len(mortBal),365)],(self.years,1))
         mortPrin = np.reshape([sum(mortPrin[i:i+365]) for i in range(0,len(mortPrin),365)],(self.years,1))
         mortInt = np.reshape([sum(mortInt[i:i+365]) for i in range(0,len(mortInt),365)],(self.years,1))
         mortPay = mortPrin + mortInt
             
-        self.curBal = sum((self.curBal,mortBal))    
+        self.curBal = sum((self.curBal,mortBal))  
         self.curPay = sum((self.curPay,mortPay))
         self.curInt = sum((self.curInt,mortInt))
         self.curDwn = np.asarray([value if index != (int(house[0]),0) else down for index,value in np.ndenumerate(self.curDwn)]).reshape((self.years,1))
@@ -79,6 +88,15 @@ class Loans():
         
         return [self.curBal,self.curPay,self.curInt,self.curWth,self.curTax,self.curDwn]
     
+    def rentExp(self,termStart,termEnd,basePerc=0.25,percDec=0.01,rentPerc=None):
+        rentPerc = [basePerc * (1-percDec) ** n for n in range(self.years)] if rentPerc is None else rentPerc
+        
+        rentPay = np.zeros((self.years,1))
+        for n in range(termStart,termEnd):
+            rentPay[n] = rentPerc[n] * self.salary[n]
+        
+        return [rentPay] 
+        
     def genLoanCalc(self,loan,compType='daily'):
         """loan = [Start Yr, Term Length (Yrs), Interest Rate (%), Amount ($)]"""
     
