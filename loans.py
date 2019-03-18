@@ -2,11 +2,13 @@ import numpy as np
 
 class Loans:
     
-    def __init__(self,var,
-                 salary):
+    def __init__(self,var):
         
         self.years = var['years']
-        self.salary = sum(salary)
+        self.salary = sum(var['salary'])
+        
+        self.rentStart = var['rent'][0]
+        self.rentEnd = var['rent'][1]
         
         self.curBal = None
         self.curPay = None
@@ -86,13 +88,15 @@ class Loans:
         self.curWth = sum((self.curWth,houseWth))
         self.curTax = sum((self.curTax,propTax))
         
-        return [self.curBal,self.curPay,self.curInt,self.curWth,self.curTax,self.curDwn]
+        houseCosts = [self.curBal,self.curPay,self.curInt,self.curWth,self.curTax,self.curDwn]
+
+        return [houseCosts]
     
-    def rentExp(self,termStart,termEnd,basePerc=0.25,percDec=0.01,rentPerc=None):
+    def rentExp(self,basePerc=0.25,percDec=0.01,rentPerc=None):
         rentPerc = [basePerc * (1-percDec) ** n for n in range(self.years)] if rentPerc is None else rentPerc
         
         rentPay = np.zeros((self.years,1))
-        for n in range(termStart,termEnd):
+        for n in range(self.rentStart,self.rentEnd):
             rentPay[n] = rentPerc[n] * self.salary[n]
         
         return [rentPay] 

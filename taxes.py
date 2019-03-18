@@ -1,6 +1,274 @@
 import numpy as np
 from math import inf
 
+class Taxes:
+    
+    def __init__(self,var,
+                 houseCosts,totalItem):
+                     
+        self.years = var['years']
+        self.salary = var['salary']
+        
+        self.houseInt = houseCosts[2]
+        self.totalItem = totalItem
+    
+    def healthDedCalc(self,hsa=0,fsa=0,hra=0):
+        hsa = np.full((self.years,1),0) if hsa == 0 else hsa
+        fsa = np.full((self.years,1),0) if fsa == 0 else fsa
+        hra = np.full((self.years,1),0) if hra == 0 else hra
+        
+        healthDed = hsa + fsa + hra
+        
+        self.healthDed = healthDed        
+    
+    def trad401Calc(self,basePerc=0,growthPerc=0):
+        trad401Perc = np.full((self.years,1),basePerc)
+        trad401MatchPerc = np.zeros((self.years,1))
+        
+        for n in range(1,self.years):
+            if n % 5 == 0:
+                trad401Perc[n:self.years] = trad401Perc[n] + growthPerc
+        
+        for n in range(self.years):
+            if trad401Perc[n] <= 0.04:
+                trad401MatchPerc[n] = trad401Perc[n]
+            elif trad401Perc[n] <= 0.1:
+                trad401MatchPerc[n] = 0.04 + ((trad401Perc[n] - 0.04) * .5)
+            else:
+                trad401MatchPerc[n] = 0.07
+                
+        trad401Amt = trad401Perc * self.salary
+        trad401Match = trad401MatchPerc * self.salary
+        
+        for n in range(self.years):
+            trad401Amt[n] = 19000 if trad401Amt[n] > 19000 else trad401Amt[n]
+            trad401Match[n] = 37000 if trad401Match[n] > 37000 else trad401Match[n]
+        
+        self.trad401 = [trad401Amt,trad401Match]
+        
+    def roth401Calc(self,basePerc=0.04,growthPerc=0.01):
+        roth401Perc = np.full((self.years,1),basePerc)
+        roth401MatchPerc = np.zeros((self.years,1))
+        
+        for n in range(1,self.years):
+            if n % 5 == 0:
+                roth401Perc[n:self.years] = roth401Perc[n] + growthPerc
+        
+        for n in range(self.years):
+            if roth401Perc[n] <= 0.04:
+                roth401MatchPerc[n] = roth401Perc[n]
+            elif roth401Perc[n] <= 0.1:
+                roth401MatchPerc[n] = 0.04 + ((roth401Perc[n] - 0.04) * .5)
+            else:
+                roth401MatchPerc[n] = 0.07
+                
+        roth401Amt = roth401Perc * self.salary
+        roth401Match = roth401MatchPerc * self.salary
+        
+        for n in range(self.years):
+            roth401Amt[n] = 19000 if roth401Amt[n] > 19000 else roth401Amt[n]
+            roth401Match[n] = 37000 if roth401Match[n] > 37000 else roth401Match[n]
+        
+        self.roth401 = [roth401Amt,roth401Match]
+        
+    def benefitsCalc(self,healthPrem=400*12,visPrem=20*12,denPrem=40*12,growthFactor=0.025):    
+        health = np.zeros((self.years,1))    
+        vision = np.zeros((self.years,1))
+        dental = np.zeros((self.years,1))
+        
+        for n in range(self.years):
+            health[n] = healthPrem * (1 + growthFactor) ** n
+            vision[n] = visPrem  * (1 + growthFactor) ** n
+            dental[n] = denPrem * (1 + growthFactor) ** n
+            
+        benefits = health + vision + dental
+        
+        self.benefits = benefits
+        
+    def itemDedCalc(self,slpTax=None):
+        if slpTax is not None :
+            for n in range(self.years):
+                slpTax[n] = 10000 if slpTax[n] > 10000 else slpTax[n]
+        else:
+            slpTax = np.zeros((self.years,1))
+                
+        itemDedState = self.houseInt + self.totalItem
+        itemDedFed = itemDedState + slpTax
+        
+        return [itemDedFed,itemDedState]
+    
+    def stdDedCalc(self):
+        stdDedFed = np.full((self.years,1),24000)
+    
+        stdDedState = np.zeros((self.years,1))
+        for n in range(self.years):
+            stdDedState[n] = 0.15 * self.salary[n]
+            
+            if stdDedState[n] < 3000:
+                stdDedState[n] = 3000
+            elif stdDedState[n] > 4000:
+                stdDedState[n] = 4000
+                
+        return [stdDedFed,stdDedState]
+    
+    def exemptCalc(self,numChild):
+        persStateEx = np.zeros((self.years,1))
+        childStateEx = np.zeros((self.years,len(numChild)))
+        
+        for n in range(self.years):  
+            if self.salary[n] < 150000:
+                persStateEx[n] = 3200 * 2
+                for m in range(len(numChild)):
+                    if n >= numChild[m] and n <= (numChild[m] + 22):
+                        childStateEx[n,m] = 3200
+            elif self.salary[n] < 175000:
+                persStateEx[n] = 1600 * 2
+                for m in range(len(numChild)):
+                    if n >= numChild[m] and n <= (numChild[m] + 22):
+                        childStateEx[n,m] = 1600
+            elif self.salary[n] < 200000:
+                persStateEx[n] = 800 * 2
+                for m in range(len(numChild)):
+                    if n >= numChild[m] and n <= (numChild[m] + 22):
+                        childStateEx[n,m] = 800
+            else:
+                persStateEx[n] = 0
+                for m in range(len(numChild)):
+                    childStateEx[n,m] = 0
+                    
+        childStateEx = childStateEx.sum(axis=1).reshape(self.years,1)    
+            
+        totalExState = persStateEx + childStateEx
+        totalExFed = np.zeros((self.years,1))
+        
+        return [totalExState,totalExFed]
+    
+    def grossIncCalc(self,trad401,healthDed,totalExFed,totalExState):
+        grossIncState = self.salary - (trad401 + healthDed + totalExState)
+        grossIncFed = self.salary - (trad401 + healthDed + totalExFed)
+        
+        return [grossIncState,grossIncFed]
+    
+    def miscTaxCalc(self):
+        socialSecurity = .062
+        medicare = .0145
+        medicareAdditional = .009
+        
+        maxTaxSS = 127200
+        minTaxAM = 250000
+        
+        # Social Security
+        ssTax = np.zeros((self.years,1))
+        
+        for n in range(self.years):
+            if self.salary[n] < maxTaxSS: 
+                ssTax[n] = self.salary[n] * socialSecurity 
+            else:
+                ssTax[n] = maxTaxSS * socialSecurity
+        
+        # Medicare
+        mTax = np.zeros((self.years,1))
+        
+        for n in range(self.years):  
+            mTax[n] = self.salary[n] * medicare
+        
+        # Additional Medicare
+        amTax = np.zeros((self.years,1))
+        
+        for n in range(self.years):
+            if self.salary[n] > minTaxAM:
+                amTax[n] = self.salary[n] * medicareAdditional 
+        
+        miscTaxes = ssTax + mTax + amTax
+        
+        return miscTaxes
+    
+    def slTaxCalc(self,grossIncState,itemDedState,stdDedState):
+        localTaxPerc = 0.025
+        stateTax = np.zeros((self.years,1))
+        stateLocalTax = np.zeros((self.years,1))
+        
+        for n in range(self.years):
+            if itemDedState[n] > stdDedState[n]:
+                grossIncState[n] = grossIncState[n] - itemDedState[n]
+            else:
+                grossIncState[n] = grossIncState[n] - stdDedState[n]
+        
+        brackets = np.asarray([[0,1000,0.02],
+                               [1001,2000,0.03],
+                               [2001,3000,0.04],
+                               [3001,150000,0.0475],
+                               [150001,175000,0.05],
+                               [175001,225000,0.0525],
+                               [225001,300000,0.055],
+                               [300001,inf,0.0575]])
+                    
+        for n in range(self.years):
+            for bracket in brackets:
+                if grossIncState[n] > bracket[1]:
+                    stateTax[n] = stateTax[n] + ((bracket[1] - bracket[0]) * bracket[2])
+                elif grossIncState[n] > bracket[0]:
+                    stateTax[n] = stateTax[n] + ((grossIncState[n] - bracket[0]) * bracket[2])
+                               
+            stateLocalTax[n] = stateTax[n] + (grossIncState[n] * localTaxPerc)
+    
+        return stateLocalTax
+        
+    def fedTaxCalc(self,grossIncFed,itemDedFed,stdDedFed):
+        fedTax = np.zeros((self.years,1))
+        
+        for n in range(self.years):
+            if itemDedFed[n] > stdDedFed[n]:
+                grossIncFed[n] = grossIncFed[n] - itemDedFed[n]
+            else:
+                grossIncFed[n] = grossIncFed[n] - stdDedFed[n]
+        
+        brackets = np.asarray([[0,19050,0.1],
+                               [19051,77400,0.12],
+                               [77401,165000,0.22],
+                               [165001,315000,0.24],
+                               [315001,400000,0.32],
+                               [400001,600000,0.35],
+                               [600001,inf,0.37]])
+                    
+        for n in range(self.years):
+            for bracket in brackets:
+                if grossIncFed[n] > bracket[1]:
+                    fedTax[n] = fedTax[n] + ((bracket[1] - bracket[0]) * bracket[2])
+                elif grossIncFed[n] > bracket[0]:
+                    fedTax[n] = fedTax[n] + ((grossIncFed[n] - bracket[0]) * bracket[2])
+        
+        return fedTax    
+    
+    def netIncCalc(self,fedTax,stateLocalTax,propTax,miscTaxes,roth401,trad401,benefits,healthDed):
+        totalTaxes = fedTax + stateLocalTax + propTax + miscTaxes
+        totalWithheld = roth401 + trad401 + benefits + healthDed
+        
+        netIncome = self.salary - totalTaxes
+        netCash = netIncome - totalWithheld
+        
+        return [netIncome,netCash]
+        
+    def taxRun(self):
+        self.holidayExp()
+        self.entExp()
+        self.miscExp()
+        self.housingExp()
+        self.carExp()
+        self.collegeExp()
+        self.wedExp()
+        self.vacExp()
+        self.charExp()
+        self.randExp()
+
+        totalExp = self.totalHol + self.totalEnt + self.totalMisc + \
+                   self.totalHouse + self.totalAuto + \
+                   self.totalCollege + self.totalWed + self.totalVac + \
+                   self.totalChar + self.totalRand        
+                    
+        return [totalExp]
+        
+        
 def healthDedCalc(years,hsa=0,fsa=0,hra=0):
     hsa = np.full((years,1),0) if hsa == 0 else hsa
     fsa = np.full((years,1),0) if fsa == 0 else fsa

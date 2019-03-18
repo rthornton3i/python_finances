@@ -8,6 +8,7 @@ var = {
     'familyKids':[6,8,10,10,12,13,14],
 
     'collegeLoan':np.array([0,8,4.0,36700]),
+    'lawLoan':np.array([0,8,4.0,150000]),
     
     'carYears':np.array([[0  , 8  , 23500 , 5000  ],        #Rich
                          [0  , 10 , 19500 , 4000  ],        #Becca

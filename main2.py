@@ -16,23 +16,33 @@ import matplotlib.pyplot as plt
 setup = stp.Setup(var)
 [salary,childAges] = setup.setupRun()
 
+var['salary'] = salary
+var['childAges'] = childAges
+
 ##Loans/Housing
 #==============================================================================
 
-loans = lns.Loans(var,salary)
+loans = lns.Loans(var)
 
-[rentPay] = loans.rentExp(var['rent'][0],var['rent'][1],basePerc=0.175)
+[rentPay] = loans.rentExp(basePerc=0.175)
 
 for house in var['houses']:
-    [houseBal,housePay,houseInt,houseWth,propTax,houseDwn] = loans.mortgageCalc(house)
+    [houseCosts] = loans.mortgageCalc(house)
 
 [colLoanPay,colLoanBal,colLoanInt] = loans.genLoanCalc(var['collegeLoan'])
+#[lawLoanPay,lawLoanBal,lawLoanInt] = loans.genLoanCalc(var['lawLoan'])
 
 ##Expenses
 #==============================================================================
 
-exps = exp.Expenses(var,salary,childAges) # <--------- childAges vs childYrs
-#[totalExp] = exps.expRun()
+exps = exp.Expenses(var,houseCosts,var['carYears'])
+[totalExp,totalItem] = exps.expRun()
+
+##Taxes
+#==============================================================================
+
+tx = tax.Taxes(var,houseCosts,totalItem)
+[netIncome] = exps.taxRun()
 
 ## Housing/Rent
 ##==============================================================================
