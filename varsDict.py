@@ -1,6 +1,7 @@
 import numpy as np
 
 var = {
+    'filing':'SINGLE',
     'years':40,
     'childYrs':[7,9],
     'salaryBase':[77000,83000],

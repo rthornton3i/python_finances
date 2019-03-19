@@ -17,12 +17,30 @@ class Loans:
         self.curTax = None
         self.curDwn = None
     
-    def mortgageCalc(self,house,sellPrev=True,app=0.0375,propTaxRate=0.015):
+    def mortgageCalc(self,house,compType='daily',sellPrev=True,app=0.0375,propTaxRate=0.015):
         """house = [Start Yr, Term length (Yrs), Interest Rate (%), Amount ($), Down Payment (%)]"""
         
         def curSet(vals):
-            vals = np.zeros((self.years,1)) if vals is None else np.vstack((vals[:int(house[0])],np.zeros((self.years,1))[int(house[0]):]))
+            vals = np.zeros((self.years,1)) if vals is None else np.vstack((vals[:int(house[0])],np.zeros((self.years,1))))[:self.years]
+            
             return vals
+        
+        def catArray(vals,sumOpt=True):
+            if sumOpt is True:        
+                vals = np.reshape([sum(vals[i:i+compTime]) for i in range(0,len(vals),compTime)],(self.years,1))
+            elif sumOpt is False:
+                vals = np.reshape([vals[i] for i in range(0,len(vals),compTime)],(self.years,1))
+            else:
+                raise Exception('Invalid option specified.')
+                
+            return vals
+        
+        if compType == 'daily':
+            compTime = 365
+        elif compType == 'monthly':
+            compTime = 12
+        elif compType == 'annually':
+            compTime = 1
         
         bal = 0 if self.curBal is None else self.curBal[int(house[0]),0]
         worth = 0 if self.curWth is None or sellPrev == False else self.curWth[int(house[0]),0]
@@ -32,28 +50,28 @@ class Loans:
         self.curInt = curSet(self.curInt)
         self.curDwn = curSet(self.curDwn)
         
-        mortPay = np.zeros((self.years * 365,1))
-        mortBal = np.zeros((self.years * 365,1))
-        mortPrin = np.zeros((self.years * 365,1))
-        mortInt = np.zeros((self.years * 365,1))
+        mortPay = np.zeros((self.years * compTime,1))
+        mortBal = np.zeros((self.years * compTime,1))
+        mortPrin = np.zeros((self.years * compTime,1))
+        mortInt = np.zeros((self.years * compTime,1))
         
-        startHouse = int(house[0])
-        endHouse = int(house[0] + house[1]) if house[0] + house[1] < self.years else self.years
+        startHouse = int(house[0] * compTime)
+        endHouse = int(house[0] + house[1] * compTime) if (house[0] + house[1]) * compTime < self.years * compTime else (self.years * compTime)
         
-        rateInt = house[2] / (100 * 365)     #r - interest rate, monthly
-        termLength = house[1] * 365          #n - number of months
+        rateInt = house[2] / (100 * compTime)     #r - interest rate, monthly
+        termLength = house[1] * compTime          #n - number of months
         down = (house[4] / 100) * house[3]
         prin = house[3] + bal - worth - down
           
         termCount = 0
-        for n in range(startHouse*365,endHouse*365):
+        for n in range(startHouse,endHouse):
             if prin > 0: 
                 termCount += 1 
                 termConst = (1 + rateInt) ** termLength
                 
                 mortBal[n] = prin * (termConst - (1 + rateInt) ** termCount) / (termConst - 1)            
                 mortPay[n] = prin * (rateInt * termConst) / (termConst - 1)
-                mortPrin[n] = mortBal[n-1] - mortBal[n] if n > startHouse*365 else prin - mortBal[n]
+                mortPrin[n] = mortBal[n-1] - mortBal[n] if n > startHouse else prin - mortBal[n]
                 mortInt[n] = mortPay[n] - mortPrin[n]
             else:
                 mortBal[n] = 0
@@ -61,9 +79,9 @@ class Loans:
                 mortPrin[n] = 0
                 mortInt[n] = 0
         
-        mortBal = np.reshape([mortBal[i] for i in range(0,len(mortBal),365)],(self.years,1))
-        mortPrin = np.reshape([sum(mortPrin[i:i+365]) for i in range(0,len(mortPrin),365)],(self.years,1))
-        mortInt = np.reshape([sum(mortInt[i:i+365]) for i in range(0,len(mortInt),365)],(self.years,1))
+        mortBal = catArray(mortBal,sumOpt=False) 
+        mortPrin = catArray(mortPrin,sumOpt=True) 
+        mortInt = catArray(mortInt,sumOpt=True) 
         mortPay = mortPrin + mortInt
             
         self.curBal = sum((self.curBal,mortBal))  
@@ -81,6 +99,9 @@ class Loans:
         houseWth = np.zeros((self.years,1)) 
         propTax = np.zeros((self.years,1)) 
     
+        startHouse = int(house[0])
+        endHouse = int(house[0] + house[1]) if house[0] + house[1] < self.years else self.years
+        
         for n in range(startHouse,endHouse):
             houseWth[n] = house[3] * ((1 + app) ** (n - house[0]))
             propTax[n] = propTaxRate * houseWth[n]
@@ -103,6 +124,16 @@ class Loans:
         
     def genLoanCalc(self,loan,compType='daily'):
         """loan = [Start Yr, Term Length (Yrs), Interest Rate (%), Amount ($)]"""
+        
+        def catArray(vals,sumOpt=True):
+            if sumOpt is True:        
+                vals = np.reshape([sum(vals[i:i+365]) for i in range(0,len(vals),365)],(self.years,1))
+            elif sumOpt is False:
+                vals = np.reshape([vals[i] for i in range(0,len(vals),365)],(self.years,1))
+            else:
+                raise Exception('Invalid option specified.')
+                
+            return vals
     
         if compType == 'daily':
             compTime = 365
@@ -117,7 +148,7 @@ class Loans:
         loanInt = np.zeros((self.years * compTime,1)) 
         
         startLoan = int(loan[0] * compTime)
-        endLoan = int((loan[0] + loan[1]) * compTime) if int((loan[0] + loan[1]) * compTime) < (self.years * compTime) else (self.years * compTime) - 1
+        endLoan = int((loan[0] + loan[1]) * compTime) if (loan[0] + loan[1]) * compTime < self.years * compTime else self.years * compTime
         
         rateInt = loan[2] / (100 * compTime)     #r - interest rate, monthly
         termLength = loan[1] * compTime          #n - number of months
@@ -133,9 +164,9 @@ class Loans:
             loanPrin[n] = loanBal[n-1] - loanBal[n] if n > startLoan else prin - loanBal[n]
             loanInt[n] = loanPay[n] - loanPrin[n]
         
-        loanBalSum = np.reshape([loanBal[i] for i in range(0,len(loanBal),compTime)],(self.years,1))
-        loanPrinSum = np.reshape([sum(loanPrin[i:i+compTime]) for i in range(0,len(loanPrin),compTime)],(self.years,1))
-        loanIntSum = np.reshape([sum(loanInt[i:i+compTime]) for i in range(0,len(loanInt),compTime)],(self.years,1))
+        loanBalSum = catArray(loanBal,sumOpt=False) 
+        loanPrinSum = catArray(loanPrin,sumOpt=True) 
+        loanIntSum = catArray(loanInt,sumOpt=True)
         loanPaySum = loanPrinSum + loanIntSum
         
         return [loanPaySum,loanBalSum,loanIntSum]

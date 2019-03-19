@@ -8,7 +8,7 @@ class Setup:
         self.childYrs = var['childYrs']
         self.salaryBase = var['salaryBase']
         
-    def salaryCalc(self,growthRate=0.028,growthDev=[0.5,2],growthType='compound'):
+    def salaryCalc(self,growthRate=0.028,growthDev=[0.5,1.75],growthType='compound'):
         salary = []
         for base in self.salaryBase:
             sal = np.zeros((self.years,1))
@@ -25,8 +25,9 @@ class Setup:
                     
             salary.append(sal)
         
+        self.numInd = len(salary)
         self.salary = salary
-    
+        
     def childCalc(self,maxChildYr=22):
         childAges = np.zeros((self.years,len(self.childYrs)))
         
@@ -41,7 +42,7 @@ class Setup:
         self.salaryCalc()
         self.childCalc()
         
-        return [self.salary,self.childAges]
+        return [self.salary,self.childAges,self.numInd]
         
 def salaryCalc(salaryBase,years,growthRate=0.028,growthType=1):
     salaryMax = salaryBase * (1 + growthRate) ** years

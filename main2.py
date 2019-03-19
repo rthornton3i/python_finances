@@ -14,10 +14,11 @@ import matplotlib.pyplot as plt
 #==============================================================================
 
 setup = stp.Setup(var)
-[salary,childAges] = setup.setupRun()
+[salary,childAges,numInd] = setup.setupRun()
 
 var['salary'] = salary
 var['childAges'] = childAges
+var['numInd'] = numInd
 
 ##Loans/Housing
 #==============================================================================
@@ -28,6 +29,13 @@ loans = lns.Loans(var)
 
 for house in var['houses']:
     [houseCosts] = loans.mortgageCalc(house)
+#    houseCosts  = [Bal,Pay,Int,Wth,Tax,Dwn]
+    
+var['houseCosts'] = houseCosts
+
+#plt.clf()
+#plt.plot(houseCosts[1])
+#plt.plot(houseCosts[2])
 
 [colLoanPay,colLoanBal,colLoanInt] = loans.genLoanCalc(var['collegeLoan'])
 #[lawLoanPay,lawLoanBal,lawLoanInt] = loans.genLoanCalc(var['lawLoan'])
@@ -35,14 +43,19 @@ for house in var['houses']:
 ##Expenses
 #==============================================================================
 
-exps = exp.Expenses(var,houseCosts,var['carYears'])
+exps = exp.Expenses(var)
 [totalExp,totalItem] = exps.expRun()
+#         totalItem  = [totalChar]
+
+var['totalExp'] = totalExp
+var['totalItem'] = totalItem
 
 ##Taxes
 #==============================================================================
 
-tx = tax.Taxes(var,houseCosts,totalItem)
-[netIncome] = exps.taxRun()
+tx = tax.Taxes(var)
+tx.taxRun()
+#[netIncome] = tx.taxRun()
 
 ## Housing/Rent
 ##==============================================================================

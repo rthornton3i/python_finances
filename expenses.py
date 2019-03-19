@@ -4,10 +4,8 @@ import math
 
 class Expenses:
     
-    def __init__(self,var,
-                 houseCosts,carYears,
-                 maxChildYr=22):
-                     
+    def __init__(self,var,maxChildYr=22):
+                    
         self.years = var['years']      
         self.salary = sum(var['salary'])
         
@@ -15,11 +13,11 @@ class Expenses:
         self.childYrs = var['childYrs']        
         self.childAges = var['childAges']        
         
-        self.housePay = houseCosts[1]
-        self.houseWth = houseCosts[3]
-        self.houseDwn = houseCosts[5]
+        self.housePay = var['houseCosts'][1]
+        self.houseWth = var['houseCosts'][3]
+        self.houseDwn = var['houseCosts'][5]
         
-        self.carYears = carYears
+        self.carYears = var['carYears']
         
         self.maxChildYr = maxChildYr
         
@@ -234,7 +232,7 @@ class Expenses:
                    self.totalCollege + self.totalWed + self.totalVac + \
                    self.totalChar + self.totalRand    
                    
-        totalItem = self.totalChar
+        totalItem = [self.totalChar]
                     
         return [totalExp,totalItem]
     
