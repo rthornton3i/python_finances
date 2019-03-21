@@ -26,7 +26,7 @@ class Setup:
             salary.append(sal)
         
         self.numInd = len(salary)
-        self.salary = salary
+        self.salary = np.hstack(salary)
         
     def childCalc(self,maxChildYr=22):
         childAges = np.zeros((self.years,len(self.childYrs)))

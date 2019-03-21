@@ -1,25 +1,42 @@
 import numpy as np
 from math import inf
 
+import matplotlib.pyplot as plt
+
 class Taxes:
     
-    def __init__(self,var):
+    def __init__(self,var,
+                 maxChildYr=22):
         self.var = var
         
         self.years = var['years']
         self.filing = self.var['filing']
         self.numInd = self.var['numInd']
         
+        self.childAges = var['childAges'] 
+        self.childYrs = var['childYrs']  
+        
         self.houseBal = var['houseCosts'][0]
         self.houseInt = var['houseCosts'][2]
         self.propTax = var['houseCosts'][4]
         
         self.totalChar = var['totalItem'][0]
+        
+        self.maxChildYr= maxChildYr
     
-    def healthCalc(self,hsa=0,fsa=0,hra=0):
-        hsa = np.full((self.years,1),0) if hsa == 0 else hsa
-        fsa = np.full((self.years,1),0) if fsa == 0 else fsa
-        hra = np.full((self.years,1),0) if hra == 0 else hra
+    def healthCalc(self,hsa=0*12,fsa=0*12,hra=0*12,growthFactor=0.025):        
+        hsa = hsa * self.iters
+        fsa = fsa * self.iters
+        hra = hra * self.iters
+        
+        hsa = np.zeros((self.years,1))    
+        fsa = np.zeros((self.years,1))
+        hra = np.zeros((self.years,1))
+        
+        for n in range(self.years):
+            hsa[n] = hsa[n] * (1 + growthFactor) ** n
+            fsa[n] = fsa[n]  * (1 + growthFactor) ** n
+            hra[n] = hra[n] * (1 + growthFactor) ** n
         
         healthDed = hsa + fsa + hra
         
@@ -43,78 +60,84 @@ class Taxes:
         
         self.benefits = benefits
     
-    def trad401Calc(self,basePerc=0,growthPerc=0):
-        trad401Perc = np.full((self.years,self.iters),basePerc)
+    def trad401Calc(self,basePerc=0,growthPerc=0,binWid=5):
+        trad401Perc = np.full((self.years,self.numInd),basePerc)
         
-        for m in range(self.iters):
-            for n in range(1,self.years):
-                if n % 5 == 0:
-                    trad401Perc[n:self.years,m] = trad401Perc[n,m] + growthPerc
+        for n in range(1,self.years):
+            if n % binWid == 0:
+                for m in range(self.numInd):    
+                    trad401Perc[n:,m] = trad401Perc[n,m] + growthPerc
                 
         self.perc401 = sum((self.perc401,trad401Perc))  
         
-        trad401 = trad401Perc * self.salary
-        print(trad401)
+        trad401 = np.multiply(trad401Perc,self.salary)
         
         for n in range(self.years):
-            trad401[n] = 19000 if trad401[n] > 19000 else trad401[n]
+            for m in range(self.numInd):    
+                trad401[n,m] = 19000 if trad401[n,m] > 19000 else trad401[n,m]
         
         self.trad401 = trad401
         
-    def roth401Calc(self,basePerc=0.04,growthPerc=0.01):
-        roth401Perc = np.full((self.years,1),basePerc)
+    def roth401Calc(self,basePerc=0.08,growthPerc=0.01,binWid=5):
+        roth401Perc = np.full((self.years,self.numInd),basePerc)
         
         for n in range(1,self.years):
-            if n % 5 == 0:
-                roth401Perc[n:self.years] = roth401Perc[n] + growthPerc
+            if n % binWid == 0:
+                for m in range(self.numInd):  
+                    roth401Perc[n:,m] = roth401Perc[n,m] + growthPerc
+                
+        self.perc401 = sum((self.perc401,roth401Perc))  
         
-        self.perc401 = sum((self.perc401,roth401Perc))
-        
-        roth401 = roth401Perc * self.salary
+        roth401 = np.multiply(roth401Perc,self.salary)
         
         for n in range(self.years):
-            roth401[n] = 19000 if roth401[n] > 19000 else roth401[n]
+            for m in range(self.numInd):    
+                roth401[n,m] = 19000 - self.trad401[n,m] if roth401[n,m] + self.trad401[n,m] > 19000 else roth401[n,m]
         
         self.roth401 = roth401
 
     def match401Calc(self):
-        matchPerc = np.zeros((self.years,1))        
+        matchPerc = np.zeros((self.years,self.numInd))        
         
         for n in range(self.years):
-            if self.perc401[n] <= 0.04:
-                matchPerc[n] = self.perc401[n]
-            elif self.perc401[n] <= 0.1:
-                matchPerc[n] = 0.04 + ((self.perc401[n] - 0.04) * .5)
-            else:
-                matchPerc[n] = 0.07
+            for m in range(self.numInd):    
+                if self.perc401[n,m] <= 0.04:
+                    matchPerc[n,m] = self.perc401[n,m]
+                elif self.perc401[n,m] <= 0.1:
+                    matchPerc[n,m] = 0.04 + ((self.perc401[n,m] - 0.04) * .5)
+                else:
+                    matchPerc[n,m] = 0.07
                 
-        match401 = matchPerc * self.salary
+        match401 =  np.multiply(matchPerc,self.salary)
         
-        cont401 = np.zeros((self.years,1))
         for n in range(self.years):
-            cont401[n] = 19000 if self.roth401[n] + self.trad401[n] > 19000 else self.roth401[n] + self.trad401[n]
-            match401[n] = 37000 if match401[n] > 37000 else match401[n]
+            for m in range(self.numInd):
+                match401[n,m] = 37000 if match401[n,m] > 37000 else match401[n,m]
         
-        self.cont401 = cont401
         self.match401 = match401
         
-    def itemDedCalc(self):
+    def itemDedCalc(self,slpTax=None):
         #SLP Taxes
-        slpDed = np.zeros((self.years,1))
-        if self.slpTax is not None :
+        slpDed = np.zeros((self.years,self.iters))
+        if slpTax is not None:
             for n in range(self.years):
-                slpDed[n] = 10000 if self.slpTax[n] > 10000 else self.slpTax[n]
+                for m in range(self.iters):
+                    slpDed[n,m] = 10000/self.iters if self.slpTax[n,m] > 10000/self.iters else self.slpTax[n,m]
         
         #Mortgage Interest
-        mortInt = np.zeros((self.years,1))
+        mortInt = np.zeros((self.years,self.iters))
         for n in range(self.years):
-            if self.houseBal[n] < 750000:
-                mortInt[n] = self.houstInt[n]
-            else:
-                mortInt[n] = (self.houseInt[n] / self.houseBal[n]) * 750000
+            for m in range(self.iters):
+                if self.houseBal[n] < 750000/self.iters:
+                    mortInt[n,m] = self.houseInt[n]
+                else:
+                    mortInt[n,m] = (self.houseInt[n] / self.houseBal[n]) * 750000/self.iters
             
         #Charitable Donations
-        charDon = self.totalChar  
+        charDon = np.zeros((self.years,self.iters))
+        for n in range(self.years):
+            for m in range(self.iters): 
+                charDon[n,m] = self.totalChar[n]/self.iters
                 
         itemDedState = mortInt + charDon
         itemDedFed = itemDedState + slpDed
@@ -122,63 +145,97 @@ class Taxes:
         self.itemDed = [itemDedFed,itemDedState]
     
     def stdDedCalc(self):
-        if self.filing == 'SINGLE':
-            stdDedFed = np.full((self.years,1),12000)
-        elif self.filing == 'JOINT':
-            stdDedFed = np.full((self.years,1),24000)
-        elif self.filing == 'SEPARATE':
-            stdDedFed = np.full((self.years,2),12000)
-        else:
-            raise Exception('Invalid filing option.')
+        stdDedFed = np.full((self.years,self.iters),24000/self.iters)
     
-        stdDedState = np.zeros((self.years,1))
+        stdDedState = np.zeros((self.years,self.iters))
         for n in range(self.years):
-            stdDedState[n] = 0.15 * self.salary[n]
-            
-            if stdDedState[n] < 3000:
-                stdDedState[n] = 3000
-            elif stdDedState[n] > 4000:
-                stdDedState[n] = 4000
+            for m in range(self.iters): 
+                stdDedState[n,m] = 0.15 * self.salary[n,m]
+                
+                if stdDedState[n,m] < 3000/self.iters:
+                    stdDedState[n,m] = 3000/self.iters
+                elif stdDedState[n,m] > 4500/self.iters:
+                    stdDedState[n,m] = 4500/self.iters
                 
         self.stdDed = [stdDedFed,stdDedState]
     
-    def exemptCalc(self,numChild):
-        persStateEx = np.zeros((self.years,1))
-        childStateEx = np.zeros((self.years,len(numChild)))
+    def exemptCalc(self):
+        totalExFed = np.zeros((self.years,self.iters))        
+        
+        persStateEx = np.zeros((self.years,self.iters))
+        childStateEx = np.zeros((self.iters,self.years,len(self.childYrs)))
         
         for n in range(self.years):  
-            if self.salary[n] < 150000:
-                persStateEx[n] = 3200 * 2
-                for m in range(len(numChild)):
-                    if n >= numChild[m] and n <= (numChild[m] + 22):
-                        childStateEx[n,m] = 3200
-            elif self.salary[n] < 175000:
-                persStateEx[n] = 1600 * 2
-                for m in range(len(numChild)):
-                    if n >= numChild[m] and n <= (numChild[m] + 22):
-                        childStateEx[n,m] = 1600
-            elif self.salary[n] < 200000:
-                persStateEx[n] = 800 * 2
-                for m in range(len(numChild)):
-                    if n >= numChild[m] and n <= (numChild[m] + 22):
-                        childStateEx[n,m] = 800
-            else:
-                persStateEx[n] = 0
-                for m in range(len(numChild)):
-                    childStateEx[n,m] = 0
-                    
-        childStateEx = childStateEx.sum(axis=1).reshape(self.years,1)    
+            for m in range(self.iters):
+                if self.filing == 'SINGLE' or self.filing == 'SEPARATE':
+                    if self.salary[n,m] < 100000:
+                        persStateEx[n,m] = 3200
+                    elif self.salary[n,m] < 125000:
+                        persStateEx[n,m] = 1600
+                    elif self.salary[n,m] < 150000:
+                        persStateEx[n,m] = 800
+                    else:
+                        persStateEx[n,m] = 0
+                elif self.filing == 'JOINT':
+                    if self.salary[n,m] < 150000:
+                        persStateEx[n,m] = 6400
+                    elif self.salary[n,m] < 175000:
+                        persStateEx[n,m] = 3200
+                    elif self.salary[n,m] < 200000:
+                        persStateEx[n,m] = 1600
+                    else:
+                        persStateEx[n,m] = 0
+                else:
+                    raise Exception('Invalid filing option.')
+            
+        for n in range(self.years):  
+            for m in range(len(self.childYrs)):
+                for x in range(self.iters):
+                    if self.childAges[n,m] > 0:
+                        if self.filing == 'SINGLE' or self.filing == 'SEPARATE':
+                            if self.salary[n,x] < 100000:
+                                childStateEx[x,n,m] = 3200
+                            elif self.salary[n,x] < 125000:
+                                childStateEx[x,n,m] = 1600
+                            elif self.salary[n,x] < 150000:
+                                childStateEx[x,n,m] = 800
+                            else:
+                                childStateEx[x,n,m] = 0
+                        elif self.filing == 'JOINT':
+                            if self.salary[n,x] < 150000:
+                                childStateEx[x,n,m] = 3200
+                            elif self.salary[n,x] < 175000:
+                                childStateEx[x,n,m] = 1600
+                            elif self.salary[n,x] < 200000:
+                                childStateEx[x,n,m] = 800
+                            else:
+                                childStateEx[x,n,m] = 0
+                        else:
+                            raise Exception('Invalid filing option.')
+                            
+                for x in range(self.iters):
+                    if childStateEx[x,n,m] == np.mean(childStateEx[:,n,m]):
+                        if self.salary[n,x] != np.max(self.salary[n,:]):
+                            childStateEx[x,n,m] = 0
+                    elif childStateEx[x,n,m] != np.max(childStateEx[:,n,m]):
+                        childStateEx[x,n,m] = 0
+        
+        childStateEx = np.sum(childStateEx,axis=2).reshape(self.iters,self.years).transpose()
             
         totalExState = persStateEx + childStateEx
-        totalExFed = np.zeros((self.years,1))
         
-        return [totalExState,totalExFed]
+        self.totalEx = [totalExFed,totalExState]
     
-    def grossIncCalc(self,trad401,healthDed,totalExFed,totalExState):
-        grossIncState = self.salary - (trad401 + healthDed + totalExState)
-        grossIncFed = self.salary - (trad401 + healthDed + totalExFed)
+    def grossEarnCalc(self):
+        grossIncFed = np.zeros((self.years,self.iters))
+        grossIncState = np.zeros((self.years,self.iters))
         
-        return [grossIncState,grossIncFed]
+        for n in range(self.years):  
+            for m in range(self.iters):
+                grossIncFed[n,m] = self.salary[n,m] - (self.trad401[n,m] + self.healthDed[n] + self.benefits[n] + self.totalEx[0][n,m])
+                grossIncState[n,m] = self.salary[n,m] - (self.trad401[n,m] + self.healthDed[n] + self.benefits[n] + self.totalEx[1][n,m])
+        
+        self.grossInc =  [grossIncFed,grossIncState]
     
     def miscTaxCalc(self):
         socialSecurity = .062
@@ -283,35 +340,27 @@ class Taxes:
     def taxRun(self):        
         if self.filing == 'SINGLE' or self.filing == 'SEPARATE':
             self.iters = self.numInd
-            
             self.salary = self.var['salary']
-            self.perc401 = np.zeros((self.years,self.numInd))
         elif self.filing == 'JOINT':
             self.iters = 1
-            
-            self.salary = sum(self.salary)
-            self.perc401 = np.zeros((self.years,1))            
+            self.salary = np.sum(self.var['salary'],axis=1)          
         else:
             raise Exception('Invalid filing option.')
+        
+        self.perc401 = np.zeros((self.years,self.numInd))
             
         self.healthCalc()
         self.benefitsCalc()
         
         self.trad401Calc()
-#        self.roth401Calc()
-#        self.match401Calc()  
-#        
-#        self.itemDedCalc()
-#        self.stdDedCalc()
-#        
-#        self.healthDed  
-#        self.benefits      
-#        
-#        self.cont401
-#        self.match401
-#        
-#        self.itemDed
-#        self.stdDed
+        self.roth401Calc()
+        self.match401Calc()  
+        
+        self.itemDedCalc()
+        self.stdDedCalc()
+        
+        self.exemptCalc()
+
         
 #        #Pretax Benefits
 #        healthDed = tax.healthDedCalc(years,hsa=0,fsa=0,hra=0)  

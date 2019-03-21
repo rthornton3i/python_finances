@@ -7,7 +7,7 @@ class Expenses:
     def __init__(self,var,maxChildYr=22):
                     
         self.years = var['years']      
-        self.salary = sum(var['salary'])
+        self.salary = np.sum(var['salary'],axis=1)
         
         self.familyKids = var['familyKids']
         self.childYrs = var['childYrs']        
