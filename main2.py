@@ -1,4 +1,5 @@
 from varsDict import var
+from taxDict import rate
 
 import setup as stp
 import loans as lns
@@ -54,8 +55,7 @@ var['totalItem'] = totalItem
 #==============================================================================
 
 tx = tax.Taxes(var)
-tx.taxRun()
-#[netIncome] = tx.taxRun()
+[netIncome] = tx.taxRun()
 
 ## Housing/Rent
 ##==============================================================================

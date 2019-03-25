@@ -2,6 +2,7 @@ import numpy as np
 
 var = {
     'filing':'SEPARATE',
+    'filingState':['NJ','MD'],
     'years':40,
     'childYrs':[7,9],
     'salaryBase':[77000,83000],

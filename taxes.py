@@ -11,6 +11,7 @@ class Taxes:
         
         self.years = var['years']
         self.filing = self.var['filing']
+        self.filingState = self.var['filingState']
         self.numInd = self.var['numInd']
         
         self.childAges = var['childAges'] 
@@ -237,50 +238,43 @@ class Taxes:
         
         self.grossInc =  [grossIncFed,grossIncState]
     
-    def miscTaxCalc(self):
-        socialSecurity = .062
-        medicare = .0145
-        medicareAdditional = .009
-        
-        maxTaxSS = 127200
-        minTaxAM = 250000
-        
-        # Social Security
-        ssTax = np.zeros((self.years,1))
+    def miscTaxCalc(self,ssRate=0.062,mRate=0.0145,amRate=0.009,maxSS=127200,minAM=250000):        
+        ssTax = np.zeros((self.years,self.iters))
+        mTax = np.zeros((self.years,self.iters))
+        amTax = np.zeros((self.years,self.iters))
         
         for n in range(self.years):
-            if self.salary[n] < maxTaxSS: 
-                ssTax[n] = self.salary[n] * socialSecurity 
-            else:
-                ssTax[n] = maxTaxSS * socialSecurity
+            for m in range(self.iters):
+                # Social Security
+                if self.salary[n,m] < maxSS: 
+                    ssTax[n,m] = self.salary[n,m] * ssRate 
+                else:
+                    ssTax[n,m] = maxSS * ssRate
         
-        # Medicare
-        mTax = np.zeros((self.years,1))
+                # Medicare
+                mTax[n,m] = self.salary[n,m] * mRate
         
-        for n in range(self.years):  
-            mTax[n] = self.salary[n] * medicare
-        
-        # Additional Medicare
-        amTax = np.zeros((self.years,1))
-        
-        for n in range(self.years):
-            if self.salary[n] > minTaxAM:
-                amTax[n] = self.salary[n] * medicareAdditional 
+                # Additional Medicare
+                if self.salary[n,m] > minAM:
+                    amTax[n,m] = self.salary[n,m] * amRate 
         
         miscTaxes = ssTax + mTax + amTax
         
-        return miscTaxes
+        self.miscTaxes = miscTaxes
     
-    def slTaxCalc(self,grossIncState,itemDedState,stdDedState):
-        localTaxPerc = 0.025
-        stateTax = np.zeros((self.years,1))
-        stateLocalTax = np.zeros((self.years,1))
+    def slTaxCalc(self,localRate=0.025):
+        stateLocalTax = np.zeros((self.years,self.iters))
+        
+        self.itemDed = [itemDedFed,itemDedState]
+        self.stdDed = [stdDedFed,stdDedState]
+        self.grossInc =  [grossIncFed,grossIncState]
         
         for n in range(self.years):
-            if itemDedState[n] > stdDedState[n]:
-                grossIncState[n] = grossIncState[n] - itemDedState[n]
-            else:
-                grossIncState[n] = grossIncState[n] - stdDedState[n]
+            for m in range(self.iters):
+                if itemDedState[n] > stdDedState[n]:
+                    grossIncState[n] = grossIncState[n] - itemDedState[n]
+                else:
+                    grossIncState[n] = grossIncState[n] - stdDedState[n]
         
         brackets = np.asarray([[0,1000,0.02],
                                [1001,2000,0.03],
@@ -298,7 +292,7 @@ class Taxes:
                 elif grossIncState[n] > bracket[0]:
                     stateTax[n] = stateTax[n] + ((grossIncState[n] - bracket[0]) * bracket[2])
                                
-            stateLocalTax[n] = stateTax[n] + (grossIncState[n] * localTaxPerc)
+            stateLocalTax[n] = stateTax[n] + (grossIncState[n] * localRate)
     
         return stateLocalTax
         
@@ -357,10 +351,18 @@ class Taxes:
         self.match401Calc()  
         
         self.itemDedCalc()
-        self.stdDedCalc()
-        
+        self.stdDedCalc()        
         self.exemptCalc()
+        
+        self.grossEarnCalc()
 
+        self.miscTaxCalc()
+#        self.miscTaxCalc()        
+#        self.miscTaxCalc()
+        
+        netIncome = 0
+        
+        return [netIncome]
         
 #        #Pretax Benefits
 #        healthDed = tax.healthDedCalc(years,hsa=0,fsa=0,hra=0)  
