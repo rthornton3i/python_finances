@@ -39,7 +39,7 @@ var = {
                               [0],                  #retTrad401 (Fidelity)
                               [400],                #col529     (Fidelity)
                               [1000],               #emergFunds (PNC Short)
-                              [6500 + 35000],       #medTerm    (Goldman Sach's, BoA)
+                              [6500 + 35000],       #longTerm   (Goldman Sach's, BoA)
                               [1800 + 2000],        #shortTerm  (PNC Growth, BoA)
                               [1000]]),             #excSpend   (PNC Spend)
                               
@@ -56,8 +56,7 @@ var = {
                               [35   , 50    , 10    , 32.5  , 30    ],     #medTerm
                               [25   , 10    , 20    , 10    , 20    ],     #shortTerm
                               [20   , 17.5  , 20    , 10    , 15    ]])    #excSpend
-}
-    
+ 
     #allocations = np.asarray([[2.5  , 0     , 2.5   , 12.5  , 5     ],     #hiDiv
     #                          [2.5  , 0     , 2.5   , 12.5  , 5     ],     #ltLowVol
     #                          [2.5  , 0     , 2.5   , 12.5  , 5     ],     #largeCap
@@ -69,6 +68,6 @@ var = {
     #                          [25   , 45    , 10    , 32.5  , 30    ],     #medTerm
     #                          [30   , 27.5  , 35    , 10    , 20    ],     #shortTerm
     #                          [25   , 20    , 25    , 12.5  , 15    ]])    #excSpend
-    
-#savingsCheck = np.sum(allocations,axis=0)
-#print(savingsCheck)
+}   
+
+print(np.sum(var['allocations'],axis=0))

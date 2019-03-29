@@ -21,6 +21,8 @@ class Expenses:
         self.carWth = var['carCosts'][1]
         self.carDwn = var['carCosts'][2]
         
+        self.totalLoan = var['totalLoan']
+        
         self.maxChildYr = maxChildYr
         
     def holidayExp(self,holExp=[400,500,200,300],chExp=[100,200,300,1200],famExp=[50,50]):
@@ -209,11 +211,7 @@ class Expenses:
         self.charExp()
         self.randExp()
 
-        totalExp = self.totalHol + self.totalEnt + self.totalMisc + \
-                   self.totalHouse + self.totalAuto + \
-                   self.totalCollege + self.totalWed + self.totalVac + \
-                   self.totalChar + self.totalRand    
-                   
+        totalExp = [self.totalHol,self.totalEnt,self.totalMisc,self.totalHouse,self.totalAuto,self.totalCollege,self.totalWed,self.totalVac,self.totalChar,self.totalRand,self.totalLoan]
         totalItem = [self.totalChar]
                     
         return [totalExp,totalItem]

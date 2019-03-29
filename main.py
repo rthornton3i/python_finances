@@ -35,12 +35,13 @@ for house in var['houses']:
 for car in var['cars']:
     [carCosts] = loans.carCalc(car)
 #    carCosts  = [Pay,Wth,Dwn]
-    
-var['houseCosts'] = houseCosts
-var['carCosts'] = carCosts
 
 [colLoanPay,colLoanBal,colLoanInt] = loans.genLoanCalc(var['collegeLoan'])
 #[lawLoanPay,lawLoanBal,lawLoanInt] = loans.genLoanCalc(var['lawLoan'])
+
+var['houseCosts'] = houseCosts
+var['carCosts'] = carCosts
+var['totalLoan'] = colLoanPay
 
 ##Expenses
 #==============================================================================
@@ -48,6 +49,7 @@ var['carCosts'] = carCosts
 exps = exp.Expenses(var)
 [totalExp,totalItem] = exps.expRun()
 #         totalItem  = [totalChar]
+#         totalExp   = [totalHol,totalEnt,totalMisc,totalHouse,totalAuto,totalCollege,totalWed,totalVac,totalChar,totalRand,totalLoan]
 
 var['totalExp'] = totalExp
 var['totalItem'] = totalItem
@@ -56,84 +58,37 @@ var['totalItem'] = totalItem
 #==============================================================================
 
 taxes = txs.Taxes(var,rates)
-[netIncome,netCash] = taxes.taxRun()
+[netIncome,netCash,netRet] = taxes.taxRun()
+
+var['netCash'] = netCash
+var['netRet'] = netRet
 
 ##Savings/Investments
 #==============================================================================
 
 savs = sav.Savings(var)
-savs.savRun()
+[netWorth,totalSavings] = savs.savRun()
 
-[annualSavings,savings] = sav.savingsCalc(years,netCash,totalExpenses)
+hiDiv = totalSavings[:,0]
+ltLowVol = totalSavings[:,1]
+largeCap = totalSavings[:,2]
+stHiVol = totalSavings[:,3]
 
-savingsAlloc = sav.savingsAllocations(years,allocations)
-earningsAlloc = sav.investAllocations(years,allocations)
+retRoth401 = totalSavings[:,4]
+retTrad401 = totalSavings[:,5]
 
-[savingsTotal,savingsCont] = sav.savingsContributions(years,savingsAlloc,earningsAlloc,netCash,totalExpenses,ret401,ageChild,baseSavings)
-
-#    hiDiv = savingsTotal[:,0]
-#    ltLowVol = savingsTotal[:,1]
-#    largeCap = savingsTotal[:,2]
-#    stHiVol = savingsTotal[:,3]
-#    
-#    retRoth401 = savingsTotal[:,4]
-#    retTrad401 = savingsTotal[:,5]
-#    
-#    col529 = savingsTotal[:,6]
-#    emergFunds = savingsTotal[:,7]
-#    medTerm = savingsTotal[:,8]
-#    shortTerm = savingsTotal[:,9]
-#    excSpend = savingsTotal[:,10]
-#    
-#    m = 20
-#    n = 35
-#    
-#    plt.clf()
-#    plt.plot(emergFunds[m:n])
-#    plt.plot(medTerm[m:n])
-#    plt.plot(shortTerm[m:n])
-#    plt.plot(excSpend[m:n])
-#    plt.legend(('emergFunds','medTerm','shortTerm','excSpend'))
-#    
-#    plt.clf()
-#    plt.plot(col529)
-#    
-#    plt.clf()
-#    plt.plot(savingsTotal)
-#    plt.legend(('hiDiv','ltLowVol','largeCap','stHiVol','retRoth401','retTrad401','col529','emergFunds','medTerm','shortTerm','excSpend'))
-
-earningsAlloc_iter[:,:,x] = earningsAlloc[:,:]
-savingsTotal_iter[:,:,x] = savingsTotal[:,:]
-    
-savingsTotal_iter = np.mean(savingsTotal_iter,axis=2)
-earningsAlloc_iter = np.mean(earningsAlloc_iter,axis=2)
-
-netWorth = np.sum(savingsTotal_iter,axis=1)
-
-#0) hiDiv
-#1) ltLowVol
-#2) largeCap
-#3) stHiVol
-
-#4) retRoth401
-#5) retTrad401
-
-#6) col529
-
-#7) emergFunds
-#8) medTerm
-#9) shortTerm
-#10) excSpend
-
-m = 0
-n = 40
-x = 8
+col529 = totalSavings[:,6]
+emergFunds = totalSavings[:,7]
+longTerm = totalSavings[:,8]
+shortTerm = totalSavings[:,9]
+excSpend = totalSavings[:,10]
 
 #plt.clf()
-#plt.plot(savingsTotal_iter[m:n,x])
-#plt.legend(('emerg','med','short','exc'))
+#plt.plot(totalSavings)
+#plt.plot(netWorth)
+#
+#print(netWorth[-1])
 
 plt.clf()
-plt.plot(netWorth)
-
-print(netWorth[-1])
+plt.plot(emergFunds)
+plt.legend(('emergFunds','medTerm','shortTerm','excSpend'))
