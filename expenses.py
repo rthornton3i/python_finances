@@ -2,6 +2,8 @@ import numpy as np
 import random as r
 import math
 
+import matplotlib.pyplot as plt
+
 class Expenses:
     
     def __init__(self,var,maxChildYr=22):
@@ -108,7 +110,7 @@ class Expenses:
         
         totalHouse = repHouse + insHouse + utilElec + utilGas + utilWater + self.houseDwn + self.housePay
         
-        self.totalHouse = totalHouse   
+        self.totalHouse = totalHouse
         
     def carExp(self,rates=[0.1,0.015],ezPass=50*12,gas=[15000,35,2.5]):  
         """carYears = [Purchase Yr, Sell Yr, Amount ($), Down Payment ($)]
@@ -167,7 +169,7 @@ class Expenses:
         
         self.totalVac = totalVac
         
-    def charExp(self,baseChar=0.025):
+    def charExp(self,baseChar=0.015):
         """baseChar = Annual Charity Donations (%)"""
         
         totalChar = np.zeros((self.years,1))

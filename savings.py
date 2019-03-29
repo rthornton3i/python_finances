@@ -140,33 +140,31 @@ class Savings:
                 
                 #Expenses
                 if m == 6:
-                    savTotal[n,m] = savTotal[n,m] - self.totalExp[m][5]
+                    savTotal[n,m] = savTotal[n,m] - self.totalExp[5][n]
                 elif m == 7: 
-                    savTotal[n,m] = savTotal[n,m] - self.totalExp[m][9]
+                    savTotal[n,m] = savTotal[n,m] - self.totalExp[9][n]
                 elif m == 8:
-                    savTotal[n,m] = savTotal[n,m] - self.totalExp[m][3] - self.totalExp[m][6]
+                    savTotal[n,m] = savTotal[n,m] - self.totalExp[3][n] - self.totalExp[6][n]
                 elif m == 9:
-                    savTotal[n,m] = savTotal[n,m] - self.totalExp[m][4] - self.totalExp[m][7] - self.totalExp[m][8] - self.totalExp[m][10]
+                    savTotal[n,m] = savTotal[n,m] - self.totalExp[4][n] - self.totalExp[7][n] - self.totalExp[8][n] - self.totalExp[10][n]
                 elif m == 10:
-                    savTotal[n,m] = savTotal[n,m] - self.totalExp[m][0] - self.totalExp[m][1] - self.totalExp[m][2]
+                    savTotal[n,m] = savTotal[n,m] - self.totalExp[0][n] - self.totalExp[1][n] - self.totalExp[2][n]
                 
                 #Earnings
                 savTotal[n,m] = savTotal[n,m] * (1 + self.earnAlloc[n,m])
                         
             #Transfers
-            overFlow(10,[[9,1]],5e6)    #Excessive --> Short Term
-            overFlow(9,[[8,1]],5e6)     #Short Term --> Medium Term
+            overFlow(10,[[9,1]],50e3)                               #Excessive --> Short Term
+            overFlow(9,[[8,1]],50e3)                                #Short Term --> Medium Term
             
-            if n <= 35:
-                overFlow(3,[[2,0.8],[8,0.2]],5e6) #Short Term --> Large Capital / Long Term Savings
-                overFlow(2,[[2,0.9],[8,0.1]],5e6) #Large Capital --> Long Term, Low Volatility / Long Term Savings
-            
+            overFlow(3,[[2,0.8],[8,0.2]],5e6)                       #Short Term --> Large Capital / Long Term Savings
+            overFlow(2,[[1,0.9],[8,0.1]],5e6)                       #Large Capital --> Long Term, Low Volatility / Long Term Savings
             overFlow(1,[[0,0.9],[8,0.1]],2.5e6)                     #Long Term, Low Volatility --> High Dividend / Long Term Savings
             overFlow(0,[[7,0.1],[8,0.4],[9,0.2],[10,0.3]],2.5e6)    #High Dividend --> Emergency Funds / Long Term Savings / Short Term Savings / Excess Spending
             
-            underFlow(6,[[8,1]])                        #College (Negative)    
+            underFlow(6,[[8,1]])                                    #College (Negative)    
             if n > 20 and self.childAges[n,-1] == 0:  
-                overFlow(6,[[8,1]],0)                   #College (Excess)
+                overFlow(6,[[8,1]],0)                               #College (Excess)
         
         self.savTotal = savTotal
         

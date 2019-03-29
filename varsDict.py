@@ -28,8 +28,8 @@ var = {
     
     'rent':[0,6],
     'houses':np.array([[6,30,4.25,450000,20],
-                       [18,30,4,900000,20],
-                       [32,10,3.25,3500000,20]]),
+                       [18,30,4,850000,20],
+                       [33,10,3.25,3000000,20]]),
     
     'baseSavings':np.asarray([[700],                #hiDiv      (VYM)
                               [700],                #ltLowVol   (VTI)
@@ -45,29 +45,15 @@ var = {
                               
     
                              #[yr 0 , yr 10 , yr 20 , yr 30 , yr 40 ]
-    'allocations':np.asarray([[2.5  , 2.5   , 5     , 12.5  , 5     ],     #hiDiv
-                              [2.5  , 2.5   , 5     , 12.5  , 5     ],     #ltLowVol
-                              [2.5  , 5     , 10    , 12.5  , 5     ],     #largeCap
-                              [7.5  , 7.5   , 12.5  , 5     , 5     ],     #stHiVol
+    'allocations':np.asarray([[2.5  , 2.5   , 2.5   , 7.5   , 5     ],     #hiDiv
+                              [5    , 2.5   , 2.5   , 7.5   , 5     ],     #ltLowVol
+                              [5    , 2.5   , 2.5   , 7.5   , 2.5   ],     #largeCap
+                              [7.5  , 5     , 2.5   , 2.5   , 2.5   ],     #stHiVol
                               [0    , 0     , 0     , 0     , 0     ],     #retRoth401
                               [0    , 0     , 0     , 0     , 0     ],     #retTrad401
                               [0    , 2.5   , 12.5  , 0     , 0     ],     #col529
-                              [5    , 2.5   , 5     , 5     , 15    ],     #emergFunds
-                              [35   , 50    , 10    , 32.5  , 30    ],     #medTerm
-                              [25   , 10    , 20    , 10    , 20    ],     #shortTerm
-                              [20   , 17.5  , 20    , 10    , 15    ]])    #excSpend
- 
-    #allocations = np.asarray([[2.5  , 0     , 2.5   , 12.5  , 5     ],     #hiDiv
-    #                          [2.5  , 0     , 2.5   , 12.5  , 5     ],     #ltLowVol
-    #                          [2.5  , 0     , 2.5   , 12.5  , 5     ],     #largeCap
-    #                          [7.5  , 2.5   , 5     , 5     , 5     ],     #stHiVol
-    #                          [0    , 0     , 0     , 0     , 0     ],     #retRoth401
-    #                          [0    , 0     , 0     , 0     , 0     ],     #retTrad401
-    #                          [0    , 2.5   , 12.5  , 0     , 0     ],     #col529
-    #                          [5    , 2.5   , 5     , 2.5   , 15    ],     #emergFunds
-    #                          [25   , 45    , 10    , 32.5  , 30    ],     #medTerm
-    #                          [30   , 27.5  , 35    , 10    , 20    ],     #shortTerm
-    #                          [25   , 20    , 25    , 12.5  , 15    ]])    #excSpend
-}   
-
-print(np.sum(var['allocations'],axis=0))
+                              [5    , 5     , 5     , 2.5   , 15    ],     #emergFunds
+                              [15   , 42.5  , 22.5  , 32.5  , 30    ],     #medTerm
+                              [40   , 17.5  , 25    , 25    , 25    ],     #shortTerm
+                              [20   , 20    , 25    , 15    , 15    ]])    #excSpend
+}

@@ -195,7 +195,7 @@ class Taxes:
             for m in range(len(self.childYrs)):
                 for x in range(self.iters):
                     if self.childAges[n,m] > 0:
-                        for bracket in childBrackets[m]: 
+                        for bracket in childBrackets[x]: 
                             if self.salary[n,x] < bracket[0] and childStateEx[x,n,m] == 0:
                                 childStateEx[x,n,m] = bracket[1]
                             
@@ -206,8 +206,9 @@ class Taxes:
                     elif childStateEx[x,n,m] != np.max(childStateEx[:,n,m]):
                         childStateEx[x,n,m] = 0
         
+        
         childStateEx = np.sum(childStateEx,axis=2).reshape(self.iters,self.years).transpose()
-            
+        
         totalExState = persStateEx + childStateEx
         
         self.totalEx = [totalExFed,totalExState]
