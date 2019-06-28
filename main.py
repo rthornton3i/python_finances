@@ -1,11 +1,11 @@
 from varsDict import var
 from taxDict import rates
 
-import setup as stp
-import loans as lns
-import expenses as exp
-import taxes as txs
-import savings as sav
+from setup as Setup
+from loans as Loans
+from expenses as Expenses
+from taxes as Taxes
+from savings as Savings
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,17 +19,17 @@ for i in range(loops):
     ##General Setup
     #==============================================================================
     
-    setup = stp.Setup(var)
-    [salary,childAges,numInd] = setup.setupRun()
+    setup = Setup(var)
+    setup.setupRun()
     
-    var['salary'] = salary
-    var['childAges'] = childAges
-    var['numInd'] = numInd
+    var['salary'] = setup.salary
+    var['childAges'] = setup.childAges
+    var['numInd'] = setup.numInd
     
     ##Loans/Housing
     #==============================================================================
     
-    loans = lns.Loans(var)
+    loans = Loans(var)
     
     [rentPay] = loans.rentCalc(basePerc=0.175)
     
@@ -51,7 +51,7 @@ for i in range(loops):
     ##Expenses
     #==============================================================================
     
-    exps = exp.Expenses(var)
+    exps = Expenses(var)
     [totalExp,totalItem] = exps.expRun()
     #         totalItem  = [totalChar]
     #         totalExp   = [totalHol,totalEnt,totalMisc,totalHouse,totalAuto,totalCollege,totalWed,totalVac,totalChar,totalRand,totalLoan]
@@ -62,7 +62,7 @@ for i in range(loops):
     ##Taxes
     #==============================================================================
     
-    taxes = txs.Taxes(var,rates)
+    taxes = Taxes(var,rates)
     [netIncome,netCash,netRet] = taxes.taxRun()
     
     var['netCash'] = netCash
@@ -71,7 +71,7 @@ for i in range(loops):
     ##Savings/Investments
     #==============================================================================
     
-    savs = sav.Savings(var)
+    savs = Savings(var)
     [netWorth,savings] = savs.savRun()
     
     totalSavings.append(savings)

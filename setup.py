@@ -41,5 +41,3 @@ class Setup:
     def setupRun(self):
         self.salaryCalc()
         self.childCalc()
-        
-        return [self.salary,self.childAges,self.numInd]
