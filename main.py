@@ -1,11 +1,11 @@
 from varsDict import var
 from taxDict import rates
 
-from setup as Setup
-from loans as Loans
-from expenses as Expenses
-from taxes as Taxes
-from savings as Savings
+from setup import Setup
+from loans import Loans
+from expenses import Expenses
+from taxes import Taxes
+from savings import Savings
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -92,23 +92,26 @@ longTerm = totalSavings[:,8]
 shortTerm = totalSavings[:,9]
 excSpend = totalSavings[:,10]
 
-plt.clf()
-plt.plot(excSpend)
-plt.plot(emergFunds)
-plt.plot(shortTerm)
-plt.plot(longTerm)
-plt.plot(np.zeros((var['years'],1)))
-plt.legend(('Excess','Emergency','Short','Long'))
+#==============================================================================
+print(np.sum(totalSavings[-1]))
 
-plt.clf()
-plt.plot(hiDiv)
-plt.plot(ltLowVol)
-plt.plot(largeCap)
-plt.plot(stHiVol)
-plt.legend(('High Div','LT Low Vol','Large Cap','ST High Vol'))
-
-plt.clf()
-plt.plot(retRoth401)
-plt.plot(retTrad401)
-
-print(np.sum(var['allocations'],axis=0))
+#plt.clf()
+#plt.plot(excSpend)
+#plt.plot(emergFunds)
+#plt.plot(shortTerm)
+#plt.plot(longTerm)
+#plt.plot(np.zeros((var['years'],1)))
+#plt.legend(('Excess','Emergency','Short','Long'))
+#
+#plt.clf()
+#plt.plot(hiDiv)
+#plt.plot(ltLowVol)
+#plt.plot(largeCap)
+#plt.plot(stHiVol)
+#plt.legend(('High Div','LT Low Vol','Large Cap','ST High Vol'))
+#
+#plt.clf()
+#plt.plot(retRoth401)
+#plt.plot(retTrad401)
+#
+#print(np.sum(var['allocations'],axis=0))

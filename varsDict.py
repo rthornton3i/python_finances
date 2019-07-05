@@ -1,35 +1,36 @@
 import numpy as np
 
 var = {
-    'filing':'SEPARATE',
-    'filingState':['NJ','MD'],
+    'filing':{
+        'filingType':'SEPARATE',
+        'filingState':['NJ','MD']},
 
     'years':40,
-    'childYrs':[7,9],
     'salaryBase':[77000,83000],
     
-    'familyKids':[6,8,10,10,12,13,14],
-
-    'collegeLoan':np.array([0,8,4.0,36700]),
-    'lawLoan':np.array([0,8,4.0,150000]),
+    'children':{
+        'childYrs':[7,9],
+        'familyKids':[6,8,10,10,12,13,14]},
     
-    'cars':np.array([[0  , 8  , 23500 , 5000  ],        #Rich
-                     [0  , 10 , 19500 , 4000  ],        #Becca
-                     [8  , 16 , 25000 , 5000  ],        #Crossover1
-                     [10 , 18 , 25000 , 7500  ],        #Sedan1
-                     [16 , 26 , 30000 , 10000 ],        #Crossover2
-                     [18 , 27 , 30000 , 12500 ],        #Sedan2
-                     [23 , 27 , 22500 , 5000  ],        #Child1
-                     [25 , 29 , 22500 , 5000  ],        #Child2
-                     [26 , 33 , 40000 , 15000 ],        #Sedan3a
-                     [27 , 35 , 40000 , 15000 ],        #Sedan3b
-                     [33 , 40 , 45000 , 17500 ],        #Sedan4a
-                     [35 , 40 , 45000 , 20000 ]]),      #Sedan4b
+    'loans':{
+        'collegeLoan':np.array([0,8,4.0,36700]),
+        'lawLoan':np.array([0,8,4.0,150000])},
     
-    'rent':[0,6],
-    'houses':np.array([[6,30,4.25,450000,20],
-                       [18,30,4,850000,20],
-                       [33,10,3.25,3000000,20]]),
+    'cars':{
+        'purYr':[0,0,8,10,16,18,23,25,26,27,33,35],
+        'sellYr':[8,10,16,18,26,27,27,29,33,35,40,40],
+        'amt':[23500,19500,25000,25000,30000,30000,22500,22500,40000,40000,45000,45000],
+        'down':[5000,4000,5000,7500,10000,12500,5000,5000,15000,15000,17500,20000]},
+        #Rich, Becca, Crossover1, Sedan1, Crossover2, Sedan2, Child1, Child2, Sedan3a, Sedan3b, Sedan4a, Sedan4b
+    
+    'mortgage':{
+        'rent':[0,6],
+        'houses':{
+            'purYr':[6,18,33],
+            'term': [30,30,10],
+            'int':  [4.25,4,3.25],
+            'prin': [450e3,850e3,3e6],
+            'down': [20,20,20]},
     
     'baseSavings':np.asarray([[700],                #hiDiv      (VYM)
                               [700],                #ltLowVol   (VTI)
