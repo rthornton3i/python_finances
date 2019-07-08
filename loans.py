@@ -5,10 +5,10 @@ class Loans:
     def __init__(self,var):
         
         self.years = var['years']
-        self.salary = np.sum(var['salary'],axis=1)
+        self.salary = np.sum(var['salary']['salary'],axis=1)
         
-        self.rentStart = var['rent'][0]
-        self.rentEnd = var['rent'][1]
+        self.rentStart = var['housing']['rent'][0]
+        self.rentEnd = var['housing']['rent'][1]
         
         self.curBal = None
         self.curPay = None

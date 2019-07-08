@@ -22,8 +22,8 @@ for i in range(loops):
     setup = Setup(var)
     setup.setupRun()
     
-    var['salary'] = setup.salary
-    var['childAges'] = setup.childAges
+    var['salary']['salary'] = setup.salary
+    var['children']['childAges'] = setup.childAges
     var['numInd'] = setup.numInd
     
     ##Loans/Housing
@@ -33,20 +33,31 @@ for i in range(loops):
     
     [rentPay] = loans.rentCalc(basePerc=0.175)
     
-    for house in var['houses']:
+    for n in range(len(var['housing']['house']['purYr'])):
+        house = [var['housing']['house']['purYr'][n],
+                 var['housing']['house']['term'][n],
+                 var['housing']['house']['int'][n],
+                 var['housing']['house']['prin'][n],
+                 var['housing']['house']['down'][n]]
+        
         [houseCosts] = loans.mortgageCalc(house)
     #    houseCosts  = [Bal,Pay,Int,Wth,Tax,Dwn]
         
-    for car in var['cars']:
+    for n in range(len(var['cars']['purYr'])):
+        car = [var['cars']['purYr'][n],
+               var['cars']['sellYr'][n],
+               var['cars']['amt'][n],
+               var['cars']['down'][n]]
+                 
         [carCosts] = loans.carCalc(car)
     #    carCosts  = [Pay,Wth,Dwn]
     
-    [colLoanPay,colLoanBal,colLoanInt] = loans.genLoanCalc(var['collegeLoan'])
+    [colLoanPay,colLoanBal,colLoanInt] = loans.genLoanCalc(var['loans']['collegeLoan'])
     #[lawLoanPay,lawLoanBal,lawLoanInt] = loans.genLoanCalc(var['lawLoan'])
     
-    var['houseCosts'] = houseCosts
-    var['carCosts'] = carCosts
-    var['totalLoan'] = colLoanPay
+    var['housing']['houseCosts'] = houseCosts
+    var['cars']['carCosts'] = carCosts
+    var['loans']['totalLoan'] = colLoanPay
     
     ##Expenses
     #==============================================================================
@@ -95,13 +106,13 @@ excSpend = totalSavings[:,10]
 #==============================================================================
 print(np.sum(totalSavings[-1]))
 
-#plt.clf()
-#plt.plot(excSpend)
-#plt.plot(emergFunds)
-#plt.plot(shortTerm)
-#plt.plot(longTerm)
+plt.clf()
+#plt.plot(excSpend[:10])
+#plt.plot(emergFunds[:10])
+#plt.plot(shortTerm[:10])
+plt.plot(longTerm[:10])
 #plt.plot(np.zeros((var['years'],1)))
-#plt.legend(('Excess','Emergency','Short','Long'))
+plt.legend(('Excess','Emergency','Short','Long'))
 #
 #plt.clf()
 #plt.plot(hiDiv)

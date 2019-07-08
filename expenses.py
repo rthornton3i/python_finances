@@ -9,21 +9,21 @@ class Expenses:
     def __init__(self,var,maxChildYr=22):
                     
         self.years = var['years']      
-        self.salary = np.sum(var['salary'],axis=1)
+        self.salary = np.sum(var['salary']['salary'],axis=1)
         
-        self.familyKids = var['familyKids']
-        self.childYrs = var['childYrs']        
-        self.childAges = var['childAges']        
+        self.familyKids = var['children']['familyKids']
+        self.childYrs = var['children']['childYrs']        
+        self.childAges = var['children']['childAges']        
         
-        self.housePay = var['houseCosts'][1]
-        self.houseWth = var['houseCosts'][3]
-        self.houseDwn = var['houseCosts'][5]
+        self.housePay = var['housing']['houseCosts'][1]
+        self.houseWth = var['housing']['houseCosts'][3]
+        self.houseDwn = var['housing']['houseCosts'][5]
         
-        self.carPay = var['carCosts'][0]
-        self.carWth = var['carCosts'][1]
-        self.carDwn = var['carCosts'][2]
+        self.carPay = var['cars']['carCosts'][0]
+        self.carWth = var['cars']['carCosts'][1]
+        self.carDwn = var['cars']['carCosts'][2]
         
-        self.totalLoan = var['totalLoan']
+        self.totalLoan = var['loans']['totalLoan']
         
         self.maxChildYr = maxChildYr
         
@@ -145,7 +145,7 @@ class Expenses:
         
         self.totalCollege = totalCollege
         
-    def wedExp(self,marYrs=[2,3],wedCost=[25000,12500,6000]):
+    def wedExp(self,marYrs=[1,2],wedCost=[25000,12500,6000]):
         """marYr = [Year of Engagement,Year of Wedding]
            wedCost = [Cost of Wedding, Cost of Honeymoon, Cost of Ring]"""        
         

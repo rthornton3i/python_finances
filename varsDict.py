@@ -6,7 +6,8 @@ var = {
         'filingState':['NJ','MD']},
 
     'years':40,
-    'salaryBase':[77000,83000],
+    'salary':{
+        'salaryBase':[77000,83000]},
     
     'children':{
         'childYrs':[7,9],
@@ -23,14 +24,14 @@ var = {
         'down':[5000,4000,5000,7500,10000,12500,5000,5000,15000,15000,17500,20000]},
         #Rich, Becca, Crossover1, Sedan1, Crossover2, Sedan2, Child1, Child2, Sedan3a, Sedan3b, Sedan4a, Sedan4b
     
-    'mortgage':{
+    'housing':{
         'rent':[0,6],
-        'houses':{
+        'house':{
             'purYr':[6,18,33],
             'term': [30,30,10],
             'int':  [4.25,4,3.25],
             'prin': [450e3,850e3,3e6],
-            'down': [20,20,20]},
+            'down': [20,20,20]}},
     
     'baseSavings':np.asarray([[700],                #hiDiv      (VYM)
                               [700],                #ltLowVol   (VTI)

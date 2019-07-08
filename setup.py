@@ -5,8 +5,8 @@ class Setup:
     
     def __init__(self,var):
         self.years = var['years']      
-        self.childYrs = var['childYrs']
-        self.salaryBase = var['salaryBase']
+        self.childYrs = var['children']['childYrs']
+        self.salaryBase = var['salary']['salaryBase']
         
     def salaryCalc(self,growthRate=0.028,growthDev=[0.5,1.75],growthType='compound'):
         salary = []

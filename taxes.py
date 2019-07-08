@@ -7,17 +7,17 @@ class Taxes:
         self.var = var
         self.rates = rates
         
-        self.years = var['years']
-        self.filing = self.var['filing']
-        self.filingState = self.var['filingState']
+        self.years = var['years']        
+        self.filing = self.var['filing']['filingType']
+        self.filingState = self.var['filing']['filingState']
         self.numInd = self.var['numInd']
         
-        self.childAges = var['childAges'] 
-        self.childYrs = var['childYrs']  
+        self.childAges = var['children']['childAges'] 
+        self.childYrs = var['children']['childYrs']  
         
-        self.houseBal = var['houseCosts'][0]
-        self.houseInt = var['houseCosts'][2]
-        self.propTax = var['houseCosts'][4]
+        self.houseBal = var['housing']['houseCosts'][0]
+        self.houseInt = var['housing']['houseCosts'][2]
+        self.propTax = var['housing']['houseCosts'][4]
         
         self.totalChar = var['totalItem'][0]
         
@@ -344,10 +344,10 @@ class Taxes:
     def taxRun(self):        
         if self.filing == 'SINGLE' or self.filing == 'SEPARATE':
             self.iters = self.numInd
-            self.salary = self.var['salary']
+            self.salary = self.var['salary']['salary']
         elif self.filing == 'JOINT':
             self.iters = 1
-            self.salary = np.sum(self.var['salary'],axis=1).reshape(np.shape(self.var['salary'])[0],1)         
+            self.salary = np.sum(self.var['salary'],axis=1).reshape(np.shape(self.var['salary']['salary'])[0],1)         
         else:
             raise Exception('Invalid filing option.')
         
