@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 
 loops = 10
 totalSavings = []
+totalExpenses = []
 
 for i in range(loops):
     ##General Setup
@@ -85,8 +86,10 @@ for i in range(loops):
     [netWorth,savings] = savs.savRun()
     
     totalSavings.append(savings)
+    totalExpenses.append(totalExp)
     
 totalSavings = np.mean(totalSavings,axis=0)
+totalExpenses = np.mean(totalExpenses,axis=0)
     
 hiDiv = totalSavings[:,0]
 ltLowVol = totalSavings[:,1]
@@ -103,11 +106,14 @@ shortTerm = totalSavings[:,9]
 excSpend = totalSavings[:,10]
 
 #==============================================================================
-print(np.sum(var['allocations'],axis=0))
+#print(np.sum(var['allocations'],axis=0))
+print(np.sum(totalSavings[0])/12)
+print(np.sum(totalExpenses,axis=0)[0][0]/12)
 
-print('')
-
-print(np.sum(totalSavings[-1]))
+#print('')
+#
+#for n in range(4):
+#    print(str(n),'-',np.sum(totalSavings[n]))
 
 n = 0
 m = 10

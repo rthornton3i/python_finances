@@ -147,7 +147,7 @@ class Expenses:
         
         self.totalCollege = totalCollege
         
-    def wedExp(self,marYrs=[1,2],wedCost=[25000,10000,6500]):
+    def wedExp(self,marYrs=[0,1],wedCost=[25000,10000,6500]):
         """marYr = [Year of Engagement,Year of Wedding]
            wedCost = [Cost of Wedding, Cost of Honeymoon, Cost of Ring]"""        
         

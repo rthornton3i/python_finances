@@ -1,24 +1,6 @@
 import numpy as np
 import math
 import random as rand
-    
-#                  0        1        2         3          4           5         6        7         8         9        10
-#totalExp   = [totalHol,totalEnt,totalMisc,totalHouse,totalAuto,totalCollege,totalWed,totalVac,totalChar,totalRand,totalLoan]
-    
-#0) hiDiv
-#1) ltLowVol
-#2) largeCap
-#3) stHiVol
-
-#4) retRoth401
-#5) retTrad401
-
-#6) col529
-
-#7) emergFunds
-#8) longTerm
-#9) shortTerm
-#10) excSpend
 
 class Savings:
     
@@ -50,6 +32,22 @@ class Savings:
         self.savAlloc = savAlloc
     
     def investCalc(self):
+        
+        #0) hiDiv
+        #1) ltLowVol
+        #2) largeCap
+        #3) stHiVol
+        
+        #4) retRoth401
+        #5) retTrad401
+        
+        #6) col529      - totalCollege[5]
+        
+        #7) emergFunds  - totalRand[9]
+        #8) longTerm    - totalHouse[3] + totalWed[6] + totalLoan[10]
+        #9) shortTerm   - totalAuto[4] + totalVac[7] + totalChar[8]
+        #10) excSpend   - totalHol[0] + totalEnt[1] + totalMisc[2]
+        
         earnAlloc = np.zeros((self.years,self.numAcc))
         
         for n in range(self.years):
@@ -94,6 +92,22 @@ class Savings:
         self.earnAlloc = earnAlloc
         
     def savingsContCalc(self):
+        
+        #0) hiDiv
+        #1) ltLowVol
+        #2) largeCap
+        #3) stHiVol
+        
+        #4) retRoth401
+        #5) retTrad401
+        
+        #6) col529      - totalCollege[5]
+        
+        #7) emergFunds  - totalRand[9]
+        #8) longTerm    - totalHouse[3] + totalWed[6] + totalLoan[10]
+        #9) shortTerm   - totalAuto[4] + totalVac[7] + totalChar[8]
+        #10) excSpend   - totalHol[0] + totalEnt[1] + totalMisc[2]
+        
         def overFlow(indFrom,indTo,maxVal):
             """indFrom = Account Index
                indTo = [[Account Index, Percent of Transfer]]
