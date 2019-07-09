@@ -15,6 +15,8 @@ class Expenses:
         self.childYrs = var['children']['childYrs']        
         self.childAges = var['children']['childAges']        
         
+        self.rentPay = var['housing']['rentCosts']
+        
         self.housePay = var['housing']['houseCosts'][1]
         self.houseWth = var['housing']['houseCosts'][3]
         self.houseDwn = var['housing']['houseCosts'][5]
@@ -27,12 +29,12 @@ class Expenses:
         
         self.maxChildYr = maxChildYr
         
-    def holidayExp(self,holExp=[400,500,200,300],chExp=[100,200,300,1200],famExp=[50,50]):
+    def holidayExp(self,holExp=[400,500,200,300],chExp=[100,200,300,500],famExp=[50,50]):
         """holExp = [B-day, X-mas, ValDay, Anniv]
            chExp  = [Base B-day, Add B-day, Base X-mas, Add X-mas]
            famExp   = [B-day, X-mas]"""
            
-        numFamily = np.full((self.years,1),len(self.familyKids))
+        numFamily = np.ones((self.years,1)) * len(self.familyKids)
         familyBday = np.zeros((self.years,1))
         familyXmas = np.zeros((self.years,1))
         
@@ -67,7 +69,7 @@ class Expenses:
         
         self.totalHol = totalHol
         
-    def entExp(self,entProv=[75*12,80*12],subs=[120,130,100]):
+    def entExp(self,entProv=[75*12,80*12],subs=[120,130,100],childFactor=0.2):
         """entProv = [wifi/cable, cellular]
            subs    = [netflix, amazon, hulu]"""
         
@@ -77,12 +79,12 @@ class Expenses:
         
             for m in range(len(self.childYrs)):
                 if self.childAges[n,m] > 0:
-                    totalEnt[n] = totalEnt[n] + (totalEnt[n] * 0.05) 
+                    totalEnt[n] = totalEnt[n] + (totalEnt[n] * childFactor) 
         
         self.totalEnt = totalEnt 
         
     def miscExp(self,persCare=[150*12,450*12,200*12,200*12],growthFactor=0.5,childFactor=0.25):
-        """persCar = [clothing/hair, groceries, restaurants, general]"""
+        """persCar = [clothing/hair, groceries, restaurants/social, general/entertainment]"""
         
         totalMisc = np.zeros((self.years,1))
         for n in range(self.years):
@@ -94,7 +96,7 @@ class Expenses:
         
         self.totalMisc = totalMisc  
         
-    def housingExp(self):    
+    def housingExp(self):
         repHouse = np.zeros((self.years,1))
         insHouse = np.zeros((self.years,1))
         utilElec = np.zeros((self.years,1)) 
@@ -108,7 +110,7 @@ class Expenses:
             utilGas[n] = (25 + ((1/25000) * self.houseWth[n])) * 12
             utilWater[n] = (30 + ((1/50000) * self.houseWth[n])) * 12
         
-        totalHouse = repHouse + insHouse + utilElec + utilGas + utilWater + self.houseDwn + self.housePay
+        totalHouse = repHouse + insHouse + utilElec + utilGas + utilWater + self.houseDwn + self.housePay + self.rentPay
         
         self.totalHouse = totalHouse
         
@@ -145,14 +147,14 @@ class Expenses:
         
         self.totalCollege = totalCollege
         
-    def wedExp(self,marYrs=[1,2],wedCost=[25000,12500,6000]):
+    def wedExp(self,marYrs=[1,2],wedCost=[25000,10000,6500]):
         """marYr = [Year of Engagement,Year of Wedding]
            wedCost = [Cost of Wedding, Cost of Honeymoon, Cost of Ring]"""        
         
         totalWed = np.zeros((self.years,1))
         
-        totalWed[marYrs[0]] = totalWed[marYrs[0]] + wedCost[2]
-        totalWed[marYrs[1]] = totalWed[marYrs[1]] + wedCost[0] + wedCost[1]
+        totalWed[marYrs[0]] = wedCost[2]
+        totalWed[marYrs[1]] = wedCost[0] + wedCost[1]
         
         self.totalWed = totalWed
         

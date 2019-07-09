@@ -115,21 +115,22 @@ class Loans:
         
         houseCosts = [self.curBal,self.curPay,self.curInt,self.curWth,self.curTax,self.curDwn]
 
-        return [houseCosts]
+        self.houseCosts = houseCosts
     
     def rentCalc(self,basePerc=0.25,percDec=0.01,rentPerc=None):
         rentPerc = [basePerc * (1-percDec) ** n for n in range(self.years)] if rentPerc is None else rentPerc
         
-        rentPay = np.zeros((self.years,1))
-        for n in range(self.rentStart,self.rentEnd):
-            rentPay[n] = rentPerc[n] * self.salary[n]
+        rentCosts = np.zeros((self.years,1))
+        for n in range(self.rentStart,self.rentEnd+1):
+            rentCosts[n] = rentPerc[n] * self.salary[n]
         
-        return [rentPay]
+        self.rentCosts = rentCosts
     
-    def carCalc(self,car,intRate=0.019/12,term=60):  
+    def carCalc(self,car,intRate=0.019/12,term=60,dep=[0.24,0.175]):  
         """car = [Purchase Yr, Sell Yr, Amount ($), Down Payment ($)]
            intRate = Loan Interest (%)
-           term = Loan Term Length"""
+           term = Loan Term Length
+           dep = [First Yr, Other Yrs]"""
         
         def curSet(vals):
             vals = np.zeros((self.years,1)) if vals is None else vals
@@ -151,13 +152,18 @@ class Loans:
             self.carPay[n] = self.carPay[n] + (carMonthly * 12)
             
         for n in range(car[0],car[1]):
-            self.carWth[n] = self.carWth[n] + carWorth
+            if n == 0:
+                self.carWth[n] = carWorth
+            elif n == 1:
+                self.carWth[n] = self.carWth[n-1] - (carWorth * dep[0])
+            else:
+                self.carWth[n] = self.carWth[n-1] - (carWorth * dep[1])
         
         self.carDwn[car[0]] = self.carDwn[car[0]] + carDown
         
         carCosts = [self.carPay,self.carWth,self.carDwn]
 
-        return [carCosts]
+        self.carCosts = carCosts
         
     def genLoanCalc(self,loan,compType='daily'):
         """loan = [Start Yr, Term Length (Yrs), Interest Rate (%), Amount ($)]"""
@@ -206,4 +212,6 @@ class Loans:
         loanIntSum = catArray(loanInt,sumOpt=True)
         loanPaySum = loanPrinSum + loanIntSum
         
-        return [loanPaySum,loanBalSum,loanIntSum]
+        loanCosts = [loanBalSum,loanPaySum,loanIntSum]
+        
+        return [loanCosts]

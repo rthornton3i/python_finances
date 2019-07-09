@@ -141,9 +141,9 @@ class Savings:
                 elif m == 7: 
                     savTotal[n,m] = savTotal[n,m] - self.totalExp[9][n]
                 elif m == 8:
-                    savTotal[n,m] = savTotal[n,m] - self.totalExp[3][n] - self.totalExp[6][n]
+                    savTotal[n,m] = savTotal[n,m] - self.totalExp[3][n] - self.totalExp[6][n] - self.totalExp[10][n]
                 elif m == 9:
-                    savTotal[n,m] = savTotal[n,m] - self.totalExp[4][n] - self.totalExp[7][n] - self.totalExp[8][n] - self.totalExp[10][n]
+                    savTotal[n,m] = savTotal[n,m] - self.totalExp[4][n] - self.totalExp[7][n] - self.totalExp[8][n]
                 elif m == 10:
                     savTotal[n,m] = savTotal[n,m] - self.totalExp[0][n] - self.totalExp[1][n] - self.totalExp[2][n]
                 

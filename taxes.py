@@ -62,7 +62,7 @@ class Taxes:
         self.benefits = benefits
     
     def trad401Calc(self,basePerc=0,growthPerc=0,binWid=5):
-        trad401Perc = np.full((self.years,self.numInd),basePerc)
+        trad401Perc = np.ones((self.years,self.numInd)) * basePerc
         
         for n in range(1,self.years):
             if n % binWid == 0:

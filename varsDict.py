@@ -27,35 +27,35 @@ var = {
     'housing':{
         'rent':[0,6],
         'house':{
-            'purYr':[6,18,33],
+            'purYr':[7,18,33],
             'term': [30,30,10],
             'int':  [4.25,4,3.25],
-            'prin': [450e3,850e3,3e6],
+            'prin': [400e3,850e3,3e6],
             'down': [20,20,20]}},
     
-    'baseSavings':np.asarray([[700],                #hiDiv      (VYM)
-                              [700],                #ltLowVol   (VTI)
-                              [700],                #largeCap   (MGK)
-                              [5500],               #stHiVol    (Robinhood)
-                              [3300 + 40000],       #retRoth401 (Fidelity, TBD)
-                              [0],                  #retTrad401 (Fidelity)
-                              [400],                #col529     (Fidelity)
-                              [1000],               #emergFunds (PNC Short)
-                              [6500 + 35000],       #longTerm   (Goldman Sach's, BoA)
-                              [1800 + 2000],        #shortTerm  (PNC Growth, BoA)
-                              [1000]]),             #excSpend   (PNC Spend)
+    'baseSavings':np.asarray([[700],                    #hiDiv      (VYM)
+                              [700],                    #ltLowVol   (VTI)
+                              [700],                    #largeCap   (MGK)
+                              [5500],                   #stHiVol    (Robinhood)
+                              [3300 + 20000],           #retRoth401 (Fidelity, TBD, Vanguard)
+                              [0],                      #retTrad401 (Fidelity)
+                              [400],                    #col529     (Fidelity)
+                              [1000],                   #emergFunds (PNC Short)
+                              [6500 + 20000 + 20000],   #longTerm   (Goldman Sach's, BoA, Vanguard)
+                              [1500 + 5000],            #shortTerm  (PNC Growth, BoA)
+                              [1000]]),                 #excSpend   (PNC Spend)
                               
     
                              #[yr 0 , yr 10 , yr 20 , yr 30 , yr 40 ]
-    'allocations':np.asarray([[2.5  , 2.5   , 2.5   , 7.5   , 5     ],     #hiDiv
-                              [5    , 2.5   , 2.5   , 7.5   , 5     ],     #ltLowVol
-                              [5    , 2.5   , 2.5   , 7.5   , 2.5   ],     #largeCap
-                              [7.5  , 5     , 2.5   , 2.5   , 2.5   ],     #stHiVol
-                              [0    , 0     , 0     , 0     , 0     ],     #retRoth401
-                              [0    , 0     , 0     , 0     , 0     ],     #retTrad401
-                              [0    , 2.5   , 12.5  , 0     , 0     ],     #col529
-                              [5    , 5     , 5     , 2.5   , 15    ],     #emergFunds
-                              [15   , 42.5  , 22.5  , 32.5  , 30    ],     #medTerm
-                              [40   , 17.5  , 25    , 25    , 25    ],     #shortTerm
-                              [20   , 20    , 25    , 15    , 15    ]])    #excSpend
+    'allocations':np.asarray([[2.5  , 2.5  , 2.5  , 7.5  , 5    ],     #hiDiv
+                              [2.5  , 2.5  , 5    , 7.5  , 5    ],     #ltLowVol
+                              [2.5  , 2.5  , 5    , 7.5  , 2.5  ],     #largeCap
+                              [5    , 5    , 10   , 2.5  , 2.5  ],     #stHiVol
+                              [0    , 0    , 0    , 0    , 0    ],     #retRoth401
+                              [0    , 0    , 0    , 0    , 0    ],     #retTrad401
+                              [0    , 2.5  , 12.5 , 0    , 0    ],     #col529
+                              [5    , 5    , 5    , 2.5  , 15   ],     #emergFunds
+                              [37.5 , 52.5 , 7.5  , 32.5 , 30   ],     #longTerm
+                              [25   , 10   , 22.5 , 25   , 25   ],     #shortTerm
+                              [20   , 17.5 , 30   , 15   , 15   ]])    #excSpend
 }
