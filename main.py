@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 ###############################################################################
 
 loops = 10
+totalConts = []
 totalSavings = []
 totalExpenses = []
 
@@ -32,7 +33,7 @@ for i in range(loops):
     
     loans = Loans(var)
     
-    loans.rentCalc(basePerc=0.175)
+    loans.rentCalc()
     
     for n in range(len(var['housing']['house']['purYr'])):
         house = [var['housing']['house']['purYr'][n],
@@ -63,31 +64,32 @@ for i in range(loops):
     #==============================================================================
     
     exps = Expenses(var)
-    [totalExp,totalItem] = exps.expRun()
-   #          totalItem  = [totalChar]
-   # totalExp            = [totalHol,totalEnt,totalMisc,totalHouse,totalAuto,totalCollege,totalWed,totalVac,totalChar,totalRand,totalLoan]
+    exps.expRun()
     
-    var['totalExp'] = totalExp
-    var['totalItem'] = totalItem
+    var['totalExp'] = exps.totalExp
+    var['totalItem'] = exps.totalItem
     
     ##Taxes
     #==============================================================================
     
     taxes = Taxes(var,rates)
-    [netIncome,netCash,netRet] = taxes.taxRun()
+    taxes.taxRun()
     
-    var['netCash'] = netCash
-    var['netRet'] = netRet
+    var['netIncome'] = taxes.netIncome
+    var['netCash'] = taxes.netCash
+    var['netRet'] = taxes.netRet
     
     ##Savings/Investments
     #==============================================================================
     
     savs = Savings(var)
-    [netWorth,savings] = savs.savRun()
+    savs.savRun()
     
-    totalSavings.append(savings)
-    totalExpenses.append(totalExp)
+    totalConts.append(savs.savCont)
+    totalSavings.append(savs.savTotal)
+    totalExpenses.append(exps.totalExp)
     
+totalConts = np.mean(totalConts,axis=0)
 totalSavings = np.mean(totalSavings,axis=0)
 totalExpenses = np.mean(totalExpenses,axis=0)
     
@@ -107,24 +109,37 @@ excSpend = totalSavings[:,10]
 
 #==============================================================================
 #print(np.sum(var['allocations'],axis=0))
-print(np.sum(totalSavings[0])/12)
-print(np.sum(totalExpenses,axis=0)[0][0]/12)
 
-#print('')
-#
-#for n in range(4):
-#    print(str(n),'-',np.sum(totalSavings[n]))
+earn = np.zeros((var['years'],1))
+for n in range(var['years']):
+    cont = np.sum(totalConts,axis=1)[n]
+    exp = np.sum(totalExpenses,axis=0)[n][0]
+    
+    earn[n] = cont - exp    
 
-n = 0
-m = 10
+yr = 0
+
+print('Monthly contributions: ${:,.2f}'.format(np.sum(totalConts,axis=1)[yr]/12))
+print('Monthly expenses: ${:,.2f}'.format(np.sum(totalExpenses,axis=0)[yr][0]/12))
+print('')
+print('Net worth: ${:,.0f}'.format(round(np.sum(totalSavings[-1])/1e5)*1e5))
 
 plt.clf()
-plt.plot(excSpend[n:m])
-plt.plot(emergFunds[n:m])
-plt.plot(shortTerm[n:m])
-plt.plot(longTerm[n:m])
+plt.plot(earn)
+plt.plot(np.zeros((var['years'],1)))
+
+#===================================
+
+#n = 0
+#m = 10
+#
+#plt.clf()
+#plt.plot(excSpend[n:m])
+#plt.plot(emergFunds[n:m])
+#plt.plot(shortTerm[n:m])
+#plt.plot(longTerm[n:m])
 #plt.plot(np.zeros((var['years'],1)))
-plt.legend(('Excess','Emergency','Short','Long'))
+#plt.legend(('Excess','Emergency','Short','Long'))
 #
 #plt.clf()
 #plt.plot(hiDiv)

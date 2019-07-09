@@ -4,11 +4,14 @@ class Loans:
     
     def __init__(self,var):
         
+        self.var = var
+        
         self.years = var['years']
         self.salary = np.sum(var['salary']['salary'],axis=1)
         
-        self.rentStart = var['housing']['rent'][0]
-        self.rentEnd = var['housing']['rent'][1]
+        self.rentStart = var['housing']['rent']['rentYr'][0]
+        self.rentEnd = var['housing']['rent']['rentYr'][1]
+        self.rentPerc = self.var['housing']['rent']['rentPerc']
         
         self.curBal = None
         self.curPay = None
@@ -117,12 +120,12 @@ class Loans:
 
         self.houseCosts = houseCosts
     
-    def rentCalc(self,basePerc=0.25,percDec=0.01,rentPerc=None):
-        rentPerc = [basePerc * (1-percDec) ** n for n in range(self.years)] if rentPerc is None else rentPerc
+    def rentCalc(self,basePerc=0.25,percDec=0.01):
+        self.rentPerc = [basePerc * (1-percDec) ** n for n in range(self.years)] if self.rentPerc is None else self.rentPerc
         
         rentCosts = np.zeros((self.years,1))
         for n in range(self.rentStart,self.rentEnd+1):
-            rentCosts[n] = rentPerc[n] * self.salary[n]
+            rentCosts[n] = self.rentPerc[n] * self.salary[n]
         
         self.rentCosts = rentCosts
     

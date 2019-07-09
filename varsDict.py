@@ -25,7 +25,9 @@ var = {
         #Rich, Becca, Crossover1, Sedan1, Crossover2, Sedan2, Child1, Child2, Sedan3a, Sedan3b, Sedan4a, Sedan4b
     
     'housing':{
-        'rent':[0,6],
+        'rent':{
+            'rentYr':[0,6],
+            'rentPerc':[0.12,0.15,0.15,0.15,0.175,0.175,0.175]},
         'house':{
             'purYr':[7,18,33],
             'term': [30,30,10],

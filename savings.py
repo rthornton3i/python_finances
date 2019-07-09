@@ -178,6 +178,7 @@ class Savings:
                 overFlow(6,[[8,1]],0)                               #College (Excess)
         
         self.savTotal = savTotal
+        self.savCont = savCont
         
     def savRun(self):
         self.numAcc = np.shape(self.alloc)[0]
@@ -192,7 +193,4 @@ class Savings:
         self.investCalc()
         self.savingsContCalc()
         
-        totalSavings = self.savTotal
-        netWorth = np.sum(totalSavings,axis=1)
-        
-        return [netWorth,totalSavings]
+        self.netWorth = np.sum(self.savTotal,axis=1)

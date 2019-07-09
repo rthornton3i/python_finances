@@ -215,7 +215,5 @@ class Expenses:
         self.charExp()
         self.randExp()
 
-        totalExp = [self.totalHol,self.totalEnt,self.totalMisc,self.totalHouse,self.totalAuto,self.totalCollege,self.totalWed,self.totalVac,self.totalChar,self.totalRand,self.totalLoan]
-        totalItem = [self.totalChar]
-                    
-        return [totalExp,totalItem]
+        self.totalExp = [self.totalHol,self.totalEnt,self.totalMisc,self.totalHouse,self.totalAuto,self.totalCollege,self.totalWed,self.totalVac,self.totalChar,self.totalRand,self.totalLoan]
+        self.totalItem = [self.totalChar]

@@ -339,7 +339,9 @@ class Taxes:
         
         netRet = [self.trad401,self.roth401,self.match401]
         
-        self.netEarn = [netIncome,netCash,netRet]
+        self.netIncome = netIncome
+        self.netCash = netCash
+        self.netRet = netRet
         
     def taxRun(self):        
         if self.filing == 'SINGLE' or self.filing == 'SEPARATE':
@@ -383,9 +385,3 @@ class Taxes:
         
         #Net Income    
         self.netIncCalc()
-        
-        netIncome = self.netEarn[0]
-        netCash = self.netEarn[1]
-        netRet = self.netEarn[2]
-        
-        return [netIncome,netCash,netRet]
