@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 ###############################################################################
 
-loops = 1
+loops = 10
 totalConts = []
 totalSavings = []
 totalExpenses = []
@@ -111,7 +111,7 @@ shortTerm = totalSavings[:,9]
 excSpend = totalSavings[:,10]
 
 #==============================================================================
-#print(np.sum(var['allocations'],axis=0))
+print(np.sum(var['allocations'],axis=0))
 
 earn = np.zeros((var['years'],1))
 for n in range(var['years']):
@@ -134,14 +134,14 @@ print('Net worth: ${:,.0f}'.format(round(np.sum(totalSavings[-1])/1e5)*1e5))
 #===================================
 
 n = 0
-m = 20
+m = 40
 
 plt.clf()
 plt.plot(excSpend[n:m])
 plt.plot(emergFunds[n:m])
 plt.plot(shortTerm[n:m])
 plt.plot(longTerm[n:m])
-plt.plot(np.sum((excSpend,emergFunds,shortTerm,longTerm),axis=0)[n:m])
+#plt.plot(np.sum((excSpend,emergFunds,shortTerm,longTerm),axis=0)[n:m])
 plt.plot(np.zeros((m,1)))
 plt.legend(('Excess','Emergency','Short','Long','Cash'))
 #
