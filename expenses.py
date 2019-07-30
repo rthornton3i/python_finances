@@ -114,7 +114,7 @@ class Expenses:
         
         self.totalHouse = totalHouse
         
-    def carExp(self,rates=[0.1,0.015],ezPass=50*12,gas=[15000,35,2.5]):  
+    def carExp(self,rates=[[1250*2,0.0125],[250*2,0.01]],ezPass=50*12*2,gas=[15000*2,35,2.5],childFactor=0.25):  
         """carYears = [Purchase Yr, Sell Yr, Amount ($), Down Payment ($)]
            rates = [Insurance Rate (%), Repair Cost/Yr (%)]
            exPass = EZ-Pass Cost
@@ -126,8 +126,13 @@ class Expenses:
         fuelCost = (gas[0] * gas[2]) / gas[1]
         
         for n in range(self.years):
-            insCar[n] = self.carWth[n] * rates[0]
-            repCar[n] = self.carWth[n] * rates[1]
+            insCar[n] = rates[0][0] + (self.carWth[n] * rates[0][1])
+            repCar[n] = rates[1][0] + (self.carWth[n] * rates[1][1])
+            
+            for m in range(len(self.childYrs)):
+                if self.childAges[n,m] > 0:
+                    insCar[n] = insCar[n] + (insCar[n] * childFactor) 
+                    repCar[n] = repCar[n] + (repCar[n] * childFactor) 
         
         totalAuto = np.zeros((self.years,1))
         for n in range(self.years):
@@ -147,7 +152,7 @@ class Expenses:
         
         self.totalCollege = totalCollege
         
-    def wedExp(self,marYrs=[0,1],wedCost=[25000,10000,6500]):
+    def wedExp(self,marYrs=[0,1],wedCost=[30000,10000,6500]):
         """marYr = [Year of Engagement,Year of Wedding]
            wedCost = [Cost of Wedding, Cost of Honeymoon, Cost of Ring]"""        
         
@@ -167,7 +172,8 @@ class Expenses:
             totalVac[n] = baseVac + ((n / self.years) * (growthFactor * baseVac))
             
             for m in range(len(self.childYrs)):
-                totalVac[n] = totalVac[n] + (totalVac[n] * childFactor)
+                if self.childAges[n,m] > 0:
+                    totalVac[n] = totalVac[n] + (totalVac[n] * childFactor)
         
         self.totalVac = totalVac
         

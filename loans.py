@@ -151,17 +151,25 @@ class Loans:
         carMonthly = carPrin * (intRate * (1 + intRate) ** term) / ((1 + intRate) ** term - 1)        
         termYr = int(term / 12)
         
+        carPay = np.zeros((self.years,1))
         for n in range(car[0],car[0]+termYr):
-            self.carPay[n] = self.carPay[n] + (carMonthly * 12)
+            carPay[n] = carPay[n] + (carMonthly * 12)
             
-        for n in range(car[0],car[1]):
-            if n == 0:
-                self.carWth[n] = carWorth
-            elif n == 1:
-                self.carWth[n] = self.carWth[n-1] - (carWorth * dep[0])
-            else:
-                self.carWth[n] = self.carWth[n-1] - (carWorth * dep[1])
+        self.carPay = self.carPay + carPay
         
+        carWth = np.zeros((self.years,1))
+        for n in range(car[0],car[1]):
+            if n == car[0]:
+                carWth[n] = carWorth
+            elif n == car[0] + 1:
+                carWth[n] = carWth[n-1] - (carWorth * dep[0])
+            else:
+                carWth[n] = carWth[n-1] - (carWorth * dep[1])
+                
+            if carWth[n] < 0:
+                carWth[n] = 0
+        
+        self.carWth = self.carWth + carWth
         self.carDwn[car[0]] = self.carDwn[car[0]] + carDown
         
         carCosts = [self.carPay,self.carWth,self.carDwn]

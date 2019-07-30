@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 ###############################################################################
 
-loops = 10
+loops = 1
 totalConts = []
 totalSavings = []
 totalExpenses = []
@@ -44,13 +44,16 @@ for i in range(loops):
         
         loans.mortgageCalc(house)
         
-    for n in range(len(var['cars']['purYr'])):
+    for n in range(len(var['cars']['purYr'])):        
         car = [var['cars']['purYr'][n],
                var['cars']['sellYr'][n],
                var['cars']['amt'][n],
                var['cars']['down'][n]]
-                 
-        loans.carCalc(car)
+        
+        if var['cars']['purYr'][n] == 0:
+            loans.carCalc(car,term=50)
+        else:
+            loans.carCalc(car)
     
     [colLoan] = loans.genLoanCalc(var['loans']['collegeLoan'])
    #[lawLoan] = loans.genLoanCalc(var['loans']['lawLoan'])
@@ -124,22 +127,23 @@ print('Monthly expenses: ${:,.2f}'.format(np.sum(totalExpenses,axis=0)[yr][0]/12
 print('')
 print('Net worth: ${:,.0f}'.format(round(np.sum(totalSavings[-1])/1e5)*1e5))
 
-plt.clf()
-plt.plot(earn)
-plt.plot(np.zeros((var['years'],1)))
+#plt.clf()
+#plt.plot(earn)
+#plt.plot(np.zeros((var['years'],1)))
 
 #===================================
 
-#n = 0
-#m = 10
-#
-#plt.clf()
-#plt.plot(excSpend[n:m])
-#plt.plot(emergFunds[n:m])
-#plt.plot(shortTerm[n:m])
-#plt.plot(longTerm[n:m])
-#plt.plot(np.zeros((var['years'],1)))
-#plt.legend(('Excess','Emergency','Short','Long'))
+n = 0
+m = 20
+
+plt.clf()
+plt.plot(excSpend[n:m])
+plt.plot(emergFunds[n:m])
+plt.plot(shortTerm[n:m])
+plt.plot(longTerm[n:m])
+plt.plot(np.sum((excSpend,emergFunds,shortTerm,longTerm),axis=0)[n:m])
+plt.plot(np.zeros((m,1)))
+plt.legend(('Excess','Emergency','Short','Long','Cash'))
 #
 #plt.clf()
 #plt.plot(hiDiv)
