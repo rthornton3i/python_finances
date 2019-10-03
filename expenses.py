@@ -32,7 +32,7 @@ class Expenses:
     def holidayExp(self,holExp=[400,500,200,300],chExp=[100,200,300,500],famExp=[50,50]):
         """holExp = [B-day, X-mas, ValDay, Anniv]
            chExp  = [Base B-day, Add B-day, Base X-mas, Add X-mas]
-           famExp   = [B-day, X-mas]"""
+           famExp = [B-day, X-mas]"""
            
         numFamily = np.ones((self.years,1)) * len(self.familyKids)
         familyBday = np.zeros((self.years,1))
@@ -69,13 +69,13 @@ class Expenses:
         
         self.totalHol = totalHol
         
-    def entExp(self,entProv=[75*12,80*12],subs=[120,130,100],childFactor=0.2):
+    def entExp(self,ent=[75*12,80*12],subs=[120,130,100],childFactor=0.2):
         """entProv = [wifi/cable, cellular]
            subs    = [netflix, amazon, hulu]"""
         
         totalEnt = np.zeros((self.years,1))
         for n in range(self.years):
-            totalEnt[n] = sum(entProv) + sum(subs)
+            totalEnt[n] = sum(ent) + sum(subs)
         
             for m in range(len(self.childYrs)):
                 if self.childAges[n,m] > 0:
@@ -83,12 +83,34 @@ class Expenses:
         
         self.totalEnt = totalEnt 
         
-    def miscExp(self,persCare=[150*12,450*12,200*12,200*12],growthFactor=0.5,childFactor=0.25):
-        """persCar = [clothing/hair, groceries, restaurants/social, general/entertainment]"""
+    def personalExp(self,pers=[150*12,100*12,120*12],childFactor=0.2):
+        """entProv = [medical, clothing, hair/makeup]"""
+           
+        totalPers = np.zeros((self.years,1))
+        for n in range(self.years):
+            totalPers[n] = sum(pers)
+        
+            for m in range(len(self.childYrs)):
+                if self.childAges[n,m] > 0:
+                    totalPers[n] = totalPers[n] + (totalPers[n] * childFactor) 
+        
+        self.totalPers = totalPers
+        
+    def petExp(self,pet=[100*12,25*12,20*250]):
+        """pet = [food, toys/acccessories, daycare/walker]"""
+           
+        totalPet = np.zeros((self.years,1))
+        for n in range(self.years):
+            totalPet[n] = sum(pet) + np.random.triangular(25,25,150)*12
+        
+        self.totalPet = totalPet
+        
+    def miscExp(self,misc=[450*12,200*12,200*12],growthFactor=0.5,childFactor=0.25):
+        """misc = [groceries, restaurants/social, general/entertainment]"""
         
         totalMisc = np.zeros((self.years,1))
         for n in range(self.years):
-            totalMisc[n] = sum(persCare) + ((n / self.years) * (growthFactor * sum(persCare)))
+            totalMisc[n] = sum(misc) + ((n / self.years) * (growthFactor * sum(misc)))
             
             for m in range(len(self.childYrs)):
                 if self.childAges[n,m] > 0:
@@ -152,14 +174,16 @@ class Expenses:
         
         self.totalCollege = totalCollege
         
-    def wedExp(self,marYrs=[0,1],wedCost=[30000,10000,6500]):
+    def wedExp(self,marYrs=[0,2],wedCost=[sum([20000,6000,1500,4000,1000,500,2000,1500,2500,1500]),10000,6500],parentCont=[sum([10000,1500]),7500]):
         """marYr = [Year of Engagement,Year of Wedding]
-           wedCost = [Cost of Wedding, Cost of Honeymoon, Cost of Ring]"""        
+           wedCost = [Cost of Wedding, Cost of Honeymoon, Cost of Ring]
+               Cost of Wedding = (Venue, Band, Florist, Photographer, Decor, Officiant, Rings, Dress, Rehersal Dinner, Gifts)"""        
         
         totalWed = np.zeros((self.years,1))
         
-        totalWed[marYrs[0]] = wedCost[2]
-        totalWed[marYrs[1]] = wedCost[0] + wedCost[1]
+        totalWed[marYrs[0]]                           = wedCost[2] + (0.10 * wedCost[0]) - (0.10 * sum(parentCont))
+        totalWed[int(np.mean([marYrs[0],marYrs[1]]))] = (0.30 * wedCost[0]) - (0.30 * sum(parentCont))
+        totalWed[marYrs[1]]                           = wedCost[1] + (0.60 * wedCost[0]) - (0.60 * sum(parentCont))
         
         self.totalWed = totalWed
         
@@ -212,6 +236,8 @@ class Expenses:
     def expRun(self):
         self.holidayExp()
         self.entExp()
+        self.personalExp()
+        self.petExp()
         self.miscExp()
         self.housingExp()
         self.carExp()
@@ -221,5 +247,5 @@ class Expenses:
         self.charExp()
         self.randExp()
 
-        self.totalExp = [self.totalHol,self.totalEnt,self.totalMisc,self.totalHouse,self.totalAuto,self.totalCollege,self.totalWed,self.totalVac,self.totalChar,self.totalRand,self.totalLoan]
+        self.totalExp = [self.totalHol,self.totalEnt,self.totalPers,self.totalPet,self.totalMisc,self.totalHouse,self.totalAuto,self.totalCollege,self.totalWed,self.totalVac,self.totalChar,self.totalRand,self.totalLoan]
         self.totalItem = [self.totalChar]
