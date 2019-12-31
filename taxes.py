@@ -15,13 +15,56 @@ class Taxes:
         self.childAges = var['children']['childAges'] 
         self.childYrs = var['children']['childYrs']  
         
-        self.houseBal = var['housing']['houseCosts'][0]
-        self.houseInt = var['housing']['houseCosts'][2]
-        self.propTax = var['housing']['houseCosts'][4]
+        self.houseBal = var['housing']['houseCosts']['houseBal']
+        self.houseInt = var['housing']['houseCosts']['houseInt']
+        self.houseTax = var['housing']['houseCosts']['houseTax']
         
-        self.totalChar = var['totalItem'][0]
+        self.totalChar = var['totalItem']['totalChar']
         
         self.maxChildYr= maxChildYr
+        
+    def taxRun(self):        
+        if self.filing == 'SINGLE' or self.filing == 'SEPARATE':
+            self.iters = self.numInd
+            self.salary = self.var['salary']['salary']
+        elif self.filing == 'JOINT':
+            self.iters = 1
+            self.salary = np.sum(self.var['salary'],axis=1).reshape(np.shape(self.var['salary']['salary'])[0],1)         
+        else:
+            raise Exception('Invalid filing option.')
+        
+        self.perc401 = np.zeros((self.years,self.numInd))
+        
+        #Benefits
+        self.healthCalc()
+        self.benefitsCalc()
+        
+        #Retirement
+        self.trad401Calc()
+        self.roth401Calc()
+        self.match401Calc()  
+        
+        #Deduction/Exemptions
+        self.itemDedCalc()
+        self.stdDedCalc()        
+        self.exemptCalc()
+        
+        #State Taxes
+        self.grossEarnCalc()
+        self.slTaxCalc() 
+        
+        slpTaxes = self.houseTax + self.slTax
+        self.itemDedCalc(slpTaxes)
+        
+        #Federal Taxes
+        self.grossEarnCalc()
+        self.fedTaxCalc()
+        
+        #FICA Taxes
+        self.miscTaxCalc()
+        
+        #Net Income    
+        self.netIncCalc()
     
     def healthCalc(self,hsa=0*12,fsa=0*12,hra=0*12,growthFactor=0.025):        
         hsa = hsa * (self.numInd/self.iters)
@@ -330,7 +373,7 @@ class Taxes:
         self.miscTax = miscTax
     
     def netIncCalc(self):
-        totalTaxes = self.fedTax + self.slTax + self.miscTax + self.propTax
+        totalTaxes = self.fedTax + self.slTax + self.miscTax + self.houseTax
         totalDeducted = self.trad401 + self.healthDed
         totalWithheld = self.roth401 + self.benefits
         
@@ -342,46 +385,3 @@ class Taxes:
         self.netIncome = netIncome
         self.netCash = netCash
         self.netRet = netRet
-        
-    def taxRun(self):        
-        if self.filing == 'SINGLE' or self.filing == 'SEPARATE':
-            self.iters = self.numInd
-            self.salary = self.var['salary']['salary']
-        elif self.filing == 'JOINT':
-            self.iters = 1
-            self.salary = np.sum(self.var['salary'],axis=1).reshape(np.shape(self.var['salary']['salary'])[0],1)         
-        else:
-            raise Exception('Invalid filing option.')
-        
-        self.perc401 = np.zeros((self.years,self.numInd))
-        
-        #Benefits
-        self.healthCalc()
-        self.benefitsCalc()
-        
-        #Retirement
-        self.trad401Calc()
-        self.roth401Calc()
-        self.match401Calc()  
-        
-        #Deduction/Exemptions
-        self.itemDedCalc()
-        self.stdDedCalc()        
-        self.exemptCalc()
-        
-        #State Taxes
-        self.grossEarnCalc()
-        self.slTaxCalc() 
-        
-        slpTaxes = self.propTax + self.slTax
-        self.itemDedCalc(slpTaxes)
-        
-        #Federal Taxes
-        self.grossEarnCalc()
-        self.fedTaxCalc()
-        
-        #FICA Taxes
-        self.miscTaxCalc()
-        
-        #Net Income    
-        self.netIncCalc()

@@ -14,6 +14,22 @@ class Savings:
         self.baseSav = var['baseSavings']
         
         self.totalExp = var['totalExp']
+        self.totalLoan = var['loans']['totalLoan']
+        
+    def savRun(self):
+        self.numAcc = np.shape(self.alloc)[0]
+        
+        self.netCash = np.sum(self.var['netCash'],axis=1)
+        
+        self.netRet = []
+        for ret in self.var['netRet']:
+            self.netRet.append(np.sum(ret,axis=1))
+        
+        self.savingsAllocCalc()
+        self.investCalc()
+        self.savingsContCalc()
+        
+        self.netWorth = np.sum(self.savTotal,axis=1)
         
     def savingsAllocCalc(self):
         binWid = self.years / (np.shape(self.alloc)[1] - 1)
@@ -31,38 +47,22 @@ class Savings:
                 
         self.savAlloc = savAlloc
     
-    def investCalc(self):
-        
-        #0) hiDiv
-        #1) ltLowVol
-        #2) largeCap
-        #3) stHiVol
-        
-        #4) retRoth401
-        #5) retTrad401
-        
-        #6) col529      - totalCollege[5]
-        
-        #7) emergFunds  - totalRand[9]
-        #8) longTerm    - totalHouse[3] + totalWed[6] + totalLoan[10]
-        #9) shortTerm   - totalAuto[4] + totalVac[7] + totalChar[8]
-        #10) excSpend   - totalHol[0] + totalEnt[1] + totalMisc[2]
-        
+    def investCalc(self):        
         earnAlloc = np.zeros((self.years,self.numAcc))
         
         for n in range(self.years):
             for m in range(self.numAcc):
-                if m == 0:                                                      # High Dividend
+                if m == 0: # High Dividend
                     earnAlloc[n,m] = rand.normalvariate(4.0,0.5)
-                elif m == 1:                                                    # Long Term, Low Volatility
+                elif m == 1: # Long Term, Low Volatility
                     earnAlloc[n,m] = rand.normalvariate(8.0,2.5)
-                elif m == 2:                                                    # Large Capital
+                elif m == 2: # Large Capital
                     earnAlloc[n,m] = rand.normalvariate(12.0,4.5)
-                elif m == 3:                                                    # Short Term, High Volatility
+                elif m == 3: # Short Term, High Volatility
                     earnAlloc[n,m] = rand.normalvariate(16.0,8.0)
                     if earnAlloc[n,m] > 30:
                         earnAlloc[n,m] = 30
-                elif m == 4 or m == 5:                                          # Retirement (Roth/Traditional)                    
+                elif m == 4 or m == 5: # Retirement (Roth/Traditional)                    
                     muStart = 7.0
                     muEnd = 4.0
                     
@@ -70,7 +70,7 @@ class Savings:
                     sigma = 0.35 * mu
                     
                     earnAlloc[n,m] = rand.normalvariate(mu,sigma)
-                elif m == 6:                                                    # College 529
+                elif m == 6: # College 529
                     muStart = 7.0
                     muEnd = 5.0
                     
@@ -78,36 +78,20 @@ class Savings:
                     sigma = 0.25 * mu
                     
                     earnAlloc[n,m] = rand.normalvariate(mu,sigma)
-                elif m == 7:                                                    # Emergency Funds
+                elif m == 7: # Emergency Funds
                     earnAlloc[n,m] = 0.05
-                elif m == 8:                                                    # Long Term Savings
-                    earnAlloc[n,m] = 2.25
-                elif m == 9:                                                    # Short Term Savings
+                elif m == 8: # Long Term Savings
+                    earnAlloc[n,m] = 1.70
+                elif m == 9: # Short Term Savings
                     earnAlloc[n,m] = 1.0
-                elif m == 10:                                                   # Excess Spending
+                elif m == 10: # Excess Spending
                     earnAlloc[n,m] = 0.05
                 
         earnAlloc = earnAlloc / 100
         
         self.earnAlloc = earnAlloc
         
-    def savingsContCalc(self):
-        
-        #0) hiDiv
-        #1) ltLowVol
-        #2) largeCap
-        #3) stHiVol
-        
-        #4) retRoth401
-        #5) retTrad401
-        
-        #6) col529      - totalCollege[5]
-        
-        #7) emergFunds  - totalRand[9]
-        #8) longTerm    - totalHouse[3] + totalWed[6] + totalLoan[10]
-        #9) shortTerm   - totalAuto[4] + totalVac[7] + totalChar[8]
-        #10) excSpend   - totalHol[0] + totalEnt[1] + totalMisc[2]
-        
+    def savingsContCalc(self):        
         def overFlow(indFrom,indTo,maxVal):
             """indFrom = Account Index
                indTo = [[Account Index, Percent of Transfer]]
@@ -144,22 +128,26 @@ class Savings:
                 else:
                     savTotal[n,m] = savTotal[n-1,m] + savCont[n,m]
                     
-                if m == 4:
+                if m == 4: #retRoth401
                     savTotal[n,m] = savTotal[n,m] + self.netRet[1][n]
-                elif m == 5:
+                elif m == 5: #retTrad401
                     savTotal[n,m] = savTotal[n,m] + self.netRet[0][n] + self.netRet[2][n]
-                
+                                    
                 #Expenses
-                if m == 6:
-                    savTotal[n,m] = savTotal[n,m] - self.totalExp[5][n]
-                elif m == 7: 
-                    savTotal[n,m] = savTotal[n,m] - self.totalExp[9][n]
-                elif m == 8:
-                    savTotal[n,m] = savTotal[n,m] - self.totalExp[3][n] - self.totalExp[6][n] - self.totalExp[10][n]
-                elif m == 9:
-                    savTotal[n,m] = savTotal[n,m] - self.totalExp[4][n] - self.totalExp[7][n] - self.totalExp[8][n]
-                elif m == 10:
-                    savTotal[n,m] = savTotal[n,m] - self.totalExp[0][n] - self.totalExp[1][n] - self.totalExp[2][n]
+                if m == 6: #col529
+                    savTotal[n,m] = savTotal[n,m] - self.totalExp['totalCollege'][n]
+                elif m == 7: #emergFunds
+                    savTotal[n,m] = savTotal[n,m] - self.totalExp['totalRand'][n]
+                elif m == 8: #longTerm
+                    savTotal[n,m] = savTotal[n,m] - self.totalExp['totalHouse'][n] - self.totalExp['totalWed'][n] - \
+                                                    self.totalLoan[n]
+                elif m == 9: #shortTerm
+                    savTotal[n,m] = savTotal[n,m] - self.totalExp['totalAuto'][n] - self.totalExp['totalVac'][n] - \
+                                                    self.totalExp['totalChar'][n]
+                elif m == 10: #excSpend
+                    savTotal[n,m] = savTotal[n,m] - self.totalExp['totalHol'][n] - self.totalExp['totalEnt'][n] - \
+                                                    self.totalExp['totalMisc'][n] - self.totalExp['totalPers'][n] - \
+                                                    self.totalExp['totalPet'][n]
                 
                 #Earnings
                 savTotal[n,m] = savTotal[n,m] * (1 + self.earnAlloc[n,m])
@@ -179,18 +167,3 @@ class Savings:
         
         self.savTotal = savTotal
         self.savCont = savCont
-        
-    def savRun(self):
-        self.numAcc = np.shape(self.alloc)[0]
-        
-        self.netCash = np.sum(self.var['netCash'],axis=1)
-        
-        self.netRet = []
-        for ret in self.var['netRet']:
-            self.netRet.append(np.sum(ret,axis=1))
-        
-        self.savingsAllocCalc()
-        self.investCalc()
-        self.savingsContCalc()
-        
-        self.netWorth = np.sum(self.savTotal,axis=1)

@@ -9,10 +9,6 @@ class Loans:
         self.years = var['years']
         self.salary = np.sum(var['salary']['salary'],axis=1)
         
-        self.rentStart = var['housing']['rent']['rentYr'][0]
-        self.rentEnd = var['housing']['rent']['rentYr'][1]
-        self.rentPerc = self.var['housing']['rent']['rentPerc']
-        
         self.curBal = None
         self.curPay = None
         self.curInt = None
@@ -116,18 +112,12 @@ class Loans:
         self.curWth = sum((self.curWth,houseWth))
         self.curTax = sum((self.curTax,propTax))
         
-        houseCosts = [self.curBal,self.curPay,self.curInt,self.curWth,self.curTax,self.curDwn]
-
-        self.houseCosts = houseCosts
-    
-    def rentCalc(self,basePerc=0.25,percDec=0.01):
-        self.rentPerc = [basePerc * (1-percDec) ** n for n in range(self.years)] if self.rentPerc is None else self.rentPerc
-        
-        rentCosts = np.zeros((self.years,1))
-        for n in range(self.rentStart,self.rentEnd+1):
-            rentCosts[n] = self.rentPerc[n] * self.salary[n]
-        
-        self.rentCosts = rentCosts
+        self.houseCosts = {'houseBal':self.curBal, \
+                           'housePay':self.curPay, \
+                           'houseInt':self.curInt, \
+                           'houseWth':self.curWth, \
+                           'houseTax':self.curTax, \
+                           'houseDwn':self.curDwn}
     
     def carCalc(self,car,intRate=0.019/12,term=60,dep=[0.24,0.175]):  
         """car = [Purchase Yr, Sell Yr, Amount ($), Down Payment ($)]
@@ -172,9 +162,9 @@ class Loans:
         self.carWth = self.carWth + carWth
         self.carDwn[car[0]] = self.carDwn[car[0]] + carDown
         
-        carCosts = [self.carPay,self.carWth,self.carDwn]
-
-        self.carCosts = carCosts
+        self.carCosts = {'carPay':self.carPay, \
+                         'carWth':self.carWth, \
+                         'carDwn':self.carDwn}
         
     def genLoanCalc(self,loan,compType='daily'):
         """loan = [Start Yr, Term Length (Yrs), Interest Rate (%), Amount ($)]"""

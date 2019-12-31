@@ -1,43 +1,47 @@
 import numpy as np
-import random as rand
+
+import matplotlib.pyplot as plt
 
 class Setup:
     
     def __init__(self,var):
-        self.years = var['years']      
+        self.years = var['years'] 
+        self.baseAges = var['ages']['baseAges']
         self.childYrs = var['children']['childYrs']
-        self.salaryBase = var['salary']['salaryBase']
+        self.salaryBases = var['salary']['salaryBase']
+
+    def setupRun(self):
+        self.salaryCalc()
+        self.ageCalc()
         
-    def salaryCalc(self,growthRate=0.028,growthDev=[0.5,1.75],growthType='compound'):
-        salary = []
-        for base in self.salaryBase:
-            sal = np.zeros((self.years,1))
-            sal[0] = base
+    def salaryCalc(self,growthRate=[0.015,0.028,0.05]):
+        salaries = []
+        for salaryBase in self.salaryBases:
+            salary = np.zeros((self.years,1))
+            salary[0] = salaryBase
             
             for n in range(1,self.years):
-                if growthType == 'compound':
-                    sal[n] = sal[n-1] * (1 + (growthRate * rand.uniform(growthDev[0],growthDev[1])))
-                elif growthType == 'linear':
-                    salaryMax = base * (1 + growthRate) ** (self.years - 1)
-                    sal[n] = sal[n-1] + (((n / (self.years - 1)) * rand.uniform(growthDev[0],growthDev[1])) * (salaryMax - base))
-                else:
-                    raise Exception('ERROR: Invalid salary growth type specified.')
+                salary[n] = salary[n-1] * (1 + np.random.triangular(growthRate[0],growthRate[1],growthRate[2]))
                     
-            salary.append(sal)
+            salaries.append(salary)
+            
+        for salary in salaries:
+            plt.plot(salary)
         
-        self.numInd = len(salary)
-        self.salary = np.hstack(salary)
+        self.numInd = len(salaries)
+        self.salary = np.hstack(salaries)
         
-    def childCalc(self,maxChildYr=22):
+    def ageCalc(self,maxChildYr=22):
+        ages = np.zeros((self.years,self.numInd))
         childAges = np.zeros((self.years,len(self.childYrs)))
         
         for n in range(self.years):
+            for m in range(len(self.baseAges)):
+                ages[n,m] = self.baseAges[m] + n
+                
             for m in range(len(self.childYrs)):
                 if n >= self.childYrs[m] and n <= (self.childYrs[m] + maxChildYr):
                     childAges[n,m] = n - self.childYrs[m]
-                    
+               
+        self.ages = ages
         self.childAges = childAges
-        
-    def setupRun(self):
-        self.salaryCalc()
-        self.childCalc()
