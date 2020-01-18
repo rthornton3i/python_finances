@@ -136,16 +136,16 @@ print('Net worth: ${:,.0f}'.format(round(np.sum(totalSavings[-1])/1e5)*1e5))
 #===================================
 
 n = 0
-m = 10
+m = 20
 
-#plt.clf()
-#plt.plot(excSpend[n:m])
-#plt.plot(emergFunds[n:m])
-#plt.plot(shortTerm[n:m])
-#plt.plot(longTerm[n:m])
-#plt.plot(np.zeros((m,1)))
-##plt.plot(np.sum((excSpend,emergFunds,shortTerm,longTerm),axis=0)[n:m])
-#plt.legend(('Excess','Emergency','Short','Long'))
+plt.clf()
+plt.plot(excSpend[n:m])
+plt.plot(emergFunds[n:m])
+plt.plot(shortTerm[n:m])
+plt.plot(longTerm[n:m])
+plt.plot(np.zeros((m,1)))
+#plt.plot(np.sum((excSpend,emergFunds,shortTerm,longTerm),axis=0)[n:m])
+plt.legend(('Excess','Emergency','Short','Long'))
 
 #plt.clf()
 #plt.plot(hiDiv[n:m])

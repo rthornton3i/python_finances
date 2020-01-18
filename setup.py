@@ -24,9 +24,6 @@ class Setup:
                 salary[n] = salary[n-1] * (1 + np.random.triangular(growthRate[0],growthRate[1],growthRate[2]))
                     
             salaries.append(salary)
-            
-        for salary in salaries:
-            plt.plot(salary)
         
         self.numInd = len(salaries)
         self.salary = np.hstack(salaries)

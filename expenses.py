@@ -210,10 +210,11 @@ class Expenses:
         
         self.totalExp['totalCollege'] = totalCollege
         
-    def wedExp(self,marYrs=[0,2],wedCost=[sum([20000,6000,1500,4000,1000,0,2000,1500,2500,3000]),10000,0],parentCont=[sum([10000,1500]),7500]):
+    def wedExp(self,marYrs=[0,2],wedCost=[sum([20000,6000,1500,4000,1000,0,2000,1500,2500,3000]),10000,0],parentCont=[0,0]):
         """marYr = [Year of Engagement,Year of Wedding]
            wedCost = [Cost of Wedding, Cost of Honeymoon, Cost of Ring]
-               Cost of Wedding = (Venue, Band, Florist, Photographer, Decor, Officiant, Rings, Dress, Rehersal Dinner, Gifts)"""        
+               Cost of Wedding = (Venue, Band, Florist, Photographer, Decor, Officiant, Rings, Dress, Rehersal Dinner, Gifts)
+           parentCont = Parent Contributions"""        
         
         totalWed = np.zeros((self.years,1))
         
